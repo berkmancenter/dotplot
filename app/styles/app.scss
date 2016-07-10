@@ -1,0 +1,325 @@
+@import 'material-design-lite';
+body {
+    background-color: #FAFAFA;
+    width: 100%;
+    height: 100%;
+    color: #737373;
+}
+
+body > div.ember-view {
+    height: 100%;
+}
+
+.dotplot-sidebar {
+    width: 333px;
+    height: 100%;
+    background-color: #fff;
+    position: fixed;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    left: 0;
+    top: 0;
+    box-shadow: 0px 2px 7px 0px rgba(144, 144, 144, 0.50);
+}
+
+.dotplot-sidebar::-webkit-scrollbar {
+    display: none;
+}
+
+.dotplot-logo {
+    padding: 27px 45px;
+}
+
+.dotplot-logo > img {
+    width: 243px;
+}
+
+.dotplot-sidebar-data {
+    margin: 0 27px 158px;
+}
+
+.dotplot-sidebar-buttons {
+    margin: 0 27px 10px;
+}
+
+.dotplot-button {
+    font-family: 'Open Sans', sans-serif;
+    width: 47%;
+    height: 45px;
+    font-size: 16.2px;
+    color: #FFF;
+    font-weight: 400;
+}
+
+.dotplot-float-right {
+    float: right;
+}
+
+.dotplot-float-left {
+    float: left;
+}
+
+.dotplot-text-right {
+    text-align: right;
+}
+
+.dotplot-button-green {
+    background-color: #50BACC !important;
+}
+
+.dotplot-button-green:hover {
+    background-color: #6CC9D8 !important;
+}
+
+.dotplot-button-orange {
+    background-color: #F28834 !important;
+}
+
+.dotplot-button-orange:hover {
+    background-color: #FFA258 !important;
+}
+
+.dotplot-button-blue {
+    background-color: #3179B1 !important;
+}
+
+.dotplot-button-blue:hover {
+    background-color: #3788C7 !important;
+}
+
+.dotplot-frame {
+    font-family: 'Open Sans', sans-serif;
+    color: #909090;
+    font-weight: 100;
+    margin-top: 18px;
+    width: 100%;
+    min-height: 121.5px;
+    background-color: #FEFEFE;
+}
+
+.dotplot-margin-tb12 {
+    margin-top: 12px;
+    margin-bottom: 12px;
+}
+
+.dotplot-margin-b12 {
+    margin-bottom: 12px;
+}
+
+.dotplot-margin-tb25 {
+    margin-top: 25px;
+    margin-bottom: 25px;
+}
+
+.dotplot-margin-t25 {
+    margin-top: 25px;
+}
+
+.dotplot-wrapper {
+    margin: 25px;
+}
+
+.dotplot-font-medium {
+    font-size: 16.2px;
+}
+
+.dotplot-frame-controls {
+    width: 50%;
+}
+
+.dotplot-frame-controls > i {
+    margin: 0 6.3px;
+}
+
+.dotplot-frame-footer {
+    padding: 14.4px 10.8px;
+}
+
+.dotplot-sidebar-footer {
+    padding: 18px 27px;
+    margin-top: 20px;
+    height: 103.5px;
+    border-top: 1px solid;
+    border-color: #ECECEC;
+    bottom: 0;
+    background-color: #fefefe;
+    position: fixed;
+    width: 279px;
+    z-index: 2;
+}
+
+.dotplot-sidebar-footer > p {
+    text-align: center;
+    font-family: 'Open Sans';
+    font-weight: 100;
+    color: #afafaf;
+}
+
+.dotplot-main-content {
+    margin-left: 333px !important;
+    position: relative;
+    height: 100%;
+}
+
+.dotplot-top-bar {
+    height: 60px;
+    width: 70%;
+    margin: 0 auto;
+    background: #FFFFFF;
+    box-shadow: 0px 0px 4px 0px rgba(145, 145, 145, 0.50);
+    border-radius: 0 0 10px 10px;
+    top: 0;
+    position: absolute;
+    left: 0;
+    right: 0;
+    padding: 20px 0;
+}
+
+.dotplot-bottom-bar {
+    height: 120px;
+    width: 70%;
+    margin: 0 auto;
+    background: #FFFFFF;
+    box-shadow: 0px 0px 4px 0px rgba(145, 145, 145, 0.50);
+    border-radius: 10px 10px 0 0;
+    bottom: 0;
+    position: absolute;
+    left: 0;
+    right: 0;
+    padding: 20px 0;
+}
+
+.dotplot-top-bar > p {
+    font-family: 'Open Sans';
+    font-size: 18px;
+    font-weight: 100;
+    text-align: center;
+    margin-bottom: 12px;
+}
+
+.dotplot-top-details {
+    text-align: center;
+    color: #909090;
+}
+
+.dotplot-top-details > span {
+    color: #909090;
+    font-size: 16px;
+    margin: 0 30px;
+    font-weight: 100;
+}
+
+.dotplot-slider-label {
+    margin: 0 25px 15px;
+    font-size: 16px;
+    font-family: 'Open Sans';
+}
+
+.dotplot-checkbox {
+    font-size: 16px;
+    font-family: 'Open Sans';
+    font-weight: 700;
+}
+
+.dotplot-frame-add {
+    text-align: center;
+    margin: 15px;
+    font-weight: 700;
+}
+
+.dotplot-low-opacity {
+    transition: opacity 0.5s ease;
+    cursor: pointer;
+    opacity: 0.2;
+}
+
+.dotplot-low-opacity:hover {
+    opacity: 1;
+}
+
+.dotplot-heading {
+    line-height: 1.5;
+    text-align: center;
+    font-size: 20px;
+    font-weight: 100;
+    font-family: 'Open Sans';
+}
+
+.dotplot-full-width {
+    width: 100% !important;
+}
+
+.x-file--input {
+    position: absolute;
+}
+
+.x-file--input + label {
+    display: block !important;
+}
+
+.dotplot-dialog {
+    width: 800px;
+    padding: 50px;
+    color: rgba(0, 0, 0, 0.54);
+    border: none;
+    box-shadow: 0 9px 46px 8px rgba(0, 0, 0, 0.14), 0 11px 15px -7px rgba(0, 0, 0, 0.12), 0 24px 38px 3px rgba(0, 0, 0, 0.2);
+}
+
+.dotplot-dialog-small {
+    width: 500px !important;
+}
+
+dialog::backdrop {
+    background: rgba(57, 57, 57, 0.88);
+}
+
+.dotplot-margin-right {
+    margin-right: 15px;
+}
+
+.dotplot-nodes {
+    height: 530px;
+    width: 900px;
+    margin: 0 auto;
+    top: 90px;
+    bottom: 0;
+    position: relative;
+}
+
+.dotplot-margin-left {
+    margin-left: 15px;
+}
+
+.dotplot-column-items {
+    max-height: 300px;
+    overflow-y: scroll;
+    padding-right: 10px;
+}
+
+.dotplot-column-items > div {
+    margin: 5px 5px 10px;
+    min-height: 80px;
+    width: 98%;
+    font-family: 'Open Sans';
+    font-weight: 400;
+    text-align: justify;
+    background-color: #FEFEFE;
+    opacity: 0.5;
+    transition: opacity 0.5s ease;
+}
+
+.dotplot-column-items > div:hover {
+    cursor: pointer;
+    background-color: #FEFEFE;
+    opacity: 1;
+}
+
+.dotplot-labels-heading {
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.dotplot-nostyle-link {
+    text-decoration: none;
+    color: #909090;
+}

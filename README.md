@@ -1,17 +1,53 @@
-# dotplot
-Telling a story through dots
+# Dotplot
 
-## Description
-First, take a [look](http://i.imgur.com/hePKkim.gifv).
+This README outlines the details of collaborating on this Ember application.
+A short introduction of this app could easily go here.
 
-This is a visualization that can be used to put together a narrative about somewhat complex data. It's most useful when one would like to progress linearly through facets of the data.
+## Prerequisites
 
-We use it primarily for showing survey results, but it could be extended to other uses.
+You will need the following things properly installed on your computer.
 
-Built with [D3.js](http://d3js.org/)
+* [Git](http://git-scm.com/)
+* [Node.js](http://nodejs.org/) (with NPM)
+* [Bower](http://bower.io/)
+* [Ember CLI](http://ember-cli.com/)
+* [PhantomJS](http://phantomjs.org/)
 
-## TODO
-* Create a backend system that allows users to create an instance of the viz without coding skills
-* Aesthetic improvements
-* Color-switching UI
-* Code clean up
+## Installation
+
+* `git clone <repository-url>` this repository
+* change into the new directory
+* `npm install`
+* `bower install`
+
+## Running / Development
+
+* `ember server`
+* Visit your app at [http://localhost:4200](http://localhost:4200).
+
+### Code Generators
+
+Make use of the many generators for code, try `ember help generate` for more details
+
+### Running Tests
+
+* `ember test`
+* `ember test --server`
+
+### Building
+
+* `ember build` (development)
+* `ember build --environment production` (production)
+
+### Deploying
+
+Specify what it takes to deploy your app.
+
+## Further Reading / Useful Links
+
+* [ember.js](http://emberjs.com/)
+* [ember-cli](http://ember-cli.com/)
+* Development Browser Extensions
+  * [ember inspector for chrome](https://chrome.google.com/webstore/detail/ember-inspector/bmdblncegkenkacieihfhpjfppoconhi)
+  * [ember inspector for firefox](https://addons.mozilla.org/en-US/firefox/addon/ember-inspector/)
+
