@@ -5,23 +5,66 @@ import _ from 'lodash/lodash';
 export default Ember.Controller.extend({
     height: 530,
     width: 900,
+    getFoci: function (choices, columnId) {
+        var fociCount = choices.length;
+        var that = this;
+        var perRow = Math.ceil(Math.sqrt(fociCount));
+        var numRow = Math.ceil(Math.sqrt(fociCount));
+        var index = 0;
+        var foci = {};
+
+        for (var i = 0; i < numRow; i++) {
+            var temp = Math.min(perRow, fociCount - (i * perRow));
+            for (var j = 0; j < temp; j++) {
+                foci[choices[index][columnId]] = {
+                    x: Math.ceil((that.get('width') / (temp + 1)) * (j + 1)),
+                    y: Math.ceil((that.get('height') / (numRow + 1)) * (i + 1))
+                };
+                index++;
+            }
+        }
+
+        return foci;
+    },
     actions: {
         createFrame: function () {
-            var title = this.columns[this.selectedColumn];
-            var id = this.selectedColumn;
-            this.store.createRecord('frame', {
-                id: id,
-                title: title,
-                count: 102,
-                type: "Single Choice",
-                switch: "Click"
+            var that = this;
+
+            d3.csv(this.csvFile, function (d) {
+                return {
+                    id: d.V1,
+                    value: d[that.selectedColumn]
+                };
+            }, function (error, rows) {
+                _.forEach(rows, function (row, index) {
+                    if (index !== 0) {
+                        var nodeObject = that.get('nodes').findBy('id', row.id);
+                        _.set(nodeObject, that.selectedColumn, row.value);
+                    }
+                });
+
+                var fociCount = _.uniq(that.get('nodes'), function (node) {
+                    return node[that.selectedColumn];
+                });
+
+
+                var frame = that.store.createRecord('frame', {
+                    id: that.selectedColumn,
+                    title: that.frameTitle,
+                    nodeCount: that.get('nodes').length,
+                    fociCount: fociCount.length,
+                    type: "Single Choice",
+                    switch: "Click"
+                });
+
+                that.set('frame', frame);
+                that.send('hideModel', 'createFrame');
+                if (!that.d3Init) {
+                    that.send('d3Init', that.selectedColumn);
+                } else {
+                    that.send('d3Plot', that.selectedColumn);
+                }
             });
-            this.send('hideModel', 'createFrame');
-            if (!this.d3Init) {
-                this.send('d3Init');
-            } else {
-                this.send('d3Plot');
-            }
         },
 
         deleteFrame: function (frame) {
@@ -40,75 +83,44 @@ export default Ember.Controller.extend({
 
         fileUpload: function (file) {
             var that = this;
+            var nodes = [];
             var csvFile = URL.createObjectURL(file[0]);
+
             that.set('csvFile', csvFile);
+
             d3.csv(csvFile, function (d) {
                 that.set('columns', d[0]);
                 that.send('hideModel', 'fileUpload');
             });
-        },
 
-        selectColumn: function (columnId) {
-            var nodes = [];
-            var foci = [];
-            var fociLocation = {};
-            var that = this;
-
-            this.set('selectedColumn', columnId);
-            d3.csv(this.csvFile, function (d) {
-                return {
-                    value: d[columnId]
-                };
-            }, function (error, rows) {
-                _.forEach(rows, function (row, index) {
-                    if (index !== 0 && row.value) {
+            d3.csv(csvFile, function (d) {
+                _.forEach(d, function (row, index) {
+                    if (index !== 0) {
                         nodes.push({
-                            id: index,
-                            value: row.value
+                            id: row.V1
                         });
                     }
                 });
-
-                foci = _.uniq(nodes, function (node) {
-                    return node.value;
-                });
-
-                var fociCount = foci.length;
-                var perRow = Math.ceil(Math.sqrt(fociCount));
-                var numRow = Math.ceil(Math.sqrt(fociCount));
-                var facetIndex = 0;
-
-                for (var i = 0; i < numRow; i++) {
-                    var temp = Math.min(perRow, fociCount - (i * perRow));
-                    for (var j = 0; j < temp; j++) {
-                        fociLocation[foci[facetIndex].value] = {
-                            x: Math.ceil((that.width / (temp + 1)) * (j + 1)),
-                            y: Math.ceil((that.height / (numRow + 1)) * (i + 1))
-                        };
-                        facetIndex++;
-                    }
-                }
-
-                console.log(fociLocation);
-
-                that.set('nodes', nodes);
-                that.set('nodeCount', nodes.length);
-                that.set('fociCount', foci.length);
-                that.set('fociLocation', fociLocation);
             });
+            this.set('nodes', nodes);
         },
 
-        d3Init: function () {
+        selectColumn: function (columnId) {
+            this.set('selectedColumn', columnId);
+        },
+
+        d3Init: function (columnId) {
             this.set('d3Init', true);
+            var nodes = this.get('nodes');
 
             var svg = d3.select(".dotplot-nodes").append("svg")
                 .attr("width", this.width)
                 .attr("height", this.height);
 
-            var fill = d3.scale.category10();
+            var fill = d3.scale.category20();
 
             var node = svg.selectAll(".node")
-                .data(this.nodes)
+                .data(nodes)
                 .enter().append("circle")
                 .attr("class", "node")
                 .attr("cx", function (d) {
@@ -117,34 +129,39 @@ export default Ember.Controller.extend({
                 .attr("cy", function (d) {
                     return d.y;
                 })
-                .attr("r", function (d) {
-                    return 7;
-                })
-                .style("fill", function (d, i) {
-                    return fill(d.value);
+                .attr("r", 7)
+                .style("fill", function (d) {
+                    return fill(d[columnId]);
                 })
                 .style("stroke", function (d, i) {
                     return d3.rgb(fill(i)).darker(2);
                 });
 
             this.set('node', node);
-            this.send('d3Plot');
+            this.send('d3Plot', columnId);
         },
 
-        d3Plot: function () {
-
+        d3Plot: function (columnId) {
             var that = this;
+            var foci = {};
+            var nodes = this.get('nodes');
+
+            var choices = _.uniq(nodes, function (node) {
+                return node[columnId];
+            });
+
+            foci = that.getFoci(choices, columnId);
 
             function drawNode(alpha) {
                 return function (d) {
-                    var center = that.fociLocation[d.value];
+                    var center = foci[d[columnId]];
                     d.x += (center.x - d.x) * 0.09 * alpha;
                     d.y += (center.y - d.y) * 0.09 * alpha;
                 };
             }
 
             function tick(e) {
-                that.node.each(drawNode(e.alpha));
+                that.get('node').each(drawNode(e.alpha));
                 that.node.attr("cx", function (d) {
                         return d.x;
                     })
@@ -153,14 +170,14 @@ export default Ember.Controller.extend({
                     });
             }
 
-            var force = d3.layout.force()
-                .nodes(this.nodes)
-                .size([this.width, this.height])
+            d3.layout.force()
+                .nodes(nodes)
+                .size([that.get('width'), that.get('height')])
                 .on("tick", tick)
                 .start();
         },
 
-        selectFrame: function (frame) {
+        selectFrame: function () {
 
         }
     }

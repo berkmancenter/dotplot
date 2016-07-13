@@ -14,10 +14,13 @@
                 {{#mdl-card class="dotplot-frame animated fadeIn" click=(action 'selectFrame' frame)}}
                     <div class="mdl-card__supporting-text dotplot-margin-tb9">
                         <div class="dotplot-font-medium dotplot-margin-b12">
-                            <span><b>title: </b> {{frame.title}}</span>
+                            <span>
+                                <b>title: </b>
+                                {{frame.title}}
+                            </span>
                         </div>
                         <div class="dotplot-font-medium">
-                            <span><b>count: </b> {{frame.count}}</span>
+                            <span><b>count: </b> {{frame.nodeCount}}</span>
                             <span class="dotplot-float-right"><b>type: </b> {{frame.type}}</span>
                         </div>
                     </div>
@@ -62,22 +65,22 @@
 </section>
 <main class="dotplot-main-content">
     <div class="dotplot-top-bar">
-        <p>Berkam Center of Internet and Society - Harvard University</p>
+        <p>{{if frame frame.title "Oops! Looks like you have not created any frames."}}</p>
         <div class="dotplot-top-details">
-            <span><b>Charge Points:</b> 10</span>
-            <span><b>Node Count:</b> 100</span>
-            <span><b>Position:</b> 3</span>
+            <span><b>Charge Points:</b> {{if frame frame.fociCount "No Data"}}</span>
+            <span><b>Node Count:</b> {{if frame frame.nodeCount "No Data"}}</span>
+            <span><b>Position:</b> 1</span>
         </div>
     </div>
     <div class="dotplot-nodes"></div>
     <div class="dotplot-bottom-bar mdl-grid">
         <div class="mdl-cell mdl-cell--4-col">
             <p class="dotplot-slider-label">Node Size</p>
-            {{mdl-slider min=0 max=100 value=57}} {{#mdl-checkbox value=valueB class="dotplot-checkbox dotplot-wrapper dotplot-margin-t20"}} Another Checkbox {{/mdl-checkbox}}
+            {{mdl-slider min=0 max=100 value=57}} {{#mdl-checkbox value=valueB class="dotplot-checkbox dotplot-wrapper dotplot-margin-t20"}} Labels {{/mdl-checkbox}}
         </div>
         <div class="mdl-cell mdl-cell--4-col">
             <p class="dotplot-slider-label">Foci Distance</p>
-            {{mdl-slider min=0 max=100 value=57}} {{#mdl-checkbox value=valueB class="dotplot-checkbox dotplot-wrapper dotplot-margin-t20"}} Another Checkbox {{/mdl-checkbox}}
+            {{mdl-slider min=0 max=100 value=57}} {{#mdl-checkbox value=valueB class="dotplot-checkbox dotplot-wrapper dotplot-margin-t20"}} Hover Info {{/mdl-checkbox}}
         </div>
         <div class="mdl-cell mdl-cell--4-col">
             <p class="dotplot-slider-label">Foci Charge</p>
@@ -126,7 +129,7 @@
 <dialog id="fileUpload" class="dotplot-dialog dotplot-dialog-small animated zoomIn">
     <header>
         <p class="dotplot-heading">To create a visualisation upload a .csv file.</p>
-        {{mdl-textfield value=frameTitle label='Tell us something about your visualisation.' class="dotplot-full-width"}}
+        {{mdl-textfield value=mainTitle label='Tell us something about your visualisation.' class="dotplot-full-width"}}
     </header>
     <footer>
         {{#x-file-input action=(action "fileUpload")}}
