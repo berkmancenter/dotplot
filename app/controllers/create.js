@@ -53,15 +53,15 @@ export default Ember.Controller.extend({
                 var frame = that.get('store').createRecord('frame', {
                     id: that.get('selectedColumn'),
                     title: that.frameTitle,
-                    nodeCount: that.get('nodes').length,
                     column: that.get('selectedColumn'),
                     foci: foci,
+                    nodes: [],
                     type: "Single Choice",
                     switch: "Click"
                 });
 
-                that.set('frame', frame);
                 that.send('hideModel', 'createFrame');
+                that.set('frame', frame);
                 
                 if (!that.d3Init) {
                     that.send('d3Init', frame);
@@ -100,7 +100,7 @@ export default Ember.Controller.extend({
             d3.csv(csvFile, function (rows) {
                 rows.forEach(function(row, index) {
                     if (index !== 0) {
-                        nodes.push({
+                        nodes.pushObject({
                             id: row.V1
                         });
                     }
@@ -127,6 +127,9 @@ export default Ember.Controller.extend({
                 .data(nodes)
                 .enter().append("circle")
                 .attr("class", "node")
+                .attr("id", function (d) {
+                    return d.id;
+                })
                 .attr("cx", function (d) {
                     return d.x;
                 })
@@ -148,7 +151,6 @@ export default Ember.Controller.extend({
         d3Plot: function (frame) {
             var that = this;
             var foci = frame.get('foci');
-            var nodes = this.get('nodes');
 
             function drawNode(alpha) {
                 return function (d) {
@@ -167,16 +169,36 @@ export default Ember.Controller.extend({
                         return d.y;
                     });
             }
+            
+            function end() {
+                that.get('node').each(function (node) {
+                    frame.get('nodes').pushObject({
+                        id: node.id,
+                        x: node.x,
+                        y: node.y
+                    });  
+                });
+            }
 
             d3.layout.force()
-                .nodes(nodes)
+                .nodes(that.get('nodes'))
                 .size([that.get('width'), that.get('height')])
                 .on("tick", tick)
+                .on("end", end)
                 .start();
         },
 
         selectFrame: function (frame) {
-            this.send('d3Plot', frame);
+            var that = this;
+            this.set('frame', frame);
+            var node = d3.select(".dotplot-nodes > svg").selectAll('circle.node');
+            node.transition().duration(1000)
+                .attr('cx', function(d) {
+                    return frame.get('nodes').findBy('id', d.id).x;
+                })
+                .attr('cy', function(d) {
+                    return frame.get('nodes').findBy('id', d.id).y;
+                });
         }
     }
 });
