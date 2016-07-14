@@ -6,12 +6,13 @@ export default Ember.Controller.extend({
     height: 530,
     width: 900,
     getFoci: function (choices, columnId) {
-        var fociCount = choices.length;
         var that = this;
-        var perRow = Math.ceil(Math.sqrt(fociCount));
-        var numRow = Math.ceil(Math.sqrt(fociCount));
         var index = 0;
         var foci = {};
+        
+        var fociCount = choices.length;
+        var perRow = Math.ceil(Math.sqrt(fociCount));
+        var numRow = Math.ceil(Math.sqrt(fociCount));
 
         for (var i = 0; i < numRow; i++) {
             var temp = Math.min(perRow, fociCount - (i * perRow));
@@ -33,42 +34,45 @@ export default Ember.Controller.extend({
             d3.csv(this.csvFile, function (d) {
                 return {
                     id: d.V1,
-                    value: d[that.selectedColumn]
+                    value: d[that.get('selectedColumn')]
                 };
             }, function (error, rows) {
-                _.forEach(rows, function (row, index) {
+                rows.forEach(function (row, index) {
                     if (index !== 0) {
                         var nodeObject = that.get('nodes').findBy('id', row.id);
-                        _.set(nodeObject, that.selectedColumn, row.value);
+                        _.set(nodeObject, that.get('selectedColumn'), row.value);
                     }
                 });
 
-                var fociCount = _.uniq(that.get('nodes'), function (node) {
-                    return node[that.selectedColumn];
+                var choices = _.uniq(that.get('nodes'), function (node) {
+                    return node[that.get('selectedColumn')];
                 });
 
+                var foci = that.getFoci(choices, that.get('selectedColumn'));
 
-                var frame = that.store.createRecord('frame', {
-                    id: that.selectedColumn,
+                var frame = that.get('store').createRecord('frame', {
+                    id: that.get('selectedColumn'),
                     title: that.frameTitle,
                     nodeCount: that.get('nodes').length,
-                    fociCount: fociCount.length,
+                    column: that.get('selectedColumn'),
+                    foci: foci,
                     type: "Single Choice",
                     switch: "Click"
                 });
 
                 that.set('frame', frame);
                 that.send('hideModel', 'createFrame');
+                
                 if (!that.d3Init) {
-                    that.send('d3Init', that.selectedColumn);
+                    that.send('d3Init', frame);
                 } else {
-                    that.send('d3Plot', that.selectedColumn);
+                    that.send('d3Plot', frame);
                 }
             });
         },
 
         deleteFrame: function (frame) {
-            this.store.deleteRecord(frame);
+            this.get('store').deleteRecord(frame);
         },
 
         showModel: function (modelId) {
@@ -93,8 +97,8 @@ export default Ember.Controller.extend({
                 that.send('hideModel', 'fileUpload');
             });
 
-            d3.csv(csvFile, function (d) {
-                _.forEach(d, function (row, index) {
+            d3.csv(csvFile, function (rows) {
+                rows.forEach(function(row, index) {
                     if (index !== 0) {
                         nodes.push({
                             id: row.V1
@@ -109,7 +113,7 @@ export default Ember.Controller.extend({
             this.set('selectedColumn', columnId);
         },
 
-        d3Init: function (columnId) {
+        d3Init: function (frame) {
             this.set('d3Init', true);
             var nodes = this.get('nodes');
 
@@ -131,30 +135,24 @@ export default Ember.Controller.extend({
                 })
                 .attr("r", 7)
                 .style("fill", function (d) {
-                    return fill(d[columnId]);
+                    return fill(d[frame.get('column')]);
                 })
                 .style("stroke", function (d, i) {
                     return d3.rgb(fill(i)).darker(2);
                 });
 
             this.set('node', node);
-            this.send('d3Plot', columnId);
+            this.send('d3Plot', frame);
         },
 
-        d3Plot: function (columnId) {
+        d3Plot: function (frame) {
             var that = this;
-            var foci = {};
+            var foci = frame.get('foci');
             var nodes = this.get('nodes');
-
-            var choices = _.uniq(nodes, function (node) {
-                return node[columnId];
-            });
-
-            foci = that.getFoci(choices, columnId);
 
             function drawNode(alpha) {
                 return function (d) {
-                    var center = foci[d[columnId]];
+                    var center = foci[d[frame.get('column')]];
                     d.x += (center.x - d.x) * 0.09 * alpha;
                     d.y += (center.y - d.y) * 0.09 * alpha;
                 };
@@ -177,8 +175,8 @@ export default Ember.Controller.extend({
                 .start();
         },
 
-        selectFrame: function () {
-
+        selectFrame: function (frame) {
+            this.send('d3Plot', frame);
         }
     }
 });
