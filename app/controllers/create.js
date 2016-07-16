@@ -9,7 +9,7 @@ export default Ember.Controller.extend({
         var that = this;
         var index = 0;
         var foci = {};
-        
+
         var fociCount = choices.length;
         var perRow = Math.ceil(Math.sqrt(fociCount));
         var numRow = Math.ceil(Math.sqrt(fociCount));
@@ -62,7 +62,7 @@ export default Ember.Controller.extend({
 
                 that.send('hideModel', 'createFrame');
                 that.set('frame', frame);
-                
+
                 if (!that.d3Init) {
                     that.send('d3Init', frame);
                 } else {
@@ -98,7 +98,7 @@ export default Ember.Controller.extend({
             });
 
             d3.csv(csvFile, function (rows) {
-                rows.forEach(function(row, index) {
+                rows.forEach(function (row, index) {
                     if (index !== 0) {
                         nodes.pushObject({
                             id: row.V1
@@ -110,7 +110,7 @@ export default Ember.Controller.extend({
         },
 
         selectColumn: function (columnId) {
-            Ember.$("#column_"+columnId).addClass("active").siblings().removeClass('active');;
+            Ember.$("#column_" + columnId).addClass("active").siblings().removeClass('active');;
             this.set('selectedColumn', columnId);
         },
 
@@ -170,33 +170,51 @@ export default Ember.Controller.extend({
                         return d.y;
                     });
             }
-            
-            function end() {
-                that.get('node').each(function (node) {
-                    frame.get('nodes').pushObject({
-                        id: node.id,
-                        x: node.x,
-                        y: node.y
-                    });  
-                });
-            }
 
-            d3.layout.force()
+            var force = d3.layout.force()
                 .nodes(that.get('nodes'))
                 .size([that.get('width'), that.get('height')])
-                .on("tick", tick)
-                .on("end", end)
-                .start();
+                .on("tick", tick);
+
+            this.set('force', force);
+
+            force.start();
+        },
+
+        saveNodePositions: function (frame) {
+            this.get('node').each(function (node) {
+                frame.get('nodes').pushObject({
+                    id: node.id,
+                    x: node.x,
+                    y: node.y
+                });
+            });
+        },
+
+        changeGravity: function (event) {
+            var gravity = event.target.value / 100;
+            this.get('force').gravity(gravity).start();
+        },
+
+        changeCharge: function (event) {
+            var charge = -1 * event.target.value;
+            this.get('force').charge(charge).start();
+        },
+
+        changeRadius: function (event) {
+            var radius = event.target.value;
+            var node = d3.select(".dotplot-nodes > svg").selectAll('circle.node');
+            node.transition().duration(1000).attr('r', radius);
         },
 
         selectFrame: function (frame) {
             this.set('frame', frame);
             var node = d3.select(".dotplot-nodes > svg").selectAll('circle.node');
             node.transition().duration(1000)
-                .attr('cx', function(d) {
+                .attr('cx', function (d) {
                     return frame.get('nodes').findBy('id', d.id).x;
                 })
-                .attr('cy', function(d) {
+                .attr('cy', function (d) {
                     return frame.get('nodes').findBy('id', d.id).y;
                 });
         }
