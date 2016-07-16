@@ -110,6 +110,7 @@ export default Ember.Controller.extend({
         },
 
         selectColumn: function (columnId) {
+            Ember.$("#column_"+columnId).addClass("active").siblings().removeClass('active');;
             this.set('selectedColumn', columnId);
         },
 
@@ -189,7 +190,6 @@ export default Ember.Controller.extend({
         },
 
         selectFrame: function (frame) {
-            var that = this;
             this.set('frame', frame);
             var node = d3.select(".dotplot-nodes > svg").selectAll('circle.node');
             node.transition().duration(1000)

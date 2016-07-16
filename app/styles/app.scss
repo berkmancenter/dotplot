@@ -308,6 +308,11 @@ dialog::backdrop {
     transition: opacity 0.5s ease;
 }
 
+.dotplot-column-items > div.active {
+    opacity: 1 !important;
+    background-color: #f9e4fd !important;
+}
+
 .dotplot-column-items > div:hover {
     cursor: pointer;
     background-color: #FEFEFE;

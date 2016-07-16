@@ -98,7 +98,7 @@
         <div class="mdl-cell--6-col dotplot-margin-right">
             <div class="dotplot-column-items">
                 {{#each-in columns as |id text|}}
-                    {{#mdl-card click=(action "selectColumn" id)}}
+                    {{#mdl-card click=(action "selectColumn" id) id=(concat "column_" id)}}
                         <div class="mdl-card__supporting-text dotplot-margin-tb9">
                             <div class="dotplot-font-medium dotplot-margin-b12">
                                 <span><b>Column Id: </b> {{id}}</span>
