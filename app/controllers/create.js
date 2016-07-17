@@ -52,10 +52,11 @@ export default Ember.Controller.extend({
 
                 var frame = that.get('store').createRecord('frame', {
                     id: that.get('selectedColumn'),
-                    title: that.frameTitle,
+                    title: that.get('frameTitle'),
                     column: that.get('selectedColumn'),
                     foci: foci,
-                    nodes: [],
+                    radius: 7,
+                    nodes: rows.slice(1),
                     type: "Single Choice",
                     switch: "Click"
                 });
@@ -106,11 +107,12 @@ export default Ember.Controller.extend({
                     }
                 });
             });
+
             this.set('nodes', nodes);
         },
 
         selectColumn: function (columnId) {
-            Ember.$("#column_" + columnId).addClass("active").siblings().removeClass('active');;
+            Ember.$("#column_" + columnId).addClass("active").siblings().removeClass('active');
             this.set('selectedColumn', columnId);
         },
 
@@ -137,7 +139,7 @@ export default Ember.Controller.extend({
                 .attr("cy", function (d) {
                     return d.y;
                 })
-                .attr("r", 7)
+                .attr("r", frame.get('radius'))
                 .style("fill", function (d) {
                     return fill(d[frame.get('column')]);
                 })
@@ -183,11 +185,8 @@ export default Ember.Controller.extend({
 
         saveNodePositions: function (frame) {
             this.get('node').each(function (node) {
-                frame.get('nodes').pushObject({
-                    id: node.id,
-                    x: node.x,
-                    y: node.y
-                });
+                frame.get('nodes').findBy('id', node.id).x = node.x;
+                frame.get('nodes').findBy('id', node.id).y = node.y;
             });
         },
 
@@ -209,7 +208,8 @@ export default Ember.Controller.extend({
 
         selectFrame: function (frame) {
             this.set('frame', frame);
-            var node = d3.select(".dotplot-nodes > svg").selectAll('circle.node');
+            var node = d3.select(".dotplot-nodes > svg").selectAll('circle.node').data(this.get('nodes'));
+            this.set('node', node);
             node.transition().duration(1000)
                 .attr('cx', function (d) {
                     return frame.get('nodes').findBy('id', d.id).x;

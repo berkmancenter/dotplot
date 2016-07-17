@@ -11,8 +11,8 @@
     <div class="dotplot-sidebar-data">
         <div class="dotplot-frames">
             {{#each model.frames as |frame|}}
-                {{#mdl-card class="dotplot-frame animated fadeIn" click=(action 'd3Plot' frame)}}
-                    <div class="mdl-card__supporting-text dotplot-margin-tb9">
+                {{#mdl-card class="dotplot-frame animated fadeIn"}}
+                    <div class="mdl-card__supporting-text dotplot-margin-tb9 dotplot-pointer"  onclick={{action 'selectFrame' frame}}>
                         <div class="dotplot-font-medium dotplot-margin-b12">
                             <span>
                                 <b>title: </b>
@@ -20,17 +20,17 @@
                             </span>
                         </div>
                         <div class="dotplot-font-medium">
-                            <span><b>count: </b> {{frame.nodeCount}}</span>
+                            <span><b>count: </b> {{frame.fociCount}}</span>
                             <span class="dotplot-float-right"><b>type: </b> {{frame.type}}</span>
                         </div>
                     </div>
                     {{#mdl-card-actions class="dotplot-frame-footer"}}
                         <div class="dotplot-frame-controls dotplot-float-left">
-                            <i class="dotplot-icon-switch"></i> {{frame.switch}}
+                            <i class="dotplot-icon-switch"></i>{{frame.switch}}
                         </div>
                         <div class="dotplot-frame-controls dotplot-float-right dotplot-text-right">
-                            <i class="dotplot-icon-move"></i>
-                            <i class="dotplot-icon-settings"></i>
+                            <a href="#" class="dotplot-nostyle-link" {{action "d3Plot" frame}}><i class="dotplot-icon-move"></i></a>
+                            <a href="#" class="dotplot-nostyle-link" {{action "saveNodePositions" frame}}><i class="dotplot-icon-settings"></i></a>
                             <a href="#" class="dotplot-nostyle-link" {{action "deleteFrame" frame}}><i class="dotplot-icon-close"></i></a>
                         </div>
                     {{/mdl-card-actions}}
@@ -58,7 +58,7 @@
     <footer class="dotplot-sidebar-footer">
         <p>Looks good enough? You can either export the nodes or publish it on our platform.</p>
         <div>
-            {{mdl-button isRaised=true text='EXPORT' class="dotplot-button dotplot-button-blue"}}
+            {{mdl-button isRaised=true text='SAVE' class="dotplot-button dotplot-button-blue"}}
             {{mdl-button isRaised=true text='PUBLISH' class="dotplot-button dotplot-button-blue dotplot-float-right"}}
         </div>
     </footer>
@@ -73,55 +73,52 @@
         </div>
     </div>
     <div class="dotplot-nodes"></div>
-    <div class="dotplot-bottom-bar mdl-grid">
-        <div class="mdl-cell mdl-cell--4-col">
-            <p class="dotplot-slider-label">Node Size</p>
-            {{mdl-slider min=0 max=25 value=nodeSize change=(action 'changeRadius')}}
-            {{#mdl-checkbox value=valueB class="dotplot-checkbox dotplot-wrapper dotplot-margin-t20"}} Labels {{/mdl-checkbox}}
+    <div class="dotplot-bottom-bar">
+        <div class="mdl-grid">
+            <div class="mdl-cell mdl-cell--4-col">
+                <p class="dotplot-slider-label">Node Size</p>
+                {{mdl-slider min=0 max=15 value=nodeSize change=(action 'changeRadius')}}
+            </div>
+            <div class="mdl-cell mdl-cell--4-col">
+                <p class="dotplot-slider-label">Foci Distance</p>
+                {{mdl-slider min=0 max=10 value=gravity change=(action 'changeGravity')}}
+            </div>
+            <div class="mdl-cell mdl-cell--4-col">
+                <p class="dotplot-slider-label">Foci Charge</p>
+                {{mdl-slider min=0 max=100 value=charge change=(action 'changeCharge')}}
+            </div>
         </div>
-        <div class="mdl-cell mdl-cell--4-col">
-            <p class="dotplot-slider-label">Foci Distance</p>
-            {{mdl-slider min=0 max=10 value=gravity change=(action 'changeGravity')}} {{#mdl-checkbox value=valueB class="dotplot-checkbox dotplot-wrapper dotplot-margin-t20"}} Hover Info {{/mdl-checkbox}}
-        </div>
-        <div class="mdl-cell mdl-cell--4-col">
-            <p class="dotplot-slider-label">Foci Charge</p>
-            {{mdl-slider min=0 max=100 value=charge change=(action 'changeCharge')}}
+        <div class="mdl-grid">
+            <div class="mdl-cell mdl-cell--4-col">
+                {{mdl-switch text='Show Labels' value=valueA class="dotplot-wrapper"}}
+            </div>
+            <div class="mdl-cell mdl-cell--4-col">
+                {{mdl-switch text='Node Details' value=valueA class="dotplot-wrapper"}}
+            </div>
         </div>
     </div>
 </main>
 
-<dialog id="createFrame" class="dotplot-dialog animated zoomIn">
+<dialog id="createFrame" class="dotplot-dialog dotplot-dialog-medium animated zoomIn">
     <header>
         <p class="dotplot-heading">Create a new frame. Start by selecting single or multiple columns from the list bellow.</p>
         {{mdl-textfield value=frameTitle label='Tell us something about the nodes' class="dotplot-full-width"}}
     </header>
-    <main class="mdl-grid">
-        <div class="mdl-cell--6-col dotplot-margin-right">
-            <div class="dotplot-column-items">
-                {{#each-in columns as |id text|}}
-                    {{#mdl-card click=(action "selectColumn" id) id=(concat "column_" id)}}
-                        <div class="mdl-card__supporting-text dotplot-margin-tb9">
-                            <div class="dotplot-font-medium dotplot-margin-b12">
-                                <span><b>Column Id: </b> {{id}}</span>
-                            </div>
-                            <div class="dotplot-font-medium">
-                                <span>{{text}}</span>
-                            </div>
-                        </div>
-                    {{/mdl-card}}
-                {{/each-in}}
-            </div>
-        </div>
-        <div class="mdl-cell--6-col dotplot-margin-left">
-            <p class="dotplot-labels-heading">Define labels for selected columns:</p>
-            <div class="dotplot-labels">
-                {{#each labelFields as label}}
-                    {{mdl-textfield label=(concat 'Label for ' label)}}
-                {{/each}}
-            </div>
-        </div>
+    <main class="dotplot-column-items">
+        {{#each-in columns as |id text|}}
+            {{#mdl-card click=(action "selectColumn" id) id=(concat "column_" id)}}
+                <div class="mdl-card__supporting-text dotplot-margin-tb9">
+                    <div class="dotplot-font-medium dotplot-margin-b12">
+                        <span><b>Column Id: </b> {{id}}</span>
+                    </div>
+                    <div class="dotplot-font-medium">
+                        <span>{{text}}</span>
+                    </div>
+                </div>
+            {{/mdl-card}}
+        {{/each-in}}
     </main>
-    <footer class="dotplot-frame-controls dotplot-float-right dotplot-margin-t25">
+    <footer class="dotplot-margin-t25">
         {{mdl-button action=(action "hideModel" 'createFrame') isRaised=true text='CANCEL' class="dotplot-button dotplot-button-blue"}}
         {{mdl-button action=(action "createFrame") isRaised=true text='CREATE' class="dotplot-button dotplot-button-blue dotplot-float-right"}}
     </footer>

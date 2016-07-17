@@ -116,18 +116,22 @@ body > div.ember-view {
 }
 
 .dotplot-wrapper {
-    margin: 25px;
+    margin: 10px 25px 0;
+}
+
+.mdl-grid {
+    padding: 0 !important;
 }
 
 .dotplot-font-medium {
     font-size: 16.2px;
 }
 
-.dotplot-frame-controls {
-    width: 50%;
+.dotplot-pointer {
+    cursor: pointer;
 }
 
-.dotplot-frame-controls > i {
+.dotplot-frame-controls > i, a {
     margin: 0 6.3px;
 }
 
@@ -258,15 +262,18 @@ body > div.ember-view {
 }
 
 .dotplot-dialog {
-    width: 800px;
     padding: 50px;
     color: rgba(0, 0, 0, 0.54);
     border: none;
     box-shadow: 0 9px 46px 8px rgba(0, 0, 0, 0.14), 0 11px 15px -7px rgba(0, 0, 0, 0.12), 0 24px 38px 3px rgba(0, 0, 0, 0.2);
 }
 
+.dotplot-dialog-medium {
+    width: 600px;
+}
+
 .dotplot-dialog-small {
-    width: 500px !important;
+    width: 500px;
 }
 
 dialog::backdrop {
@@ -293,7 +300,6 @@ dialog::backdrop {
 .dotplot-column-items {
     max-height: 300px;
     overflow-y: scroll;
-    padding-right: 10px;
 }
 
 .dotplot-column-items > div {
