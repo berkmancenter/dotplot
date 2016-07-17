@@ -1,0 +1,39 @@
+@font-face {
+    font-family: 'dotplot';
+    src:    url('fonts/dotplot.eot?qfh2bp');
+    src:    url('fonts/dotplot.eot?qfh2bp#iefix') format('embedded-opentype'),
+        url('fonts/dotplot.ttf?qfh2bp') format('truetype'),
+        url('fonts/dotplot.woff?qfh2bp') format('woff'),
+        url('fonts/dotplot.svg?qfh2bp#dotplot') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
+[class^="dotplot-icon-"], [class*=" dotplot-icon-"] {
+    /* use !important to prevent issues with browser extensions that change fonts */
+    font-family: 'dotplot' !important;
+    speak: none;
+    font-style: normal;
+    font-weight: normal;
+    font-variant: normal;
+    text-transform: none;
+    line-height: 1;
+
+    /* Better Font Rendering =========== */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.dotplot-icon-close:before {
+    content: "\e900";
+}
+.dotplot-icon-settings:before {
+    content: "\e901";
+}
+.dotplot-icon-move:before {
+    content: "\e902";
+}
+.dotplot-icon-switch:before {
+    content: "\e903";
+}
+
