@@ -2,6 +2,8 @@
 
 DotPlot is a data visualisation tool built on top of [D3.js](https://d3js.org/) to help non-programmers create interactive data visualisations using easy to use drag and drop interface.
 
+![DotPlot Demo Screenshot](/public/assets/img/screenshot.png?raw=true)
+
 ## Prerequisites
 
 To contribute to this project, you will need the following things properly installed on your computer.
