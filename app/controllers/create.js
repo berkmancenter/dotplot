@@ -71,6 +71,11 @@ export default Ember.Controller.extend({
                 }
             });
         },
+        
+        createMultipleChoice: function () {
+            d3.csv(this.csvFile, function (row, index) {
+            });
+        },
 
         deleteFrame: function (frame) {
             this.get('store').deleteRecord(frame);
@@ -89,13 +94,40 @@ export default Ember.Controller.extend({
         fileUpload: function (file) {
             var that = this;
             var nodes = [];
+            var columns = [];
             var csvFile = URL.createObjectURL(file[0]);
 
             that.set('csvFile', csvFile);
+            that.send('hideModel', 'fileUpload');
 
             d3.csv(csvFile, function (d) {
-                that.set('columns', d[0]);
-                that.send('hideModel', 'fileUpload');
+                _.forEach(d[0], function (column, id) {
+                    if (id.indexOf('TEXT') === -1 && id.indexOf('Q') === 0) {
+                        if (id.indexOf('_') > 0) {
+                            var newId = id.substr(0, id.indexOf('_'));
+                            if (!_.find(columns, function (o) {
+                                    return o.key === newId;
+                                })) {
+                                columns.push({
+                                    key: newId,
+                                    text: column.substr(0, column.indexOf('-')),
+                                    choice: []
+                                });
+                            } else {
+                                var object = _.find(columns, function (o) {
+                                    return o.key === newId;
+                                });
+                                object.choice.push(id);
+                            }
+                        } else {
+                            columns.push({
+                                key: id,
+                                text: column
+                            });
+                        }
+                    }
+                });
+                that.set('columns', columns);
             });
 
             d3.csv(csvFile, function (rows) {
@@ -106,9 +138,8 @@ export default Ember.Controller.extend({
                         });
                     }
                 });
+                that.set('nodes', nodes);
             });
-
-            this.set('nodes', nodes);
         },
 
         selectColumn: function (columnId) {
