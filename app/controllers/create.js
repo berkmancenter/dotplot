@@ -17,7 +17,7 @@ export default Ember.Controller.extend({
         for (var i = 0; i < numRow; i++) {
             var temp = Math.min(perRow, fociCount - (i * perRow));
             for (var j = 0; j < temp; j++) {
-                foci[choices[index][columnId]] = {
+                foci[choices[index]] = {
                     x: Math.ceil((that.get('width') / (temp + 1)) * (j + 1)),
                     y: Math.ceil((that.get('height') / (numRow + 1)) * (i + 1))
                 };
@@ -28,32 +28,35 @@ export default Ember.Controller.extend({
         return foci;
     },
     actions: {
-        createFrame: function () {
+        createSingeChoice: function () {
             var that = this;
 
             d3.csv(this.csvFile, function (d) {
                 return {
                     id: d.V1,
-                    value: d[that.get('selectedColumn')]
+                    value: d[that.get('selectedColumn').get('id')]
                 };
             }, function (error, rows) {
                 rows.forEach(function (row, index) {
                     if (index !== 0) {
                         var nodeObject = that.get('nodes').findBy('id', row.id);
-                        _.set(nodeObject, that.get('selectedColumn'), row.value);
+                        _.set(nodeObject, that.get('selectedColumn').get('id'), row.value);
                     }
                 });
 
-                var choices = _.uniq(that.get('nodes'), function (node) {
-                    return node[that.get('selectedColumn')];
+                var choices = [];
+
+                that.get('nodes').forEach(function (node) {
+                    if (!choices.contains(node[that.get('selectedColumn').get('id')])) {
+                        choices.pushObject(node[that.get('selectedColumn').get('id')]);
+                    }
                 });
 
-                var foci = that.getFoci(choices, that.get('selectedColumn'));
+                var foci = that.getFoci(choices, that.get('selectedColumn').get('id'));
 
                 var frame = that.get('store').createRecord('frame', {
-                    id: that.get('selectedColumn'),
+                    id: that.get('selectedColumn').get('id'),
                     title: that.get('frameTitle'),
-                    column: that.get('selectedColumn'),
                     foci: foci,
                     radius: 7,
                     nodes: rows.slice(1),
@@ -67,13 +70,50 @@ export default Ember.Controller.extend({
                 if (!that.d3Init) {
                     that.send('d3Init', frame);
                 } else {
-                    that.send('d3Plot', frame);
+                    that.send('singChoicePlot', frame);
                 }
             });
         },
-        
+
         createMultipleChoice: function () {
-            d3.csv(this.csvFile, function (row, index) {
+            var that = this;
+            d3.csv(this.csvFile, function (rows) {
+                rows.forEach(function (row, index) {
+                    if (index !== 0) {
+                        var nodeObject = that.get('nodes').findBy('id', row.V1);
+                        that.get('selectedColumn').get('choice').forEach(function (type) {
+                            var dummyNode = {
+                                id: nodeObject.id + '_' + type,
+                                x: nodeObject.x,
+                                y: nodeObject.y
+                            };
+                            dummyNode[that.get('selectedColumn').get('id')] = type;
+                            that.get('nodes').pushObject(dummyNode);
+                        });
+                        that.get('nodes').removeObject(nodeObject);
+                    }
+                });
+                
+                var foci = that.getFoci(that.get('selectedColumn').get('choice'), that.get('selectedColumn').get('id'));
+
+                var frame = that.get('store').createRecord('frame', {
+                    id: that.get('selectedColumn').get('id'),
+                    title: that.get('frameTitle'),
+                    foci: foci,
+                    radius: 7,
+                    nodes: rows.slice(1),
+                    type: "Single Choice",
+                    switch: "Click"
+                });
+
+                that.send('hideModel', 'createFrame');
+                that.set('frame', frame);
+
+                if (!that.d3Init) {
+                    that.send('d3Init', frame);
+                } else {
+                    that.send('singChoicePlot', frame);
+                }
             });
         },
 
@@ -94,7 +134,6 @@ export default Ember.Controller.extend({
         fileUpload: function (file) {
             var that = this;
             var nodes = [];
-            var columns = [];
             var csvFile = URL.createObjectURL(file[0]);
 
             that.set('csvFile', csvFile);
@@ -105,29 +144,25 @@ export default Ember.Controller.extend({
                     if (id.indexOf('TEXT') === -1 && id.indexOf('Q') === 0) {
                         if (id.indexOf('_') > 0) {
                             var newId = id.substr(0, id.indexOf('_'));
-                            if (!_.find(columns, function (o) {
-                                    return o.key === newId;
-                                })) {
-                                columns.push({
-                                    key: newId,
+                            if (!that.get('store').hasRecordForId('column', newId)) {
+                                that.get('store').createRecord('column', {
+                                    id: newId,
                                     text: column.substr(0, column.indexOf('-')),
                                     choice: []
                                 });
                             } else {
-                                var object = _.find(columns, function (o) {
-                                    return o.key === newId;
+                                that.get('store').findRecord('column', newId).then(function (column) {
+                                    column.choice.pushObject(id);
                                 });
-                                object.choice.push(id);
                             }
                         } else {
-                            columns.push({
-                                key: id,
+                            that.get('store').createRecord('column', {
+                                id: id,
                                 text: column
                             });
                         }
                     }
                 });
-                that.set('columns', columns);
             });
 
             d3.csv(csvFile, function (rows) {
@@ -142,9 +177,9 @@ export default Ember.Controller.extend({
             });
         },
 
-        selectColumn: function (columnId) {
-            Ember.$("#column_" + columnId).addClass("active").siblings().removeClass('active');
-            this.set('selectedColumn', columnId);
+        selectColumn: function (column) {
+            Ember.$("#column_" + column.get('id')).addClass("active").siblings().removeClass('active');
+            this.set('selectedColumn', column);
         },
 
         d3Init: function (frame) {
@@ -172,23 +207,24 @@ export default Ember.Controller.extend({
                 })
                 .attr("r", frame.get('radius'))
                 .style("fill", function (d) {
-                    return fill(d[frame.get('column')]);
+                    return fill(d[frame.get('id')]);
                 })
                 .style("stroke", function (d, i) {
                     return d3.rgb(fill(i)).darker(2);
                 });
 
             this.set('node', node);
-            this.send('d3Plot', frame);
+            
+            this.send('singChoicePlot', frame);
         },
 
-        d3Plot: function (frame) {
+        singChoicePlot: function (frame) {
             var that = this;
             var foci = frame.get('foci');
 
             function drawNode(alpha) {
                 return function (d) {
-                    var center = foci[d[frame.get('column')]];
+                    var center = foci[d[frame.get('id')]];
                     d.x += (center.x - d.x) * 0.09 * alpha;
                     d.y += (center.y - d.y) * 0.09 * alpha;
                 };
@@ -196,7 +232,7 @@ export default Ember.Controller.extend({
 
             function tick(e) {
                 that.get('node').each(drawNode(e.alpha));
-                that.node.attr("cx", function (d) {
+                that.get('node').attr("cx", function (d) {
                         return d.x;
                     })
                     .attr("cy", function (d) {
