@@ -9,7 +9,7 @@ export default Ember.Controller.extend({
     getNodes: function (frameType) {
         var that = this;
         var nodes = [];
-        return new Promise(function (resolve, reject) {
+        return new Ember.RSVP.Promise(function (resolve, reject) {
 
             if (frameType === "Single Choice") {
                 d3.csv(that.csvFile, function (d) {
@@ -86,6 +86,8 @@ export default Ember.Controller.extend({
                     });
                     resolve(nodes);
                 });
+            } else {
+                reject("Invalid FrameType: " + frameType);
             }
         });
     },
@@ -387,18 +389,14 @@ export default Ember.Controller.extend({
                 .attr("id", function (d) {
                     return d.id;
                 })
-                .attr("cx", function (d) {
-                    return that.get('width') / 2;
-                })
-                .attr("cy", function (d) {
-                    return 0;
-                })
+                .attr("cx", that.get('width') / 2)
+                .attr("cy", 0)
                 .attr("r", frame.get('radius'))
                 .style("fill", function (d) {
                     return d.fill;
                 })
                 .style("opacity", 0.7)
-                .style("stroke", function (d, i) {
+                .style("stroke", function (d) {
                     return d3.rgb(d.fill).darker(2);
                 }).on("click", function (d) {
                     console.log(d.id);
