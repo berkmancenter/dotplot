@@ -29,7 +29,7 @@
                             <i class="dotplot-icon-switch"></i>{{frame.switch}}
                         </div>
                         <div class="dotplot-frame-controls dotplot-float-right dotplot-text-right">
-                            <a href="#" class="dotplot-nostyle-link" {{action "d3Plot" frame}}><i class="dotplot-icon-reset"></i></a>
+                            <a href="#" class="dotplot-nostyle-link" {{action "singleChoicePlot" frame}}><i class="dotplot-icon-reset"></i></a>
                             <a href="#" class="dotplot-nostyle-link" {{action "saveNodePositions" frame}}><i class="dotplot-icon-save"></i></a>
                             <a href="#" class="dotplot-nostyle-link" {{action "deleteFrame" frame}}><i class="dotplot-icon-close"></i></a>
                         </div>
@@ -48,7 +48,7 @@
                     <i class="dotplot-icon-switch"></i> Scroll
                 </div>
                 <div class="dotplot-frame-controls dotplot-float-right dotplot-text-right">
-                    <i class="dotplot-icon-rest"></i>
+                    <i class="dotplot-icon-reset"></i>
                     <i class="dotplot-icon-save"></i>
                     <i class="dotplot-icon-close"></i>
                 </div>
@@ -72,7 +72,9 @@
             <span><b>Position:</b> CS</span>
         </div>
     </div>
-    <div class="dotplot-nodes"></div>
+    <div class="dotplot-nodes">
+        <svg></svg>
+    </div>
     <div class="dotplot-bottom-bar">
         <div class="mdl-grid">
             <div class="mdl-cell mdl-cell--4-col">
@@ -105,18 +107,19 @@
         {{mdl-textfield value=frameTitle label='Tell us something about the nodes' class="dotplot-full-width"}}
     </header>
     <main class="dotplot-column-items">
-        {{#each-in columns as |id text|}}
-            {{#mdl-card click=(action "selectColumn" id) id=(concat "column_" id)}}
+        {{#each model.columns as |column|}}
+            {{#mdl-card click=(action "selectColumn" column) id=(concat "column_" column.id)}}
                 <div class="mdl-card__supporting-text dotplot-margin-tb9">
                     <div class="dotplot-font-medium dotplot-margin-b12">
-                        <span><b>Column Id: </b> {{id}}</span>
+                        <span class="dotplot-margin-right"><b>Column Id: </b> {{column.id}}</span>
+                        <span class="dotplot-margin-right"><b>Type: </b> {{column.type}}</span>
                     </div>
                     <div class="dotplot-font-medium">
-                        <span>{{text}}</span>
+                        <span>{{column.text}}</span>
                     </div>
                 </div>
             {{/mdl-card}}
-        {{/each-in}}
+        {{/each}}
     </main>
     <footer class="dotplot-margin-t25">
         {{mdl-button action=(action "hideModel" 'createFrame') isRaised=true text='CANCEL' class="dotplot-button dotplot-button-blue"}}
