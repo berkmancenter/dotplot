@@ -29,7 +29,7 @@
                             <i class="dotplot-icon-switch"></i>{{frame.switch}}
                         </div>
                         <div class="dotplot-frame-controls dotplot-float-right dotplot-text-right">
-                            <a href="#" class="dotplot-nostyle-link" {{action "d3Plot" frame}}><i class="dotplot-icon-reset"></i></a>
+                            <a href="#" class="dotplot-nostyle-link" {{action "singleChoicePlot" frame}}><i class="dotplot-icon-reset"></i></a>
                             <a href="#" class="dotplot-nostyle-link" {{action "saveNodePositions" frame}}><i class="dotplot-icon-save"></i></a>
                             <a href="#" class="dotplot-nostyle-link" {{action "deleteFrame" frame}}><i class="dotplot-icon-close"></i></a>
                         </div>
@@ -72,7 +72,9 @@
             <span><b>Position:</b> CS</span>
         </div>
     </div>
-    <div class="dotplot-nodes"></div>
+    <div class="dotplot-nodes">
+        <svg></svg>
+    </div>
     <div class="dotplot-bottom-bar">
         <div class="mdl-grid">
             <div class="mdl-cell mdl-cell--4-col">
@@ -110,7 +112,7 @@
                 <div class="mdl-card__supporting-text dotplot-margin-tb9">
                     <div class="dotplot-font-medium dotplot-margin-b12">
                         <span class="dotplot-margin-right"><b>Column Id: </b> {{column.id}}</span>
-                        <span class="dotplot-margin-right"><b>Type: </b> {{#if column.choice}}Multiple Choice {{else}}Single Choice{{/if}}</span>
+                        <span class="dotplot-margin-right"><b>Type: </b> {{column.type}}</span>
                     </div>
                     <div class="dotplot-font-medium">
                         <span>{{column.text}}</span>
@@ -121,7 +123,7 @@
     </main>
     <footer class="dotplot-margin-t25">
         {{mdl-button action=(action "hideModel" 'createFrame') isRaised=true text='CANCEL' class="dotplot-button dotplot-button-blue"}}
-        {{mdl-button action=(action "createMultipleChoice") isRaised=true text='CREATE' class="dotplot-button dotplot-button-blue dotplot-float-right"}}
+        {{mdl-button action=(action "createFrame") isRaised=true text='CREATE' class="dotplot-button dotplot-button-blue dotplot-float-right"}}
     </footer>
 </dialog>
 
