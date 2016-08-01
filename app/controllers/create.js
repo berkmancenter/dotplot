@@ -5,6 +5,8 @@ import _ from 'lodash/lodash';
 export default Ember.Controller.extend({
     height: 530,
     width: 900,
+    plotcharge: -12,
+    plotgravity: 0.04,
     nodes: [],
     getNodes: function (frameType) {
         var that = this;
@@ -72,7 +74,7 @@ export default Ember.Controller.extend({
                                             };
                                         } else {
                                             node = {
-                                                id: nodeObject.id + '_' + type,
+                                                id: nodeObject.id + '--' + type,
                                                 x: nodeObject.x,
                                                 y: nodeObject.y,
                                                 fill: nodeObject.fill
@@ -280,8 +282,12 @@ export default Ember.Controller.extend({
                 })
                 .attr("r", frame.get('radius'))
                 .style("fill", function (d) {
-                    d.fill = fill(d[frame.get('id')]);
-                    return fill(d[frame.get('id')]);
+                    if (d.fill) {
+                        return d.fill;
+                    } else {
+                        d.fill = fill(d[frame.get('id')]);
+                        return d.fill;
+                    }
                 })
                 .style("opacity", 0.7)
                 .style("stroke", function (d, i) {
@@ -294,10 +300,10 @@ export default Ember.Controller.extend({
                 .style("opacity", 0)
                 .remove();
 
-            this.send('singleChoicePlot', frame);
+            this.send('d3Plot', frame);
         },
 
-        singleChoicePlot: function (frame) {
+        d3Plot: function (frame) {
             var that = this;
             var foci = frame.get('foci');
             var node = d3.select(".dotplot-nodes > svg")
@@ -334,8 +340,8 @@ export default Ember.Controller.extend({
                 .size([that.get('width'), that.get('height')])
                 .on("tick", tick)
                 .on('end', end)
-                .charge(-12)
-                .gravity(0.04);
+                .charge(that.get('plotcharge'))
+                .gravity(that.get('plotgravity'));
 
             this.set('force', force);
             force.start();
@@ -354,16 +360,14 @@ export default Ember.Controller.extend({
 
         changeGravity: function (event) {
             var gravity = event.target.value / 100;
-            this.get('force')
-                .gravity(gravity)
-                .start();
+            this.set('plotgravity', gravity);
+            this.send('d3Plot', this.get('frame'));
         },
 
         changeCharge: function (event) {
             var charge = -1 * event.target.value;
-            this.get('force')
-                .charge(charge)
-                .start();
+            this.set('plotcharge', charge);
+            this.send('d3Plot', this.get('frame'));
         },
 
         changeRadius: function (event) {
@@ -377,7 +381,6 @@ export default Ember.Controller.extend({
         },
 
         selectFrame: function (frame) {
-            this.set('frame', frame);
             var that = this;
             var node = d3.select(".dotplot-nodes > svg")
                 .selectAll('circle.node')
@@ -389,8 +392,32 @@ export default Ember.Controller.extend({
                 .attr("id", function (d) {
                     return d.id;
                 })
-                .attr("cx", that.get('width') / 2)
-                .attr("cy", 0)
+                .attr("cx", function (d) {
+                    var nodeId = d.id.substr(0, d.id.indexOf('--'));
+                    if (nodeId) {
+                        var nodeRef = that.get('frame')
+                            .get('nodes')
+                            .findBy("id", nodeId);
+                    } else {
+                        var nodeRef = that.get('frame')
+                            .get('nodes')
+                            .findBy("id", d.id);
+                    }
+                    return nodeRef.x;
+                })
+                .attr("cy", function (d) {
+                    var nodeId = d.id.substr(0, d.id.indexOf('--'));
+                    if (nodeId) {
+                        var nodeRef = that.get('frame')
+                            .get('nodes')
+                            .findBy("id", nodeId);
+                    } else {
+                        var nodeRef = that.get('frame')
+                            .get('nodes')
+                            .findBy("id", d.id);
+                    }
+                    return nodeRef.y;
+                })
                 .attr("r", frame.get('radius'))
                 .style("fill", function (d) {
                     return d.fill;
@@ -398,8 +425,6 @@ export default Ember.Controller.extend({
                 .style("opacity", 0.7)
                 .style("stroke", function (d) {
                     return d3.rgb(d.fill).darker(2);
-                }).on("click", function (d) {
-                    console.log(d.id);
                 });
 
             node.exit()
@@ -415,6 +440,8 @@ export default Ember.Controller.extend({
                 .attr('cy', function (d) {
                     return d.y;
                 });
+            
+            this.set('frame', frame);
         }
     }
 });
