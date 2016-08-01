@@ -9,6 +9,7 @@ export default Ember.Controller.extend({
     gravity: 4,
     nodes: [],
     getNodes: function (frameType) {
+        NProgress.start();
         var that = this;
         var nodes = [];
         return new Ember.RSVP.Promise(function (resolve, reject) {
@@ -196,6 +197,7 @@ export default Ember.Controller.extend({
         },
 
         fileUpload: function (file) {
+            NProgress.start();
             var that = this;
             var csvFile = URL.createObjectURL(file[0]);
 
@@ -232,6 +234,7 @@ export default Ember.Controller.extend({
                         }
                     }
                 });
+                NProgress.set(0.6);
             });
 
             d3.csv(csvFile, function (rows) {
@@ -243,6 +246,7 @@ export default Ember.Controller.extend({
                             });
                     }
                 });
+                NProgress.done();
             });
         },
 
@@ -304,6 +308,7 @@ export default Ember.Controller.extend({
         },
 
         d3Plot: function (frame) {
+            NProgress.set(0.4);
             var that = this;
             var foci = frame.get('foci');
             var node = d3.select(".dotplot-nodes > svg")
@@ -321,6 +326,7 @@ export default Ember.Controller.extend({
             }
 
             function tick(e) {
+                NProgress.inc(0.002);
                 node.each(drawNode(e.alpha));
                 node.attr("cx", function (d) {
                         return d.x;
@@ -331,7 +337,7 @@ export default Ember.Controller.extend({
             }
 
             function end() {
-
+                NProgress.done();
             }
 
             var force = d3.layout
@@ -378,6 +384,7 @@ export default Ember.Controller.extend({
         },
 
         selectFrame: function (frame) {
+            NProgress.start();
             var that = this;
             var node = d3.select(".dotplot-nodes > svg")
                 .selectAll('circle.node')
@@ -392,28 +399,26 @@ export default Ember.Controller.extend({
                 .attr("cx", function (d) {
                     var nodeId = d.id.substr(0, d.id.indexOf('--'));
                     if (nodeId) {
-                        var nodeRef = that.get('frame')
+                        return that.get('frame')
                             .get('nodes')
-                            .findBy("id", nodeId);
+                            .findBy("id", nodeId).x;
                     } else {
-                        var nodeRef = that.get('frame')
+                        return that.get('frame')
                             .get('nodes')
-                            .findBy("id", d.id);
+                            .findBy("id", d.id).x;
                     }
-                    return nodeRef.x;
                 })
                 .attr("cy", function (d) {
                     var nodeId = d.id.substr(0, d.id.indexOf('--'));
                     if (nodeId) {
-                        var nodeRef = that.get('frame')
+                        return that.get('frame')
                             .get('nodes')
-                            .findBy("id", nodeId);
+                            .findBy("id", nodeId).y;
                     } else {
-                        var nodeRef = that.get('frame')
+                        return that.get('frame')
                             .get('nodes')
-                            .findBy("id", d.id);
+                            .findBy("id", d.id).y;
                     }
-                    return nodeRef.y;
                 })
                 .attr("r", frame.get('radius'))
                 .style("fill", function (d) {
@@ -439,6 +444,7 @@ export default Ember.Controller.extend({
                 });
             
             this.set('frame', frame);
+            NProgress.done();
         }
     }
 });

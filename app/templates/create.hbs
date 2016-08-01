@@ -15,13 +15,13 @@
                     <div class="mdl-card__supporting-text dotplot-margin-tb9 dotplot-pointer"  onclick={{action 'selectFrame' frame}}>
                         <div class="dotplot-font-medium dotplot-margin-b12">
                             <span>
-                                <b>title: </b>
+                                <b>Title: </b>
                                 {{frame.title}}
                             </span>
                         </div>
                         <div class="dotplot-font-medium">
-                            <span><b>count: </b> {{frame.fociCount}}</span>
-                            <span class="dotplot-float-right"><b>type: </b> {{frame.type}}</span>
+                            <span><b>Foci: </b> {{frame.fociCount}}</span>
+                            <span class="dotplot-float-right"><b>Type: </b> {{frame.type}}</span>
                         </div>
                     </div>
                     {{#mdl-card-actions class="dotplot-frame-footer"}}
@@ -45,7 +45,7 @@
             </div>
             {{#mdl-card-actions class="dotplot-frame-footer"}}
                 <div class="dotplot-frame-controls dotplot-float-left">
-                    <i class="dotplot-icon-switch"></i> Scroll
+                    <i class="dotplot-icon-switch"></i> Click
                 </div>
                 <div class="dotplot-frame-controls dotplot-float-right dotplot-text-right">
                     <i class="dotplot-icon-reset"></i>
