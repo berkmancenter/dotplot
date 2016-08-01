@@ -5,8 +5,8 @@ import _ from 'lodash/lodash';
 export default Ember.Controller.extend({
     height: 530,
     width: 900,
-    plotcharge: -12,
-    plotgravity: 0.04,
+    charge: 12,
+    gravity: 4,
     nodes: [],
     getNodes: function (frameType) {
         var that = this;
@@ -340,8 +340,8 @@ export default Ember.Controller.extend({
                 .size([that.get('width'), that.get('height')])
                 .on("tick", tick)
                 .on('end', end)
-                .charge(that.get('plotcharge'))
-                .gravity(that.get('plotgravity'));
+                .charge(-1 * that.get('charge'))
+                .gravity(that.get('gravity') / 100);
 
             this.set('force', force);
             force.start();
@@ -359,25 +359,22 @@ export default Ember.Controller.extend({
         },
 
         changeGravity: function (event) {
-            var gravity = event.target.value / 100;
-            this.set('plotgravity', gravity);
+            this.set('gravity', event.target.value);
             this.send('d3Plot', this.get('frame'));
         },
 
         changeCharge: function (event) {
-            var charge = -1 * event.target.value;
-            this.set('plotcharge', charge);
+            this.set('charge', event.target.value);
             this.send('d3Plot', this.get('frame'));
         },
 
         changeRadius: function (event) {
-            var radius = event.target.value;
             var node = d3.select(".dotplot-nodes > svg")
                 .selectAll('circle.node');
 
             node.transition()
                 .duration(1000)
-                .attr('r', radius);
+                .attr('r', event.target.value);
         },
 
         selectFrame: function (frame) {
