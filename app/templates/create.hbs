@@ -13,15 +13,11 @@
             {{#each model.frames as |frame|}}
                 {{#mdl-card class="dotplot-frame animated fadeIn"}}
                     <div class="mdl-card__supporting-text dotplot-margin-tb9 dotplot-pointer"  onclick={{action 'selectFrame' frame}}>
-                        <div class="dotplot-font-medium dotplot-margin-b12">
+                        <div class="dotplot-font-medium">
                             <span>
                                 <b>Title: </b>
                                 {{frame.title}}
                             </span>
-                        </div>
-                        <div class="dotplot-font-medium">
-                            <span><b>Foci: </b> {{frame.fociCount}}</span>
-                            <span class="dotplot-float-right"><b>Type: </b> {{frame.type}}</span>
                         </div>
                     </div>
                     {{#mdl-card-actions class="dotplot-frame-footer"}}
@@ -29,7 +25,7 @@
                             <i class="dotplot-icon-switch"></i>{{frame.switch}}
                         </div>
                         <div class="dotplot-frame-controls dotplot-float-right dotplot-text-right">
-                            <a href="#" class="dotplot-nostyle-link" {{action "singleChoicePlot" frame}}><i class="dotplot-icon-reset"></i></a>
+                            <a href="#" class="dotplot-nostyle-link" {{action "d3Plot" frame}}><i class="dotplot-icon-reset"></i></a>
                             <a href="#" class="dotplot-nostyle-link" {{action "saveNodePositions" frame}}><i class="dotplot-icon-save"></i></a>
                             <a href="#" class="dotplot-nostyle-link" {{action "deleteFrame" frame}}><i class="dotplot-icon-close"></i></a>
                         </div>
@@ -69,7 +65,7 @@
         <div class="dotplot-top-details">
             <span><b>Charge Points:</b> {{if frame frame.fociCount "No Data"}} </span>
             <span><b>Node Count:</b> {{if frame frame.nodeCount "No Data"}} </span>
-            <span><b>Position:</b> CS</span>
+            <span><b>Type:</b> {{if frame frame.type "No Data"}}</span>
         </div>
     </div>
     <div class="dotplot-nodes">
@@ -103,15 +99,15 @@
 
 <dialog id="createFrame" class="dotplot-dialog dotplot-dialog-medium animated zoomIn">
     <header>
-        <p class="dotplot-heading">Create a new frame. Start by selecting single or multiple columns from the list bellow.</p>
-        {{mdl-textfield value=frameTitle label='Tell us something about the nodes' class="dotplot-full-width"}}
+        <p class="dotplot-heading">Create a new frame. Start by selecting a survey question below.</p>
+        {{mdl-textfield required=true value=frameTitle label='Enter the frame title' class="dotplot-full-width"}}
     </header>
     <main class="dotplot-column-items">
         {{#each model.columns as |column|}}
             {{#mdl-card click=(action "selectColumn" column) id=(concat "column_" column.id)}}
                 <div class="mdl-card__supporting-text dotplot-margin-tb9">
                     <div class="dotplot-font-medium dotplot-margin-b12">
-                        <span class="dotplot-margin-right"><b>Column Id: </b> {{column.id}}</span>
+                        <span class="dotplot-margin-right"><b>Question: </b> {{column.id}}</span>
                         <span class="dotplot-margin-right"><b>Type: </b> {{column.type}}</span>
                     </div>
                     <div class="dotplot-font-medium">
@@ -122,7 +118,7 @@
         {{/each}}
     </main>
     <footer class="dotplot-margin-t25">
-        {{mdl-button action=(action "hideModel" 'createFrame') isRaised=true text='CANCEL' class="dotplot-button dotplot-button-blue"}}
+        {{mdl-button action=(action "hideModel" 'createFrame') isRaised=true text='CANCEL' class="dotplot-button dotplot-button-green"}}
         {{mdl-button action=(action "createFrame") isRaised=true text='CREATE' class="dotplot-button dotplot-button-blue dotplot-float-right"}}
     </footer>
 </dialog>
@@ -130,7 +126,7 @@
 <dialog id="fileUpload" class="dotplot-dialog dotplot-dialog-small animated zoomIn">
     <header>
         <p class="dotplot-heading">To create a visualisation upload a .csv file.</p>
-        {{mdl-textfield value=mainTitle label='Tell us something about your visualisation.' class="dotplot-full-width"}}
+        {{mdl-textfield value=projectTitle label='Tell us something about your visualisation.' class="dotplot-full-width"}}
     </header>
     <footer>
         {{#x-file-input action=(action "fileUpload")}}

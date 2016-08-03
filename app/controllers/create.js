@@ -118,11 +118,21 @@ export default Ember.Controller.extend({
     },
     actions: {
         createFrame: function () {
-            var frameType = this.get('selectedColumn').get('type');
-            if (frameType === "Multiple Choice") {
-                this.send('createMultipleChoice');
-            } else if (frameType === "Single Choice") {
-                this.send('createSingleChoice');
+            if (!this.get('frameTitle')) {
+                Ember.$('#createFrame').removeClass('zoomIn').addClass('shake');
+                window.setTimeout(function () {
+                    Ember.$('#createFrame').removeClass('shake');
+                }, 1000);
+            } else {
+                Ember.$('#createFrame').addClass('zoomIn');
+                var frameType = this.get('selectedColumn').get('type');
+                if (frameType === "Multiple Choice") {
+                    this.send('hideModel', 'createFrame');
+                    this.send('createMultipleChoice');
+                } else if (frameType === "Single Choice") {
+                    this.send('hideModel', 'createFrame');
+                    this.send('createSingleChoice');
+                }
             }
         },
         createSingleChoice: function () {
@@ -150,9 +160,8 @@ export default Ember.Controller.extend({
                         switch: "Click"
                     });
 
-                that.send('hideModel', 'createFrame');
                 that.set('frame', frame);
-
+                that.set('frameTitle', '');
                 that.send('d3Init', frame);
             });
         },
@@ -175,7 +184,6 @@ export default Ember.Controller.extend({
                         switch: "Click"
                     });
 
-                that.send('hideModel', 'createFrame');
                 that.set('frame', frame);
                 that.send('d3Init', frame);
             });
@@ -294,8 +302,8 @@ export default Ember.Controller.extend({
                     }
                 })
                 .style("opacity", 0.7)
-                .style("stroke", function (d, i) {
-                    return d3.rgb(fill(i)).darker(2);
+                .style("stroke", function (d) {
+                    return d3.rgb(d.fill).darker(2);
                 });
 
             node.exit()
@@ -442,7 +450,7 @@ export default Ember.Controller.extend({
                 .attr('cy', function (d) {
                     return d.y;
                 });
-            
+
             this.set('frame', frame);
             NProgress.done();
         }
