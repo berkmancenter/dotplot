@@ -27,11 +27,11 @@ body > div.ember-view {
 }
 
 .dotplot-logo {
-    padding: 27px 45px;
+    padding: 30px 30px;
 }
 
 .dotplot-logo > img {
-    width: 243px;
+    width: 272px;
 }
 
 .dotplot-sidebar-data {
@@ -79,6 +79,14 @@ body > div.ember-view {
     background-color: #FFA258 !important;
 }
 
+.dotplot-button-red {
+    background-color: #ff0057 !important;
+}
+
+.dotplot-button-red:hover {
+    background-color: #ff3479 !important;
+}
+
 .dotplot-button-blue {
     background-color: #3179B1 !important;
 }
@@ -93,7 +101,7 @@ body > div.ember-view {
     font-weight: 100;
     margin-top: 18px;
     width: 100%;
-    min-height: 121.5px;
+    min-height: 104.5px;
     background-color: #FEFEFE;
 }
 
@@ -124,7 +132,8 @@ body > div.ember-view {
 }
 
 .dotplot-font-medium {
-    font-size: 16.2px;
+    font-size: 17px;
+    line-height: 22px;
 }
 
 .dotplot-pointer {
@@ -278,6 +287,13 @@ body > div.ember-view {
 
 dialog::backdrop {
     background: rgba(57, 57, 57, 0.88);
+}
+
+.zoomIn {
+    -webkit-animation-name: zoomIn;
+    animation-name: zoomIn;
+    -webkit-animation-duration: 0.6s;
+    animation-duration: 0.6s;
 }
 
 .dotplot-margin-right {
