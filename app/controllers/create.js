@@ -161,7 +161,6 @@ export default Ember.Controller.extend({
                     });
 
                 that.set('frame', frame);
-                that.set('frameTitle', '');
                 that.send('d3Init', frame);
             });
         },
@@ -264,6 +263,8 @@ export default Ember.Controller.extend({
                 .siblings()
                 .removeClass('active');
             this.set('selectedColumn', column);
+            this.set('frameTitle', column.get('text'));
+            Ember.$("#frameTitle").addClass('is-focused');
         },
 
         d3Init: function (frame) {
@@ -355,7 +356,7 @@ export default Ember.Controller.extend({
                 .on("tick", tick)
                 .on('end', end)
                 .charge(-1 * that.get('charge'))
-                .gravity(that.get('gravity') / 100);
+                .gravity((10 - that.get('gravity')) / 100);
 
             this.set('force', force);
             force.start();

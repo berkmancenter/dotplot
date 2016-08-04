@@ -1,7 +1,7 @@
 {
   "name": "dotplot",
-  "version": "0.0.0",
-  "description": "Small description for dotplot goes here",
+  "version": "1.0.0",
+  "description": "Telling a story through dots.",
   "private": true,
   "directories": {
     "doc": "doc",
@@ -12,7 +12,7 @@
     "start": "ember server",
     "test": "ember test"
   },
-  "repository": "",
+  "repository": "https://github.com/berkmancenter/dotplot.git",
   "engines": {
     "node": ">= 0.10.0"
   },
@@ -42,7 +42,7 @@
     "ember-load-initializers": "^0.5.1",
     "ember-localstorage-adapter": "1.0.0-rc.1",
     "ember-lodash": "0.0.10",
-    "ember-material-lite": "0.2.4",
+    "ember-material-lite": "chaitanyya/ember-material-lite",
     "ember-new-computed": "1.0.3",
     "ember-resolver": "^2.0.3",
     "ember-welcome-page": "^1.0.1",

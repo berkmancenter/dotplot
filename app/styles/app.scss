@@ -27,11 +27,11 @@ body > div.ember-view {
 }
 
 .dotplot-logo {
-    padding: 30px 30px;
+    padding: 35px 50px;
 }
 
 .dotplot-logo > img {
-    width: 272px;
+    width: 235px;
 }
 
 .dotplot-sidebar-data {
@@ -175,7 +175,6 @@ body > div.ember-view {
 }
 
 .dotplot-top-bar {
-    height: 60px;
     width: 70%;
     margin: 0 auto;
     background: #FFFFFF;
@@ -215,10 +214,9 @@ body > div.ember-view {
     color: #909090;
 }
 
-.dotplot-top-details > span {
+.dotplot-top-details > div {
     color: #909090;
     font-size: 16px;
-    margin: 0 30px;
     font-weight: 100;
 }
 
