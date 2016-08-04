@@ -62,10 +62,16 @@
 <main class="dotplot-main-content">
     <div class="dotplot-top-bar">
         <p>{{if frame frame.title "Oops! Looks like you have not created any frames."}}</p>
-        <div class="dotplot-top-details">
-            <span><b>Charge Points:</b> {{if frame frame.fociCount "No Data"}} </span>
-            <span><b>Node Count:</b> {{if frame frame.nodeCount "No Data"}} </span>
-            <span><b>Type:</b> {{if frame frame.type "No Data"}}</span>
+        <div class="dotplot-top-details mdl-grid">
+            <div class="mdl-cell mdl-cell--4-col">
+                <b>Charge Points:</b> {{if frame frame.fociCount "No Data"}}
+            </div>
+            <div class="mdl-cell mdl-cell--4-col">
+                <b>Node Count:</b> {{if frame frame.nodeCount "No Data"}}
+            </div>
+            <div class="mdl-cell mdl-cell--4-col">
+                <b>Type:</b> {{if frame frame.type "No Data"}}
+            </div>
         </div>
     </div>
     <div class="dotplot-nodes">
@@ -82,7 +88,7 @@
                 {{mdl-slider min=0 max=10 value=gravity change=(action 'changeGravity')}}
             </div>
             <div class="mdl-cell mdl-cell--4-col">
-                <p class="dotplot-slider-label">Foci Charge</p>
+                <p class="dotplot-slider-label">Node Distance</p>
                 {{mdl-slider min=0 max=20 value=charge change=(action 'changeCharge')}}
             </div>
         </div>
@@ -100,7 +106,7 @@
 <dialog id="createFrame" class="dotplot-dialog dotplot-dialog-medium animated zoomIn">
     <header>
         <p class="dotplot-heading">Create a new frame. Start by selecting a survey question below.</p>
-        {{mdl-textfield required=true value=frameTitle label='Enter the frame title' class="dotplot-full-width"}}
+        {{mdl-textfield id="frameTitle" value=frameTitle label='Enter the frame title' class="dotplot-full-width"}}
     </header>
     <main class="dotplot-column-items">
         {{#each model.columns as |column|}}
