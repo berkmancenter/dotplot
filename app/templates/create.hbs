@@ -26,7 +26,7 @@
                         </div>
                         <div class="dotplot-frame-controls dotplot-float-right dotplot-text-right">
                             <a href="#" class="dotplot-nostyle-link" {{action "d3Plot" frame}}><i class="dotplot-icon-reset"></i></a>
-                            <a href="#" class="dotplot-nostyle-link" {{action "saveNodePositions" frame}}><i class="dotplot-icon-save"></i></a>
+                            <a href="#" class="dotplot-nostyle-link" {{action "showModel" "editLabel"}}><i class="dotplot-icon-save"></i></a>
                             <a href="#" class="dotplot-nostyle-link" {{action "deleteFrame" frame}}><i class="dotplot-icon-close"></i></a>
                         </div>
                     {{/mdl-card-actions}}
@@ -64,10 +64,10 @@
         <p>{{if frame frame.title "Oops! Looks like you have not created any frames."}}</p>
         <div class="dotplot-top-details mdl-grid">
             <div class="mdl-cell mdl-cell--4-col">
-                <b>Charge Points:</b> {{if frame frame.fociCount "No Data"}}
+                <b>Charge Points:</b> {{if frame frame.foci.length "No Data"}}
             </div>
             <div class="mdl-cell mdl-cell--4-col">
-                <b>Node Count:</b> {{if frame frame.nodeCount "No Data"}}
+                <b>Node Count:</b> {{if frame frame.nodes.length "No Data"}}
             </div>
             <div class="mdl-cell mdl-cell--4-col">
                 <b>Type:</b> {{if frame frame.type "No Data"}}
@@ -138,6 +138,19 @@
         {{#x-file-input action=(action "fileUpload")}}
             {{mdl-button isRaised=true text='SELECT A CSV FILE FROM THE DISK' class="dotplot-full-width dotplot-button dotplot-button-blue"}}
         {{/x-file-input}}
+    </footer>
+</dialog>
+
+<dialog id="editLabel" class="dotplot-dialog dotplot-dialog-small animated zoomIn">
+    <header>
+        <p class="dotplot-heading">Change the text in the fields to update labels.</p>
+        {{#each frame.foci as |label|}}
+            {{mdl-textfield value=label.text label=(concat "Label text for " label.id) class="dotplot-full-width"}}
+        {{/each}}
+    </header>
+    <footer class="dotplot-margin-t25">
+        {{mdl-button action=(action "hideModel" 'editLabel') isRaised=true text='CANCEL' class="dotplot-button dotplot-button-green"}}
+        {{mdl-button action=(action "updateLabels") isRaised=true text='UPDATE LABELS' class="dotplot-button dotplot-button-blue dotplot-float-right"}}
     </footer>
 </dialog>
 {{outlet}}
