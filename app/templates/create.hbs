@@ -153,4 +153,16 @@
         {{mdl-button action=(action "updateLabels") isRaised=true text='UPDATE LABELS' class="dotplot-button dotplot-button-blue dotplot-float-right"}}
     </footer>
 </dialog>
+
+<div id="nodeInfo" class="dotplot-dialog dotplot-nodeinfo">
+    <a href="#" class="dotplot-nostyle-link dotplot-hideinfo" {{action "hideNodeInfo"}}><i class="dotplot-icon-close"></i></a>
+    <div class="dotplot-nodeinfolist">
+        {{#each info as |nodedetails|}}
+        <div class="dotplot-nodefield">
+            <h2><span>Question:</span> {{nodedetails.question}}</h2>
+            <p><span>Answer:</span> {{nodedetails.answer}}</p>
+        </div>
+        {{/each}}
+    </div>
+</div>
 {{outlet}}

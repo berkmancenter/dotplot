@@ -206,7 +206,7 @@ body > div.ember-view {
     font-size: 18px;
     font-weight: 100;
     text-align: center;
-    margin-bottom: 12px;
+    margin: 0 20px 0;
 }
 
 .dotplot-top-details {
@@ -347,4 +347,53 @@ dialog::backdrop {
 .dotplot-nostyle-link {
     text-decoration: none;
     color: #909090;
+}
+
+.dotplot-nodeinfo {
+    display: none;
+    width: 360px;
+    padding: 10px;
+    box-shadow: 0px 0px 4px 0px rgba(145, 145, 145, 0.5);
+    position: absolute;
+    z-index: 20;
+    top: 200px;
+    left: 450px;
+    background-color: #fff;
+}
+
+.dotplot-nodefield > h2 {
+    line-height: 22px;
+    font-size: 16px;
+    margin: 0;
+    font-weight: 700;
+}
+
+.dotplot-nodefield > h2 > span {
+    color: #3179b1;
+}
+
+.dotplot-nodefield > p {
+    margin-bottom: 10px;
+    font-size: 16px;
+}
+
+.dotplot-nodefield > p > span {
+    font-weight: 700;
+    color: #50bacc;
+}
+
+.dotplot-hideinfo {
+    cursor: pointer;
+    position: absolute;
+    color: #909090;
+    right: 0;
+    top: 0;
+    margin: 10px;
+}
+
+.dotplot-nodeinfolist {
+    margin: 20px;
+    max-height: 300px;
+    overflow-y: scroll;
+    
 }

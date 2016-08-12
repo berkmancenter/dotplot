@@ -384,6 +384,17 @@ export default Ember.Controller.extend({
                     info.pushObject(frameInfo);
                 });
             });
+            this.set('info', info);
+            Ember.$("#nodeInfo").fadeIn();
+        },
+        
+        hideNodeInfo: function () {
+            var that = this;
+            Ember.$("#nodeInfo").fadeOut();
+            d3.selectAll("[id^=" + this.get('node') + "]")
+                .transition()
+                .duration(500)
+                .attr("r", that.get('frame').get('radius'));
         },
 
         d3Plot: function (frame) {
