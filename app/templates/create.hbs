@@ -1,14 +1,21 @@
 <section class="dotplot-sidebar">
+    <!-- DotPlot Heaher -->
     <header class="dotplot-sidebar-header">
+        <!-- DotPlot Logo -->
         <div class="dotplot-logo">
             <img src="assets/img/logo.png" alt="">
         </div>
+        
+        <!-- DotPlot Buttons | Upload and Setting -->
         <div class="dotplot-sidebar-buttons">
             {{mdl-button isRaised=true text='UPLOAD' class="dotplot-button dotplot-button-green" click=(action 'showModel' 'fileUpload')}}
             {{mdl-button isRaised=true text='SETTINGS' class="dotplot-button dotplot-button-orange dotplot-float-right"}}
         </div>
     </header>
+    
+    <!-- DotPlot Sidebar | List of frames -->
     <div class="dotplot-sidebar-data">
+        <!-- Created Frames -->
         <div class="dotplot-frames">
             {{#each model.frames as |frame|}}
                 {{#mdl-card class="dotplot-frame animated fadeIn"}}
@@ -25,14 +32,16 @@
                             <i class="dotplot-icon-switch"></i>{{frame.switch}}
                         </div>
                         <div class="dotplot-frame-controls dotplot-float-right dotplot-text-right">
-                            <a href="#" class="dotplot-nostyle-link" {{action "d3Plot" frame}}><i class="dotplot-icon-reset"></i></a>
-                            <a href="#" class="dotplot-nostyle-link" {{action "showModel" "editLabel"}}><i class="dotplot-icon-save"></i></a>
+                            <a href="#" class="dotplot-nostyle-link" {{action "d3Plot" frame}}><i class="dotplot-icon-forcelayout"></i></a>
+                            <a href="#" class="dotplot-nostyle-link" {{action "showModel" "editLabel"}}><i class="dotplot-icon-label"></i></a>
                             <a href="#" class="dotplot-nostyle-link" {{action "deleteFrame" frame}}><i class="dotplot-icon-close"></i></a>
                         </div>
                     {{/mdl-card-actions}}
                 {{/mdl-card}}
             {{/each}}
         </div>
+        
+        <!-- Create Frame Button -->
         {{#mdl-card class="dotplot-frame dotplot-low-opacity" click=(action 'showModel' 'createFrame')}}
             <div class="mdl-card__supporting-text dotplot-margin-tb9">
                 <div class="dotplot-frame-add">
@@ -41,16 +50,18 @@
             </div>
             {{#mdl-card-actions class="dotplot-frame-footer"}}
                 <div class="dotplot-frame-controls dotplot-float-left">
-                    <i class="dotplot-icon-switch"></i> Click
+                    <i class="dotplot-icon-switch"></i> On Click
                 </div>
                 <div class="dotplot-frame-controls dotplot-float-right dotplot-text-right">
-                    <i class="dotplot-icon-reset"></i>
-                    <i class="dotplot-icon-save"></i>
+                    <i class="dotplot-icon-forcelayout"></i>
+                    <i class="dotplot-icon-label"></i>
                     <i class="dotplot-icon-close"></i>
                 </div>
             {{/mdl-card-actions}}
         {{/mdl-card}}
     </div>
+    
+    <!-- Sidebar Footer | Save and Publish -->
     <footer class="dotplot-sidebar-footer">
         <p>Looks good enough? You can either export the nodes or publish it on our platform.</p>
         <div>
@@ -59,7 +70,10 @@
         </div>
     </footer>
 </section>
+
+<!-- DotPlot Main Content -->
 <main class="dotplot-main-content">
+    <!-- Current Frame Information -->
     <div class="dotplot-top-bar">
         <p>{{if frame frame.title "Oops! Looks like you have not created any frames."}}</p>
         <div class="dotplot-top-details mdl-grid">
@@ -74,9 +88,13 @@
             </div>
         </div>
     </div>
+    
+    <!-- DotPlot Nodes -->
     <div class="dotplot-nodes">
         <svg></svg>
     </div>
+    
+    <!-- DotPlot Controls For Current Frame -->
     <div class="dotplot-bottom-bar">
         <div class="mdl-grid">
             <div class="mdl-cell mdl-cell--4-col">
@@ -103,11 +121,14 @@
     </div>
 </main>
 
+<!-- DotPlot Create New Frame Dialog -->
 <dialog id="createFrame" class="dotplot-dialog dotplot-dialog-medium animated zoomIn">
     <header>
         <p class="dotplot-heading">Create a new frame. Start by selecting a survey question below.</p>
         {{mdl-textfield id="frameTitle" value=frameTitle label='Enter the frame title' class="dotplot-full-width"}}
     </header>
+    
+    <!-- List Of Columns -->
     <main class="dotplot-column-items">
         {{#each model.columns as |column|}}
             {{#mdl-card click=(action "selectColumn" column) id=(concat "column_" column.id)}}
@@ -123,17 +144,22 @@
             {{/mdl-card}}
         {{/each}}
     </main>
+    
+    <!-- Create Frame Dialog Buttons | Create and Cancel -->
     <footer class="dotplot-margin-t25">
         {{mdl-button action=(action "hideModel" 'createFrame') isRaised=true text='CANCEL' class="dotplot-button dotplot-button-green"}}
         {{mdl-button action=(action "createFrame") isRaised=true text='CREATE' class="dotplot-button dotplot-button-blue dotplot-float-right"}}
     </footer>
 </dialog>
 
+<!-- DotPlot Upload CSV file Dialog -->
 <dialog id="fileUpload" class="dotplot-dialog dotplot-dialog-small animated zoomIn">
     <header>
         <p class="dotplot-heading">To create a visualisation upload a .csv file.</p>
         {{mdl-textfield value=projectTitle label='Tell us something about your visualisation.' class="dotplot-full-width"}}
     </header>
+    
+    <!-- Upload CSV File Dialog Button -->
     <footer>
         {{#x-file-input action=(action "fileUpload")}}
             {{mdl-button isRaised=true text='SELECT A CSV FILE FROM THE DISK' class="dotplot-full-width dotplot-button dotplot-button-blue"}}
@@ -141,6 +167,7 @@
     </footer>
 </dialog>
 
+<!-- DotPlot Edit Frame Labels Dialog -->
 <dialog id="editLabel" class="dotplot-dialog dotplot-dialog-small animated zoomIn">
     <header>
         <p class="dotplot-heading">Change the text in the fields to update labels.</p>
@@ -148,14 +175,20 @@
             {{mdl-textfield value=label.text label=(concat "Label text for " label.id) class="dotplot-full-width"}}
         {{/each}}
     </header>
+
+    <!-- Edit Frame Labels Buttons | Cancel and Update Labels -->
     <footer class="dotplot-margin-t25">
         {{mdl-button action=(action "hideModel" 'editLabel') isRaised=true text='CANCEL' class="dotplot-button dotplot-button-green"}}
         {{mdl-button action=(action "updateLabels") isRaised=true text='UPDATE LABELS' class="dotplot-button dotplot-button-blue dotplot-float-right"}}
     </footer>
 </dialog>
 
+<!-- DotPlot Node Info Container -->
 <div id="nodeInfo" class="dotplot-dialog dotplot-nodeinfo">
+    <!-- Close Info Container Button -->
     <a href="#" class="dotplot-nostyle-link dotplot-hideinfo" {{action "hideNodeInfo"}}><i class="dotplot-icon-close"></i></a>
+    
+    <!-- Node Info List -->
     <div class="dotplot-nodeinfolist">
         {{#each info as |nodedetails|}}
         <div class="dotplot-nodefield">
@@ -165,4 +198,5 @@
         {{/each}}
     </div>
 </div>
+
 {{outlet}}

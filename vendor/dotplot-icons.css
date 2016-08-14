@@ -1,38 +1,39 @@
 @font-face {
-    font-family: 'dotplot';
-    src:    url('fonts/dotplot.eot?l2wc4k');
-    src:    url('fonts/dotplot.eot?l2wc4k#iefix') format('embedded-opentype'),
-        url('fonts/dotplot.ttf?l2wc4k') format('truetype'),
-        url('fonts/dotplot.woff?l2wc4k') format('woff'),
-        url('fonts/dotplot.svg?l2wc4k#dotplot') format('svg');
-    font-weight: normal;
-    font-style: normal;
+  font-family: 'dotplot';
+  src:  url('fonts/dotplot.eot?qnygln');
+  src:  url('fonts/dotplot.eot?qnygln#iefix') format('embedded-opentype'),
+    url('fonts/dotplot.ttf?qnygln') format('truetype'),
+    url('fonts/dotplot.woff?qnygln') format('woff'),
+    url('fonts/dotplot.svg?qnygln#dotplot') format('svg');
+  font-weight: normal;
+  font-style: normal;
 }
 
 [class^="dotplot-icon-"], [class*=" dotplot-icon-"] {
-    /* use !important to prevent issues with browser extensions that change fonts */
-    font-family: 'dotplot' !important;
-    speak: none;
-    font-style: normal;
-    font-weight: normal;
-    font-variant: normal;
-    text-transform: none;
-    line-height: 1;
+  /* use !important to prevent issues with browser extensions that change fonts */
+  font-family: 'dotplot' !important;
+  speak: none;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
 
-    /* Better Font Rendering =========== */
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+  /* Better Font Rendering =========== */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .dotplot-icon-switch:before {
-    content: "\e900";
+  content: "\e900";
+}
+.dotplot-icon-label:before {
+  content: "\e25e";
 }
 .dotplot-icon-close:before {
-    content: "\ea0f";
+  content: "\ea0f";
 }
-.dotplot-icon-save:before {
-    content: "\ea58";
+.dotplot-icon-forcelayout:before {
+  content: "\ea58";
 }
-.dotplot-icon-reset:before {
-    content: "\ea59";
-}
+

@@ -4,14 +4,23 @@ import _ from 'lodash/lodash';
 
 export default Ember.Controller.extend({
     height: 530,
+    
     width: 1000,
+    
     charge: 12,
+    
     gravity: 4,
+    
     nodes: [],
+    
     getNodes: function (frameType) {
         NProgress.start();
+        
         var that = this;
+        
         var nodes = [];
+        
+        // Ember promise.
         return new Ember.RSVP.Promise(function (resolve, reject) {
             if (frameType === "Single Choice") {
                 d3.csv(that.csvFile, function (d) {
@@ -21,33 +30,44 @@ export default Ember.Controller.extend({
                     };
                 }, function (error, rows) {
                     if (!that.get('d3Init')) {
+                        // Create new node objects from the existing.
                         rows.forEach(function (row, index) {
                             if (index !== 0) {
                                 var nodeRef = that.get('nodes')
                                     .findBy('id', row.id);
+                                
                                 var node = {
                                     id: nodeRef.id,
                                 };
+                                
                                 node[that.get('selectedColumn').get('id')] = row.value;
+                                
                                 nodes.pushObject(node);
                             }
                         });
+                        
                         that.set('nodes', nodes);
+                        
                         resolve(nodes);
                     } else {
+                        // Use existing nodes data to create new nodes.
                         rows.forEach(function (row, index) {
                             if (index !== 0) {
                                 var nodeRef = that.get('nodes')
                                     .findBy('id', row.id);
+                                
                                 var node = {
                                     id: nodeRef.id,
                                     x: nodeRef.x,
                                     y: nodeRef.y
                                 };
+                                
                                 node[that.get('selectedColumn').get('id')] = row.value;
+                                
                                 nodes.pushObject(node);
                             }
                         });
+                        
                         resolve(nodes);
                     }
                 });
@@ -57,14 +77,20 @@ export default Ember.Controller.extend({
                         if (index !== 0) {
                             var nodeObject = that.get('nodes')
                                 .findBy('id', row.V1);
+                            
                             var first = true;
+                            
                             that.get('selectedColumn')
                                 .get('choice')
                                 .forEach(function (type) {
+                                    // Multiple nodes for different choices.
                                     if (parseInt(row[type]) === 1) {
                                         var node = {};
+                                        
+                                        // Use existing nodes for first choice.
                                         if (first) {
                                             first = false;
+                                            
                                             node = {
                                                 id: nodeObject.id,
                                                 x: nodeObject.x,
@@ -79,38 +105,53 @@ export default Ember.Controller.extend({
                                                 fill: nodeObject.fill
                                             };
                                         }
+                                        
                                         node[that.get('selectedColumn').get('id')] = type;
+                                        
                                         nodes.pushObject(node);
                                     }
                                 });
                         }
                     });
+                    
                     resolve(nodes);
                 });
             } else {
+                // Reject promise if invalid frame type.
                 reject("Invalid FrameType: " + frameType);
             }
         });
     },
     getFoci: function (choices) {
         var that = this;
+        
         var index = 0;
+        
         var foci = [];
 
+        // Number of foci required.
         var fociCount = choices.length;
+        
+        // Foci per row.
         var perRow = Math.ceil(Math.sqrt(fociCount));
+        
+        // Total number of rows.
         var numRow = Math.ceil(Math.sqrt(fociCount));
 
         for (var i = 0; i < numRow; i++) {
             var temp = Math.min(perRow, fociCount - (i * perRow));
+        
             for (var j = 0; j < temp; j++) {
+                // Caluclate foci X and Y coordinates.
                 var point = {
                     id: choices[index],
                     text: choices[index],
                     x: Math.ceil((that.get('width') / (temp + 1)) * (j + 1)),
                     y: Math.ceil((that.get('height') / (numRow + 1)) * (i + 1))
                 };
+                
                 index++;
+                
                 foci.pushObject(point);
             }
         }
@@ -120,18 +161,29 @@ export default Ember.Controller.extend({
     actions: {
         createFrame: function () {
             if (!this.get('frameTitle')) {
+                // Shake effect if no title is provided.
                 Ember.$('#createFrame').removeClass('zoomIn').addClass('shake');
+                
+                // Remove class on animation complete.
                 window.setTimeout(function () {
                     Ember.$('#createFrame').removeClass('shake');
                 }, 1000);
             } else {
                 Ember.$('#createFrame').addClass('zoomIn');
+                
                 var frameType = this.get('selectedColumn').get('type');
+                
                 if (frameType === "Multiple Choice") {
+                    // Hide the model.
                     this.send('hideModel', 'createFrame');
+                    
+                    // Create multiple choice frame.
                     this.send('createMultipleChoice');
                 } else if (frameType === "Single Choice") {
+                    // Hide the model.
                     this.send('hideModel', 'createFrame');
+                    
+                    // Create single choice frame.
                     this.send('createSingleChoice');
                 }
             }
@@ -148,8 +200,10 @@ export default Ember.Controller.extend({
                     }
                 });
 
+                // Calculate foci.
                 var foci = that.getFoci(choices);
 
+                // Create a new frame record.
                 var frame = that.get('store')
                     .createRecord('frame', {
                         id: that.get('selectedColumn').get('id'),
@@ -158,9 +212,10 @@ export default Ember.Controller.extend({
                         radius: 5,
                         nodes: nodes,
                         type: "Single Choice",
-                        switch: "Click"
+                        switch: "On Click"
                     });
 
+                // Plot the frame.
                 that.send('d3Init', frame);
             });
         },
@@ -169,9 +224,11 @@ export default Ember.Controller.extend({
             var that = this;
 
             this.getNodes('Multiple Choice').then(function (nodes) {
+                // Calcuate foci for frame.
                 var foci = that.getFoci(that.get('selectedColumn')
                     .get('choice'));
 
+                // Create a new frame record.
                 var frame = that.get('store')
                     .createRecord('frame', {
                         id: that.get('selectedColumn').get('id'),
@@ -180,9 +237,10 @@ export default Ember.Controller.extend({
                         radius: 5,
                         nodes: nodes,
                         type: "Multiple Choice",
-                        switch: "Click"
+                        switch: "On Click"
                     });
 
+                // Plot the frame
                 that.send('d3Init', frame);
             });
         },
@@ -194,16 +252,19 @@ export default Ember.Controller.extend({
 
         showModel: function (modelId) {
             var dialog = document.querySelector('#' + modelId);
+            
             dialog.showModal();
         },
 
         hideModel: function (modelId) {
             var dialog = document.querySelector('#' + modelId);
+            
             dialog.close();
         },
 
         fileUpload: function (file) {
             NProgress.start();
+            
             var that = this;
 
             // Get local file path.
@@ -223,7 +284,9 @@ export default Ember.Controller.extend({
                         // If the question is multiple choice.
                         if (id.indexOf('_') > 0) {
                             var newId = id.substr(0, id.indexOf('_'));
+                            
                             if (!that.get('store').hasRecordForId('column', newId)) {
+                                // Create record for multiple choice question.
                                 that.get('store')
                                     .createRecord('column', {
                                         id: newId,
@@ -232,6 +295,7 @@ export default Ember.Controller.extend({
                                         type: "Multiple Choice"
                                     });
                             } else {
+                                // Push choice in choice array.
                                 that.get('store')
                                     .findRecord('column', newId)
                                     .then(function (column) {
@@ -261,6 +325,7 @@ export default Ember.Controller.extend({
                             });
                     }
                 });
+                
                 NProgress.done();
             });
         },
@@ -282,6 +347,7 @@ export default Ember.Controller.extend({
         },
 
         d3Init: function (frame) {
+            // Layout Initialised.
             this.set('d3Init', true);
 
             var that = this;
@@ -338,6 +404,7 @@ export default Ember.Controller.extend({
                     that.send('nodeClick', d, frame);
                 });
 
+            // Create force layout.
             this.send('d3Plot', frame);
         },
 
@@ -355,25 +422,31 @@ export default Ember.Controller.extend({
                 nodeId = node.id.substr(0, node.id.indexOf('--'));
             }
 
-            // Transition into new radius.
+            // Change radius on node selection.
             d3.selectAll("[id^=" + nodeId + "]")
                 .transition()
                 .duration(500)
-                .attr("r", 10);
+                .attr("r", frame.get('radius') + 3);
 
             // Set global node variable.
             this.set('node', nodeId);
+            
+            // Display node info.
             this.send('nodeInfo', nodeId);
         },
 
         nodeInfo: function (nodeId) {
             var info = [];
+            
             this.get('store').findAll('frame').then(function (frames) {
+                // Create node info object for each frame.
                 frames.forEach(function (frame) {
                     var frameInfo = {
                         question: frame.get('title'),
                         answer: ""
                     };
+                    
+                    // Get label values based on ids for each node.
                     frame.get('nodes').forEach(function (node) {
                         if (node.id.indexOf(nodeId) >= 0) {
                             var nodeCat = node[frame.get('id')];
@@ -381,16 +454,25 @@ export default Ember.Controller.extend({
                             frameInfo.answer += value + " ";
                         }
                     });
+                    
                     info.pushObject(frameInfo);
                 });
             });
+            
+            // Update info.
             this.set('info', info);
+            
+            // Fade-in node info.
             Ember.$("#nodeInfo").fadeIn();
         },
         
         hideNodeInfo: function () {
             var that = this;
+            
+            // Fade-out node info.
             Ember.$("#nodeInfo").fadeOut();
+            
+            // Reset node radius.
             d3.selectAll("[id^=" + this.get('node') + "]")
                 .transition()
                 .duration(500)
@@ -399,7 +481,10 @@ export default Ember.Controller.extend({
 
         d3Plot: function (frame) {
             NProgress.set(0.4);
+            
+            // Show new labels.
             this.send('removeLabels');
+            
             var that = this;
 
             // Update node data.
@@ -409,10 +494,10 @@ export default Ember.Controller.extend({
                     return d.id;
                 });
 
-            // Generate foci object for improved performance.
+            // For improved performance.
             var foci = _.indexBy(frame.get('foci'), 'id');
 
-            // Update node coordinates using alpha value.
+            // Move nodes towards different foci.
             function drawNode(alpha) {
                 return function (d) {
                     var center = foci[d[frame.get('id')]];
@@ -421,13 +506,16 @@ export default Ember.Controller.extend({
                 };
             }
 
-            // Update DOM.
+            // Update node position with every tick.
             function tick(e) {
                 NProgress.inc(e.alpha);
+                
                 if (e.alpha <= 0.03) {
                     that.get('force').stop();
                 }
+                
                 node.each(drawNode(e.alpha));
+                
                 node.attr("cx", function (d) {
                         return d.x;
                     })
@@ -439,7 +527,9 @@ export default Ember.Controller.extend({
             // Show labels and update nProgress.
             function end() {
                 NProgress.done();
+                
                 that.set('frame', frame);
+                
                 that.send('showLabels', frame, true);
             }
 
@@ -455,6 +545,7 @@ export default Ember.Controller.extend({
 
             this.set('force', force);
 
+            // Start the force layout.
             force.start();
         },
 
@@ -488,15 +579,18 @@ export default Ember.Controller.extend({
                         var minXNode = _.min(nodes, function (node) {
                             return node.x;
                         });
+                        
                         // Find node with minimum Y coordinate.
                         var maxXNode = _.max(nodes, function (node) {
                             return node.x;
                         });
+                        
                         // Calculate foci width.
                         var fociWidth = maxXNode.x - minXNode.x;
 
                         // Update label coordinate value.
                         d.labelx = minXNode.x + (fociWidth - this.getBBox().width) / 2;
+                        
                         return d.labelx;
                     } else {
                         return d.labelx;
@@ -514,6 +608,7 @@ export default Ember.Controller.extend({
 
                         // Update label coordinate value.
                         d.labely = maxYNode.y + 25;
+                        
                         return d.labely;
                     } else {
                         return d.labely;
@@ -527,8 +622,13 @@ export default Ember.Controller.extend({
         },
 
         updateLabels: function () {
+            // Hide the model.
             this.send('hideModel', 'editLabel');
+            
+            // Remove existing labels.
             this.send('removeLabels');
+            
+            // Show new labels.
             this.send('showLabels', this.get('frame'), true);
         },
 
@@ -537,7 +637,7 @@ export default Ember.Controller.extend({
             var node = d3.select(".dotplot-nodes > svg")
                 .selectAll('circle.node');
 
-            // Find the node and update coordinate values.
+            // Find the node (Frame Model) and update coordinate values.
             node.each(function (node) {
                 var nodeRef = frame.get('nodes')
                     .findBy('id', node.id);
@@ -547,9 +647,10 @@ export default Ember.Controller.extend({
         },
 
         changeGravity: function (event) {
+            // Get slider value when the value changes.
             this.set('gravity', event.target.value);
 
-            // Remove the labels.
+            // Remove existing labels.
             this.send('removeLabels');
 
             // Run the force layout again.
@@ -559,7 +660,7 @@ export default Ember.Controller.extend({
         changeCharge: function (event) {
             this.set('charge', event.target.value);
 
-            // Remove the labels.
+            // Remove existing labels.
             this.send('removeLabels');
 
             // Run the force layout again.
@@ -583,6 +684,7 @@ export default Ember.Controller.extend({
             // Remove existing labels.
             this.send('removeLabels');
 
+            // Controller reference.
             var that = this;
 
             // Update node data.
@@ -607,8 +709,9 @@ export default Ember.Controller.extend({
                     return d.id;
                 })
                 .attr("cx", function (d) {
-                    // Check if it's a duplicate node.
                     var nodeId = d.id.substr(0, d.id.indexOf('--'));
+                
+                    // Check if it's a duplicate node.
                     if (nodeId) {
                         return that.get('frame')
                             .get('nodes')
@@ -619,8 +722,9 @@ export default Ember.Controller.extend({
                     }
                 })
                 .attr("cy", function (d) {
-                    // Check if it's a duplicate node.
                     var nodeId = d.id.substr(0, d.id.indexOf('--'));
+                
+                    // Check if it's a duplicate node.
                     if (nodeId) {
                         return that.get('frame')
                             .get('nodes')
@@ -656,6 +760,7 @@ export default Ember.Controller.extend({
 
 
             this.set('frame', frame);
+            
             NProgress.done();
         }
     }
