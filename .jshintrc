@@ -3,7 +3,8 @@
     "document",
     "window",
     "-Promise",
-	"NProgress"
+	"NProgress",
+	"saveAs"
   ],
   "browser": true,
   "boss": true,

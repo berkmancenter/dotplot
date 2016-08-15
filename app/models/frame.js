@@ -4,7 +4,7 @@ import attr from 'ember-data/attr';
 
 export default Model.extend({
     title: attr(),
-    column: attr(),
+    radius: attr(),
     foci: attr(),
     nodes: attr(),
     type: attr(),

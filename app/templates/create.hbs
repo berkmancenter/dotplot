@@ -65,7 +65,7 @@
     <footer class="dotplot-sidebar-footer">
         <p>Looks good enough? You can either export the nodes or publish it on our platform.</p>
         <div>
-            {{mdl-button isRaised=true text='SAVE' class="dotplot-button dotplot-button-blue"}}
+            {{mdl-button click=(action 'exportData') isRaised=true text='SAVE' class="dotplot-button dotplot-button-blue"}}
             {{mdl-button isRaised=true text='PUBLISH' class="dotplot-button dotplot-button-blue dotplot-float-right"}}
         </div>
     </footer>
@@ -91,7 +91,7 @@
     
     <!-- DotPlot Nodes -->
     <div class="dotplot-nodes">
-        <svg></svg>
+        <svg height=530 width=1000></svg>
     </div>
     
     <!-- DotPlot Controls For Current Frame -->
