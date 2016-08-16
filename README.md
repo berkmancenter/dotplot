@@ -50,6 +50,11 @@ Make use of the many generators for code, try `ember help generate` for more det
   
 ## Ember Actions Help
 
+### labelToggle (Function, Observer)
+
+**Accepts:** None  
+**Returns:** Observes `showLabel` property and calls `showLabels` or `removeLabels`.
+
 ### getNodes (Function, Promise)
 
 **Accepts:** Type of frame (String)  
@@ -77,52 +82,52 @@ Make use of the many generators for code, try `ember help generate` for more det
 
 ### deleteFrame (Ember Action)
 
-**Accepts:** Frame Object  
+**Accepts:** Frame (Object)  
 **Action:** Finds the associated frame record and deletes it.
 
 ### showModel (Ember Action)
 
-**Accepts:** Element Id  
+**Accepts:** Element Id (String)  
 **Action:** Displays associated dialog.
 
 ### hideModel (Ember Action)
 
-**Accepts:** Element Id  
+**Accepts:** Element Id (String)  
 **Action:** Hides associated dialog.
 
 ### fileUpload (Ember Action)
 
-**Accepts:** File Object  
+**Accepts:** File (Object)  
 **Action:** Calls `importJSONData` or `importCSVData` based on the file type.
 
 ### importJSONData (Ember Action)
 
-**Accepts:** File Object  
+**Accepts:** File (Object)  
 **Action:** Creates new frame records using the data in the exported JSON file.
 
 ### importCSVData (Ember Action)
 
-**Accepts:** File Object  
+**Accepts:** File (Object)  
 **Action:** Extracts different columns from the CSV file and creates node objects. Allows to create frames from scratch.
 
 ### selectColumn (Ember Action)
 
-**Accepts:** Column Object  
+**Accepts:** Column (Object)  
 **Action:** Updated the current column (Question) selection and highlights the selection.
 
 ### d3Init (Ember Action)
 
-**Accepts:** Frame Object  
+**Accepts:** Frame (Object)  
 **Action:** Updated node data, removes node that are not in the data `exit()` creates nodes that are not on the SVG `enter()` and calls force layout action `d3Plot`.
 
 ### nodeClick (Ember Action)
 
-**Accepts:** Node Selection and Frame Object  
+**Accepts:** Node Selection (Object) and Frame (Object)  
 **Action:** Finds all the nodes using nodeId (Including Duplicate Nodes), increases the node radius and calls the `nodeInfo` action.
 
 ### nodeInfo (Ember Action)
 
-**Accepts:** Node Selection  
+**Accepts:** Node Selection (Object)  
 **Action:** Displays node information DOM Element (Question Answer Sets).
 
 ### hideNodeInfo (Ember Action)
@@ -132,7 +137,7 @@ Make use of the many generators for code, try `ember help generate` for more det
 
 ### d3Plot (Ember Action)
 
-**Accepts:** Frame Object  
+**Accepts:** Frame (Object)  
 **Action:** Updates node data and runs force layout `force.start()`.
 
 ### removeLabels (Ember Action)
@@ -142,7 +147,7 @@ Make use of the many generators for code, try `ember help generate` for more det
 
 ### showLabels (Ember Action)
 
-**Accepts:** Frame Object and updatePosition boolean  
+**Accepts:** Frame (Object) and updatePosition (Boolean)  
 **Action:** Updated label data and creates labels 'enter()'.
 
 ### updateLabels (Ember Action)
@@ -152,32 +157,32 @@ Make use of the many generators for code, try `ember help generate` for more det
 
 ### saveNodePositions (Ember Action)
 
-**Accepts:** Frame Object  
+**Accepts:** Frame (Object)  
 **Action:** Iterates over nodes on the SVG and updates the X and Y coordinates of the nodes in the frame object.
 
 ### changeGravity (Ember Action)
 
-**Accepts:** Change Event  
+**Accepts:** Change Event (Object)  
 **Action:** Sets new gravity value and calls `d3Plot` action after `removeLabels` action.
 
 ### changeCharge (Ember Action)
 
-**Accepts:** Change Event  
+**Accepts:** Change Event (Object)  
 **Action:** Sets new charge value and calls `d3Plot` action after `removeLabels` action.
 
 ### changeRadius (Ember Action)
 
-**Accepts:** Change Event  
+**Accepts:** Change Event (Object)  
 **Action:** Transitions into new radius value `transition()`.
 
 ### selectFrame (Ember Action)
 
-**Accepts:** Frame Object  
+**Accepts:** Frame (Object)  
 **Action:** Updates the node data, removes node that are not in the data `exit()` creates nodes that are not on the SVG `enter()` and transitions into the specified node positions.
 
 ### showNotification (Ember Action)
 
-**Accepts:** Type of notification (Error, Warning, Info, Success) and Notification Message.  
+**Accepts:** Type of notification [Error, Warning, Info, Success] (String)  and Notification Message (String)  
 **Action:** Displays a notification at the bottom of the view which automatically disappears after 2200ms.
 
 ### exportData (Ember Action)

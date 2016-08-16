@@ -17,7 +17,7 @@ export default Ember.Controller.extend({
 
     nodes: [],
 
-    labelToggal: function () {
+    labelToggle: function () {
         if (this.get('showLabels')) {
             this.send('showLabels', this.get('frame'), true);
         } else {
