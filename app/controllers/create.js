@@ -9,9 +9,22 @@ export default Ember.Controller.extend({
 
     charge: 12,
 
+    showLabels: true,
+
+    showNodeInfo: true,
+
     gravity: 4,
 
     nodes: [],
+
+    labelToggal: function () {
+        if (this.get('showLabels')) {
+            this.send('showLabels', this.get('frame'), true);
+        } else {
+            this.send('removeLabels');
+        }
+
+    }.observes('showLabels'),
 
     getNodes: function (frameType) {
         NProgress.start();
@@ -358,7 +371,7 @@ export default Ember.Controller.extend({
                 });
 
                 NProgress.done();
-                
+
                 that.send('showNotification', 'success', 'CSV file successfully parsed.');
             });
         },
@@ -434,7 +447,9 @@ export default Ember.Controller.extend({
                     return d3.rgb(d.fill).darker(2);
                 })
                 .on('click', function (d) {
-                    that.send('nodeClick', d, frame);
+                    if (that.get('showNodeInfo')) {
+                        that.send('nodeClick', d, frame);
+                    }
                 });
 
             // Create force layout.
@@ -561,12 +576,14 @@ export default Ember.Controller.extend({
             // Show labels and update nProgress.
             function end() {
                 NProgress.done();
-                
+
                 that.send('showNotification', 'success', 'Force layout completed, you can now modify it.');
 
                 that.set('frame', frame);
 
-                that.send('showLabels', frame, true);
+                if (that.get('showLabels')) {
+                    that.send('showLabels', frame, true);
+                }
             }
 
             // Define force properties.
@@ -593,9 +610,9 @@ export default Ember.Controller.extend({
 
         showLabels: function (frame, updatePosition) {
             NProgress.start();
-            
+
             var that = this;
-            
+
             // Update label data.
             var label = d3.select(".dotplot-nodes > svg")
                 .selectAll(".label")
@@ -800,7 +817,9 @@ export default Ember.Controller.extend({
                 })
                 .each("end", _.once(function () {
                     NProgress.done();
-                    that.send('showLabels', frame);
+                    if (that.get('showLabels')) {
+                        that.send('showLabels', frame, true);
+                    }
                 }));
 
 
