@@ -156,14 +156,14 @@
 <!-- DotPlot Upload CSV file Dialog -->
 <dialog id="fileUpload" class="dotplot-dialog dotplot-dialog-small animated zoomIn">
     <header>
-        <p class="dotplot-heading">To create a visualisation upload a .csv file.</p>
+        <p class="dotplot-heading">To create a visualisation upload a .csv or .json file.</p>
         {{mdl-textfield value=projectTitle label='Tell us something about your visualisation.' class="dotplot-full-width"}}
     </header>
     
     <!-- Upload CSV File Dialog Button -->
     <footer>
         {{#x-file-input action=(action "fileUpload")}}
-            {{mdl-button isRaised=true text='SELECT A CSV FILE FROM THE DISK' class="dotplot-full-width dotplot-button dotplot-button-blue"}}
+            {{mdl-button isRaised=true text='SELECT A CSV OR JSON FILE FROM THE DISK' class="dotplot-full-width dotplot-button dotplot-button-blue"}}
         {{/x-file-input}}
     </footer>
 </dialog>

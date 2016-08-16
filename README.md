@@ -2,7 +2,7 @@
 
 DotPlot is a data visualisation tool built on top of [D3.js](https://d3js.org/) to help non-programmers create interactive data visualisations using easy to use drag and drop interface.
 
-![DotPlot Demo Screenshot](/public/assets/img/screenshot.png?raw=true)
+![DotPlot App Screenshot](/public/assets/docs/screenshot.png?raw=true)
 
 ## Prerequisites
 
@@ -40,6 +40,15 @@ Make use of the many generators for code, try `ember help generate` for more det
 * `ember build` (development)
 * `ember build --environment production` (production)
 
+### DotPlot Guide
+
+![DotPlot Guide 1](/public/assets/docs/dotplot-guide-1.jpg?raw=true)
+![DotPlot Guide 2](/public/assets/docs/dotplot-guide-2.jpg?raw=true)
+![DotPlot Guide 3](/public/assets/docs/dotplot-guide-3.jpg?raw=true)
+![DotPlot Guide 4](/public/assets/docs/dotplot-guide-4.jpg?raw=true)
+![DotPlot Guide 5](/public/assets/docs/dotplot-guide-5.jpg?raw=true)
+![DotPlot Guide 6](/public/assets/docs/dotplot-guide-6.jpg?raw=true)
+
 ## Further Reading / Useful Links
 
 * [ember.js](http://emberjs.com/)
@@ -53,47 +62,47 @@ Make use of the many generators for code, try `ember help generate` for more det
 ### labelToggle (Function, Observer)
 
 **Accepts:** None  
-**Returns:** Observes `showLabel` property and calls `showLabels` or `removeLabels`.
+**Use:** Observes `showLabel` property and calls `showLabels` or `removeLabels`.
 
 ### getNodes (Function, Promise)
 
 **Accepts:** Type of frame (String)  
-**Returns:** Array of node objects.
+**Returns:** An array of node objects.
 
 ### getFoci (Function)
 
 **Accepts:** Number of choices (Array)  
-**Returns:** Array of foci coordinates.
+**Returns:** An array of foci coordinates.
 
 ### createFrame (Ember Action)
 
 **Accepts:** None  
-**Action:** Calls another action based on type of frame.
+**Action:** Calls another action based on the type of frame.
 
 ### createSingleChoice (Ember Action)
 
 **Accepts:** None  
-**Action:** Creates a new record for single choice frame and calls d3Init (Run force layout).
+**Action:** Creates a new record for a single choice frame and calls d3Init (Run force layout).
 
 ### createMultipleChoice (Ember Action)
 
 **Accepts:** None  
-**Action:** Creates a new record for multiple choice frame and calls `d3Init` (Run force layout).
+**Action:** Creates a new record for a multiple choice frame and calls `d3Init` (Run force layout).
 
 ### deleteFrame (Ember Action)
 
 **Accepts:** Frame (Object)  
-**Action:** Finds the associated frame record and deletes it.
+**Action:** Deletes the frame record based on the provided frame object.
 
 ### showModel (Ember Action)
 
 **Accepts:** Element Id (String)  
-**Action:** Displays associated dialog.
+**Action:** Displays dialog based on the provided id.
 
 ### hideModel (Ember Action)
 
 **Accepts:** Element Id (String)  
-**Action:** Hides associated dialog.
+**Action:** Hides dialog based on the provided id.
 
 ### fileUpload (Ember Action)
 
@@ -103,7 +112,7 @@ Make use of the many generators for code, try `ember help generate` for more det
 ### importJSONData (Ember Action)
 
 **Accepts:** File (Object)  
-**Action:** Creates new frame records using the data in the exported JSON file.
+**Action:** Creates new frame records using the data in the provided JSON file.
 
 ### importCSVData (Ember Action)
 
@@ -113,12 +122,12 @@ Make use of the many generators for code, try `ember help generate` for more det
 ### selectColumn (Ember Action)
 
 **Accepts:** Column (Object)  
-**Action:** Updated the current column (Question) selection and highlights the selection.
+**Action:** Updates the `selectedColumn` (Question) and highlights the selection.
 
 ### d3Init (Ember Action)
 
 **Accepts:** Frame (Object)  
-**Action:** Updated node data, removes node that are not in the data `exit()` creates nodes that are not on the SVG `enter()` and calls force layout action `d3Plot`.
+**Action:** Updated node data, removes the nodes that are not in the data `exit()` creates nodes that are not on the SVG `enter()` and calls force layout action `d3Plot`.
 
 ### nodeClick (Ember Action)
 
@@ -143,7 +152,7 @@ Make use of the many generators for code, try `ember help generate` for more det
 ### removeLabels (Ember Action)
 
 **Accepts:** None  
-**Action:** Selects all the lables on the SVG and removes them.
+**Action:** Selects all the labels on the SVG and removes them.
 
 ### showLabels (Ember Action)
 
@@ -178,7 +187,7 @@ Make use of the many generators for code, try `ember help generate` for more det
 ### selectFrame (Ember Action)
 
 **Accepts:** Frame (Object)  
-**Action:** Updates the node data, removes node that are not in the data `exit()` creates nodes that are not on the SVG `enter()` and transitions into the specified node positions.
+**Action:** Updates the node data, removes nodes that are not in the data `exit()` creates nodes that are not on the SVG `enter()` and transitions into the specified node positions.
 
 ### showNotification (Ember Action)
 
@@ -188,4 +197,4 @@ Make use of the many generators for code, try `ember help generate` for more det
 ### exportData (Ember Action)
 
 **Accepts:** None  
-**Action:** Iterates over all the frame records and creats a downloadable JSON file `DotPlot.json`.
+**Action:** Iterates over all the frame records and creates a downloadable JSON file `DotPlot.json`.
