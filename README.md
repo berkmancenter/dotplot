@@ -174,3 +174,13 @@ Make use of the many generators for code, try `ember help generate` for more det
 
 **Accepts:** Frame Object  
 **Action:** Updates the node data, removes node that are not in the data `exit()` creates nodes that are not on the SVG `enter()` and transitions into the specified node positions.
+
+### showNotification (Ember Action)
+
+**Accepts:** Type of notification (Error, Warning, Info, Success) and Notification Message.  
+**Action:** Displays a notification at the bottom of the view which automatically disappears after 2200ms.
+
+### exportData (Ember Action)
+
+**Accepts:** None  
+**Action:** Iterates over all the frame records and creats a downloadable JSON file `DotPlot.json`.
