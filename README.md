@@ -42,12 +42,12 @@ Make use of the many generators for code, try `ember help generate` for more det
 
 ### DotPlot Guide
 
-![DotPlot Guide 1](/public/assets/docs/dotplot-guide-1.png?raw=true)
-![DotPlot Guide 2](/public/assets/docs/dotplot-guide-2.png?raw=true)
-![DotPlot Guide 3](/public/assets/docs/dotplot-guide-3.png?raw=true)
-![DotPlot Guide 4](/public/assets/docs/dotplot-guide-4.png?raw=true)
-![DotPlot Guide 5](/public/assets/docs/dotplot-guide-5.png?raw=true)
-![DotPlot Guide 6](/public/assets/docs/dotplot-guide-6.png?raw=true)
+![DotPlot Guide 1](/public/assets/docs/dotplot-guide-1.png?raw=true)  
+![DotPlot Guide 2](/public/assets/docs/dotplot-guide-2.png?raw=true)  
+![DotPlot Guide 3](/public/assets/docs/dotplot-guide-3.png?raw=true)  
+![DotPlot Guide 4](/public/assets/docs/dotplot-guide-4.png?raw=true)  
+![DotPlot Guide 5](/public/assets/docs/dotplot-guide-5.png?raw=true)  
+![DotPlot Guide 6](/public/assets/docs/dotplot-guide-6.png?raw=true)  
 
 ## Further Reading / Useful Links
 
