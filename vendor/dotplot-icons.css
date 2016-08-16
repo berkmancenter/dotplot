@@ -1,10 +1,10 @@
 @font-face {
   font-family: 'dotplot';
-  src:  url('fonts/dotplot.eot?qnygln');
-  src:  url('fonts/dotplot.eot?qnygln#iefix') format('embedded-opentype'),
-    url('fonts/dotplot.ttf?qnygln') format('truetype'),
-    url('fonts/dotplot.woff?qnygln') format('woff'),
-    url('fonts/dotplot.svg?qnygln#dotplot') format('svg');
+  src:  url('fonts/dotplot/dotplot.eot?qnygln');
+  src:  url('fonts/dotplot/dotplot.eot?qnygln#iefix') format('embedded-opentype'),
+    url('fonts/dotplot/dotplot.ttf?qnygln') format('truetype'),
+    url('fonts/dotplot/dotplot.woff?qnygln') format('woff'),
+    url('fonts/dotplot/dotplot.svg?qnygln#dotplot') format('svg');
   font-weight: normal;
   font-style: normal;
 }

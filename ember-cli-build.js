@@ -24,6 +24,7 @@ module.exports = function (defaults) {
     // along with the exports of each module as its value.
 
     app.import('vendor/dotplot-icons.css');
+    app.import('vendor/font-awesome.css');
     app.import('bower_components/file-saver/FileSaver.js');
     app.import('bower_components/animate.css/animate.css');
     app.import('bower_components/nprogress/nprogress.js');

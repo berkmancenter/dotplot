@@ -265,10 +265,13 @@ export default Ember.Controller.extend({
         fileUpload: function (file) {
             if (file[0].type === "application/json") {
                 this.send('importJSONData', file);
+                this.send('hideModel', 'fileUpload');
             } else if (file[0].type === "text/csv") {
                 this.send('importCSVData', file);
+                this.send('hideModel', 'fileUpload');
             } else {
-                // File Not Supported.
+                this.send('hideModel', 'fileUpload');
+                this.send('showNotification', 'error', 'Invalid file type of uploaded file.');
             }
         },
 
@@ -283,15 +286,14 @@ export default Ember.Controller.extend({
             d3.json(jsonFile, function (frames) {
                 frames.forEach(function (frameData) {
                     // Create a new frame record.
-                    var frame = that.get('store')
+                    that.get('store')
                         .createRecord('frame', frameData);
-                    
+
                     NProgress.inc();
                 });
                 NProgress.done();
+                that.send('showNotification', 'success', 'JSON file successfully imported.');
             });
-
-            that.send('hideModel', 'fileUpload');
         },
 
         importCSVData: function (file) {
@@ -303,9 +305,6 @@ export default Ember.Controller.extend({
             var csvFile = URL.createObjectURL(file[0]);
 
             that.set('csvFile', csvFile);
-
-            // Hidel dialog.
-            that.send('hideModel', 'fileUpload');
 
             // Loop : CSV rows.
             d3.csv(csvFile, function (d) {
@@ -359,6 +358,8 @@ export default Ember.Controller.extend({
                 });
 
                 NProgress.done();
+                
+                that.send('showNotification', 'success', 'CSV file successfully parsed.');
             });
         },
 
@@ -560,6 +561,8 @@ export default Ember.Controller.extend({
             // Show labels and update nProgress.
             function end() {
                 NProgress.done();
+                
+                that.send('showNotification', 'success', 'Force layout completed, you can now modify it.');
 
                 that.set('frame', frame);
 
@@ -589,6 +592,10 @@ export default Ember.Controller.extend({
         },
 
         showLabels: function (frame, updatePosition) {
+            NProgress.start();
+            
+            var that = this;
+            
             // Update label data.
             var label = d3.select(".dotplot-nodes > svg")
                 .selectAll(".label")
@@ -651,7 +658,11 @@ export default Ember.Controller.extend({
             // Fade-in effect.
             label.transition()
                 .duration(500)
-                .style("opacity", 0.7);
+                .style("opacity", 0.7)
+                .each("end", _.once(function () {
+                    that.send('showNotification', 'success', 'Foci labels updated successfully.');
+                    NProgress.done();
+                }));
         },
 
         updateLabels: function () {
@@ -788,13 +799,47 @@ export default Ember.Controller.extend({
                     return d.y;
                 })
                 .each("end", _.once(function () {
+                    NProgress.done();
                     that.send('showLabels', frame);
                 }));
 
 
             this.set('frame', frame);
+        },
 
-            NProgress.done();
+        showNotification: function (type, message) {
+            switch (type) {
+            case 'warning':
+                this.notifications.warning(message, {
+                    autoClear: true,
+                    clearDuration: 2000
+                });
+                break;
+
+            case 'info':
+                this.notifications.info(message, {
+                    autoClear: true,
+                    clearDuration: 2000
+                });
+                break;
+
+            case 'error':
+                this.notifications.error(message, {
+                    autoClear: true,
+                    clearDuration: 2000
+                });
+                break;
+
+            case 'success':
+                this.notifications.success(message, {
+                    autoClear: true,
+                    clearDuration: 2000
+                });
+                break;
+
+            default:
+                // Invalid Type.
+            }
         },
 
         exportData: function () {
