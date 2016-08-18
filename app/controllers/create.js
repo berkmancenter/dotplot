@@ -36,7 +36,7 @@ export default Ember.Controller.extend({
         // Ember promise.
         return new Ember.RSVP.Promise(function (resolve, reject) {
             if (frameType === "Single Choice") {
-                d3.csv(that.csvFile, function (d) {
+                d3.csv(that.get('csvFile'), function (d) {
                     return {
                         id: d.V1,
                         value: d[that.get('selectedColumn').get('id')]
@@ -85,7 +85,7 @@ export default Ember.Controller.extend({
                     }
                 });
             } else if (frameType === "Multiple Choice") {
-                d3.csv(that.csvFile, function (rows) {
+                d3.csv(that.get('csvFile'), function (rows) {
                     rows.forEach(function (row, index) {
                         if (index !== 0) {
                             var nodeObject = that.get('nodes')
@@ -172,6 +172,25 @@ export default Ember.Controller.extend({
         return foci;
     },
     actions: {
+        loadPorject: function () {
+            var that = this;
+            
+            var file = '/api/project/' + this.get('projectId');
+            
+            Ember.$.get(file, function () {
+                that.send('importJSONData', file);
+                that.send('hideModel', 'fileUpload');
+            }).fail(function () {
+                // Shake effect if no title is provided.
+                Ember.$('#fileUpload').removeClass('zoomIn').addClass('shake');
+
+                // Remove class on animation complete.
+                window.setTimeout(function () {
+                    Ember.$('#fileUpload').removeClass('shake');
+                }, 1000);
+            });
+        },
+
         createFrame: function () {
             if (!this.get('frameTitle')) {
                 // Shake effect if no title is provided.
@@ -201,6 +220,7 @@ export default Ember.Controller.extend({
                 }
             }
         },
+
         createSingleChoice: function () {
             var that = this;
 
@@ -258,9 +278,19 @@ export default Ember.Controller.extend({
             });
         },
 
+        createDialog: function () {
+            if (this.get('csvFile')) {
+                this.send('showModel', 'createFrame');
+            } else {
+                this.send('showNotification', 'error', 'Please add a <b>CSV</b> file to create frames.', true);
+            }
+        },
+
         deleteFrame: function (frame) {
             this.get('store')
                 .deleteRecord(frame);
+            
+            this.send('showNotification', 'error', 'Successfully deleted frame <b>' + frame.get('id') + '</b>.', true);
         },
 
         showModel: function (modelId) {
@@ -275,16 +305,32 @@ export default Ember.Controller.extend({
             dialog.close();
         },
 
-        fileUpload: function (file) {
+        fileUpload: function (file, resetInput) {
             if (file[0].type === "application/json") {
-                this.send('importJSONData', file);
+                var jsonFile = URL.createObjectURL(file[0]);
+                
+                this.send('importJSONData', jsonFile);
+                
                 this.send('hideModel', 'fileUpload');
+                
+                resetInput();
             } else if (file[0].type === "text/csv") {
-                this.send('importCSVData', file);
+                // Get local file path.
+                var csvFile = URL.createObjectURL(file[0]);
+                
+                this.set('csvFile', csvFile);
+                
+                this.send('importCSVData', csvFile);
+                
                 this.send('hideModel', 'fileUpload');
+                
+                resetInput();
             } else {
                 this.send('hideModel', 'fileUpload');
-                this.send('showNotification', 'error', 'Invalid file type of uploaded file.');
+                
+                this.send('showNotification', 'error', 'Invalid file type of uploaded file.', true);
+                
+                resetInput();
             }
         },
 
@@ -293,10 +339,7 @@ export default Ember.Controller.extend({
 
             var that = this;
 
-            // Get local file path.
-            var jsonFile = URL.createObjectURL(file[0]);
-
-            d3.json(jsonFile, function (frames) {
+            d3.json(file, function (frames) {
                 frames.forEach(function (frameData) {
                     // Create a new frame record.
                     that.get('store')
@@ -305,7 +348,7 @@ export default Ember.Controller.extend({
                     NProgress.inc();
                 });
                 NProgress.done();
-                that.send('showNotification', 'success', 'JSON file successfully imported.');
+                that.send('showNotification', 'success', 'Project file successfully imported.', true);
             });
         },
 
@@ -314,13 +357,8 @@ export default Ember.Controller.extend({
 
             var that = this;
 
-            // Get local file path.
-            var csvFile = URL.createObjectURL(file[0]);
-
-            that.set('csvFile', csvFile);
-
             // Loop : CSV rows.
-            d3.csv(csvFile, function (d) {
+            d3.csv(file, function (d) {
                 // Loop : Column titles.
                 _.forEach(d[0], function (column, id) {
                     // Select only non-text and question columns.
@@ -360,7 +398,7 @@ export default Ember.Controller.extend({
             });
 
             // Create node objects.
-            d3.csv(csvFile, function (rows) {
+            d3.csv(file, function (rows) {
                 rows.forEach(function (row, index) {
                     if (index !== 0) {
                         that.get('nodes')
@@ -372,7 +410,7 @@ export default Ember.Controller.extend({
 
                 NProgress.done();
 
-                that.send('showNotification', 'success', 'CSV file successfully parsed.');
+                that.send('showNotification', 'success', 'CSV file successfully parsed.', true);
             });
         },
 
@@ -550,7 +588,9 @@ export default Ember.Controller.extend({
             function drawNode(alpha) {
                 return function (d) {
                     var center = foci[d[frame.get('id')]];
+                    
                     d.x += (center.x - d.x) * 0.09 * alpha;
+                    
                     d.y += (center.y - d.y) * 0.09 * alpha;
                 };
             }
@@ -575,9 +615,9 @@ export default Ember.Controller.extend({
 
             // Show labels and update nProgress.
             function end() {
-                NProgress.done();
-
-                that.send('showNotification', 'success', 'Force layout completed, you can now modify it.');
+                NProgress.inc();
+                
+                that.send('showNotification', 'success', 'Force layout completed, you can now modify it.', true);
 
                 that.set('frame', frame);
 
@@ -609,8 +649,6 @@ export default Ember.Controller.extend({
         },
 
         showLabels: function (frame, updatePosition) {
-            NProgress.start();
-
             var that = this;
 
             // Update label data.
@@ -677,7 +715,9 @@ export default Ember.Controller.extend({
                 .duration(500)
                 .style("opacity", 0.7)
                 .each("end", _.once(function () {
-                    that.send('showNotification', 'success', 'Foci labels updated successfully.');
+                    if (updatePosition) {
+                        that.send('showNotification', 'success', 'Foci labels updated successfully.', true);
+                    }
                     NProgress.done();
                 }));
         },
@@ -702,7 +742,9 @@ export default Ember.Controller.extend({
             node.each(function (node) {
                 var nodeRef = frame.get('nodes')
                     .findBy('id', node.id);
+                
                 nodeRef.x = node.x;
+                
                 nodeRef.y = node.y;
             });
         },
@@ -758,7 +800,7 @@ export default Ember.Controller.extend({
             // Remove nodes from the SVG that are not in the data.
             node.exit()
                 .transition()
-                .duration(100)
+                .duration(500)
                 .style('opacity', 0)
                 .remove();
 
@@ -799,7 +841,7 @@ export default Ember.Controller.extend({
                 .style("fill", function (d) {
                     return d.fill;
                 })
-                .style("opacity", 0.7)
+                .style("opacity", 0)
                 .style("stroke", function (d) {
                     return d3.rgb(d.fill).darker(2);
                 })
@@ -809,6 +851,7 @@ export default Ember.Controller.extend({
 
             // Transition into the new node positions.
             node.transition().duration(1000)
+                .style('opacity', 0.7)
                 .attr('cx', function (d) {
                     return d.x;
                 })
@@ -816,9 +859,11 @@ export default Ember.Controller.extend({
                     return d.y;
                 })
                 .each("end", _.once(function () {
-                    NProgress.done();
                     if (that.get('showLabels')) {
+                        NProgress.inc();
                         that.send('showLabels', frame, true);
+                    } else {
+                        NProgress.done();
                     }
                 }));
 
@@ -826,33 +871,37 @@ export default Ember.Controller.extend({
             this.set('frame', frame);
         },
 
-        showNotification: function (type, message) {
+        showNotification: function (type, message, clear) {
             switch (type) {
             case 'warning':
                 this.notifications.warning(message, {
-                    autoClear: true,
-                    clearDuration: 2000
+                    autoClear: clear,
+                    clearDuration: 2000,
+                    htmlContent: true
                 });
                 break;
 
             case 'info':
                 this.notifications.info(message, {
-                    autoClear: true,
-                    clearDuration: 2000
+                    autoClear: clear,
+                    clearDuration: 2000,
+                    htmlContent: true
                 });
                 break;
 
             case 'error':
                 this.notifications.error(message, {
-                    autoClear: true,
-                    clearDuration: 2000
+                    autoClear: clear,
+                    clearDuration: 2000,
+                    htmlContent: true
                 });
                 break;
 
             case 'success':
                 this.notifications.success(message, {
-                    autoClear: true,
-                    clearDuration: 2000
+                    autoClear: clear,
+                    clearDuration: 2000,
+                    htmlContent: true
                 });
                 break;
 
@@ -861,8 +910,43 @@ export default Ember.Controller.extend({
             }
         },
 
-        exportData: function () {
+        sendToServer: function (blob, fileName) {
+            NProgress.start();
+
+            var request = new XMLHttpRequest();
+
+            var data = new FormData();
+
+            var that = this;
+
+            // Append file to FormData.
+            data.append('projectData', blob, fileName);
+
+            // Open connection.
+            request.open('POST', '/api/project', true);
+
+            // Show notification on success.
+            request.onreadystatechange = function () {
+                if (request.readyState === 4 && request.status === 200) {
+                    that.send('showNotification', 'info', '<b>Project ID:</b> ' + request.responseText, false);
+                }
+            };
+
+            // Track upload progress.
+            request.upload.onprogress = function (e) {
+                if (e.lengthComputable) {
+                    NProgress.set(e.loaded / e.total);
+                }
+            };
+
+            // Send data to the server.
+            request.send(data);
+        },
+
+        exportData: function (type) {
             var fileData = [];
+            
+            var that = this;
 
             // Find all frame records.
             this.get('store').findAll('frame').then(function (frames) {
@@ -882,8 +966,13 @@ export default Ember.Controller.extend({
                     type: "application/json"
                 });
 
-                // Save the JSON File.
-                saveAs(blob, "DotPlot.json");
+                if (type === "publish") {
+                    that.send('sendToServer', blob, 'DotPlot.json');
+                } else if (type === "save") {
+                    saveAs(blob, "DotPlot.json");
+                } else {
+                    // Invalid Type.
+                }
             });
         }
     }

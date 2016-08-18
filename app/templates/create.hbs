@@ -8,7 +8,7 @@
         
         <!-- DotPlot Buttons | Upload and Setting -->
         <div class="dotplot-sidebar-buttons">
-            {{mdl-button isRaised=true text='UPLOAD' class="dotplot-button dotplot-button-green" click=(action 'showModel' 'fileUpload')}}
+            {{mdl-button isRaised=true text='LOAD DATA' class="dotplot-button dotplot-button-green" click=(action 'showModel' 'fileUpload')}}
             {{mdl-button isRaised=true text='SETTINGS' class="dotplot-button dotplot-button-orange dotplot-float-right"}}
         </div>
     </header>
@@ -42,7 +42,7 @@
         </div>
         
         <!-- Create Frame Button -->
-        {{#mdl-card class="dotplot-frame dotplot-low-opacity" click=(action 'showModel' 'createFrame')}}
+        {{#mdl-card class="dotplot-frame dotplot-low-opacity" click=(action 'createDialog')}}
             <div class="mdl-card__supporting-text dotplot-margin-tb9">
                 <div class="dotplot-frame-add">
                     ADD FRAME
@@ -65,8 +65,8 @@
     <footer class="dotplot-sidebar-footer">
         <p>Looks good enough? You can either export the nodes or publish it on our platform.</p>
         <div>
-            {{mdl-button click=(action 'exportData') isRaised=true text='SAVE' class="dotplot-button dotplot-button-blue"}}
-            {{mdl-button isRaised=true text='PUBLISH' class="dotplot-button dotplot-button-blue dotplot-float-right"}}
+            {{mdl-button click=(action 'exportData' 'save') isRaised=true text='SAVE' class="dotplot-button dotplot-button-blue"}}
+            {{mdl-button  click=(action 'exportData' 'publish') isRaised=true text='PUBLISH' class="dotplot-button dotplot-button-blue dotplot-float-right"}}
         </div>
     </footer>
 </section>
@@ -156,15 +156,17 @@
 <!-- DotPlot Upload CSV file Dialog -->
 <dialog id="fileUpload" class="dotplot-dialog dotplot-dialog-small animated zoomIn">
     <header>
-        <p class="dotplot-heading">To create a visualisation upload a .csv or .json file.</p>
+        <p class="dotplot-heading">Upload a file or enter your project id to get started.</p>
         {{mdl-textfield value=projectTitle label='Tell us something about your visualisation.' class="dotplot-full-width"}}
+        {{mdl-textfield value=projectId label='Enter your project id to load an already published project.' class="dotplot-full-width"}}
     </header>
     
     <!-- Upload CSV File Dialog Button -->
-    <footer>
+    <footer class="dotplot-margin-t25">
         {{#x-file-input action=(action "fileUpload")}}
-            {{mdl-button isRaised=true text='SELECT A CSV OR JSON FILE FROM THE DISK' class="dotplot-full-width dotplot-button dotplot-button-blue"}}
+            {{mdl-button isRaised=true text='SELECT CSV OR JSON FILE' class="dotplot-button dotplot-full-width dotplot-button-green dotplot-float-left"}}
         {{/x-file-input}}
+        {{mdl-button action=(action "loadPorject") isRaised=true text='LOAD PROJECT FROM ID' class="dotplot-button dotplot-button-blue dotplot-float-right"}}
     </footer>
 </dialog>
 

@@ -1,10 +1,10 @@
 @font-face {
   font-family: 'Font-Awesome-Custom';
-  src:  url('fonts/font-awesome/Font-Awesome-Custom.eot?blhj5f');
-  src:  url('fonts/font-awesome/Font-Awesome-Custom.eot?blhj5f#iefix') format('embedded-opentype'),
-    url('fonts/font-awesome/Font-Awesome-Custom.ttf?blhj5f') format('truetype'),
-    url('fonts/font-awesome/Font-Awesome-Custom.woff?blhj5f') format('woff'),
-    url('fonts/font-awesome/Font-Awesome-Custom.svg?blhj5f#Font-Awesome-Custom') format('svg');
+  src:  url('fonts/font-awesome/Font-Awesome-Custom.eot?jfqte7');
+  src:  url('fonts/font-awesome/Font-Awesome-Custom.eot?jfqte7#iefix') format('embedded-opentype'),
+    url('fonts/font-awesome/Font-Awesome-Custom.ttf?jfqte7') format('truetype'),
+    url('fonts/font-awesome/Font-Awesome-Custom.woff?jfqte7') format('woff'),
+    url('fonts/font-awesome/Font-Awesome-Custom.svg?jfqte7#Font-Awesome-Custom') format('svg');
   font-weight: normal;
   font-style: normal;
 }
@@ -26,6 +26,15 @@
 
 .fa-check:before {
   content: "\f00c";
+}
+.fa-close:before {
+  content: "\f00d";
+}
+.fa-remove:before {
+  content: "\f00d";
+}
+.fa-times:before {
+  content: "\f00d";
 }
 .fa-info-circle:before {
   content: "\f05a";

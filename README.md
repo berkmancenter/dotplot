@@ -59,6 +59,11 @@ Make use of the many generators for code, try `ember help generate` for more det
   
 ## Ember Actions Help
 
+### loadProject (Function, Observer)
+
+**Accepts:** None  
+**Use:** Calls `importJSONData` if a valid Project ID is provided.  
+
 ### labelToggle (Function, Observer)
 
 **Accepts:** None  
@@ -88,6 +93,11 @@ Make use of the many generators for code, try `ember help generate` for more det
 
 **Accepts:** None  
 **Action:** Creates a new record for a multiple choice frame and calls `d3Init` (Run force layout).
+
+### createDialog (Ember Action)
+
+**Accepts:** None  
+**Action:** Displays `createFrame` model if CSV file is loaded.  
 
 ### deleteFrame (Ember Action)
 
@@ -127,7 +137,7 @@ Make use of the many generators for code, try `ember help generate` for more det
 ### d3Init (Ember Action)
 
 **Accepts:** Frame (Object)  
-**Action:** Updated node data, removes the nodes that are not in the data `exit()` creates nodes that are not on the SVG `enter()` and calls force layout action `d3Plot`.
+**Action:** Updated nodes data, removes the nodes that are not in the data `exit()` creates nodes that are not on the SVG `enter()` and calls force layout action `d3Plot`.
 
 ### nodeClick (Ember Action)
 
@@ -147,7 +157,7 @@ Make use of the many generators for code, try `ember help generate` for more det
 ### d3Plot (Ember Action)
 
 **Accepts:** Frame (Object)  
-**Action:** Updates node data and runs force layout `force.start()`.
+**Action:** Updates nodes data and runs force layout `force.start()`.
 
 ### removeLabels (Ember Action)
 
@@ -187,14 +197,19 @@ Make use of the many generators for code, try `ember help generate` for more det
 ### selectFrame (Ember Action)
 
 **Accepts:** Frame (Object)  
-**Action:** Updates the node data, removes nodes that are not in the data `exit()` creates nodes that are not on the SVG `enter()` and transitions into the specified node positions.
+**Action:** Updates the nodes data, removes nodes that are not in the data `exit()` creates nodes that are not on the SVG `enter()` and transitions into the specified node positions.
 
 ### showNotification (Ember Action)
 
 **Accepts:** Type of notification [Error, Warning, Info, Success] (String)  and Notification Message (String)  
 **Action:** Displays a notification at the bottom of the view which automatically disappears after 2200ms.
 
+### sendToServer (Ember Action)
+
+**Accepts:** File (Blob) and File Name (String)  
+**Action:** Posts the data to `/api/project` and displays a notification with Project ID Hash.    
+
 ### exportData (Ember Action)
 
-**Accepts:** None  
-**Action:** Iterates over all the frame records and creates a downloadable JSON file `DotPlot.json`.
+**Accepts:** Type (String)  
+**Action:** Iterates over all the frame records and creates a Blob, calls `sendToServer` if the type is Publish or else downloads a json file `DotPlot.json`.  
