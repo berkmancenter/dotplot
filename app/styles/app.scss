@@ -261,12 +261,8 @@ body > div.ember-view {
     width: 100% !important;
 }
 
-.x-file--input {
-    position: absolute;
-}
-
 .x-file--input + label {
-    display: block !important;
+    width: 47%;
 }
 
 .dotplot-dialog {
