@@ -1,8 +1,12 @@
 # Dotplot - Telling a story through dots
 
-DotPlot is a data visualisation tool built on top of [D3.js](https://d3js.org/) to help non-programmers create interactive data visualisations using easy to use drag and drop interface.
+DotPlot is a data visualisation tool built on top of [D3.js](https://d3js.org/) to help non-programmers create interactive data visualisations using easy to use drag and drop interface.  
 
+### Create View (Create or Edit DotPlot Projects)
 ![DotPlot App Screenshot](/public/assets/docs/screenshot.png?raw=true)
+
+### Presentation View (Share or Present DotPlot Projects)
+![DotPlot Presentation Screenshot](/public/assets/docs/screenshot2.png?raw=true)
 
 ## Prerequisites
 
@@ -25,6 +29,7 @@ To contribute to this project, you will need the following things properly insta
 
 * `ember server`
 * Visit your app at [http://localhost:4200/create](http://localhost:4200/create).
+* Public View: `http://localhost:4200/project?id=<Your Project Id>`.
 
 ### Code Generators
 
