@@ -1,5 +1,4 @@
 @import 'material-design-lite';
-
 body {
     background-color: #FAFAFA;
     width: 100%;
@@ -392,10 +391,40 @@ dialog::backdrop {
     margin: 20px;
     max-height: 300px;
     overflow-y: scroll;
-    
+}
+
+.dotplot-view-top {
+    width: 100%;
+    background-color: #fff;
+    box-shadow: 0px 2px 7px 0px rgba(144, 144, 144, 0.5);
+}
+
+.dotplot-view-top > h3 {
+    font-weight: 100;
+    margin: 0 20px;
+    font-size: 30px;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.dotplot-view-logo {
+    display: inline-block;
+    margin: 20px;
+}
+
+.dotplot-view-main {
+    width: 1169.85px;
+    margin: 0 auto;
+    top: 110px;
+    bottom: 0;
 }
 
 .dotplot-notification-bottom {
     position: absolute !important;
     bottom: 170px !important;
+}
+
+.dotplot-view-controls {
+    width: 700px;
+    margin: 0 auto;
 }

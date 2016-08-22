@@ -1,0 +1,34 @@
+<!-- DotPlot Logo and Frame Title -->
+<header class="dotplot-view-top">
+    <div class="dotplot-view-logo">
+        <img src="assets/img/logo-view.png" alt="">
+    </div>
+    <h3>{{if frame frame.title "Sorry the provided project id is invalid."}}</h3>
+</header>
+
+<!-- DotPlot Main Project View Container -->
+<main class="dotplot-view-main">
+    <svg height=620 width=1169.85></svg>
+    <div class="dotplot-view-controls">
+        {{mdl-button isRaised=true text='VIEW PREVIOUS QUESTION' class="dotplot-button dotplot-button-green" click=(action 'changeFrame' 'previous')}}
+        {{mdl-button isRaised=true text='VIEW NEXT QUESTION' class="dotplot-button dotplot-button-blue dotplot-float-right" click=(action 'changeFrame' 'next')}}
+    </div>
+</main>
+
+<!-- DotPlot Node Info Container -->
+<div id="nodeInfo" class="dotplot-dialog dotplot-nodeinfo">
+    <!-- Close Info Container Button -->
+    <a href="#" class="dotplot-nostyle-link dotplot-hideinfo" {{action "hideNodeInfo"}}><i class="dotplot-icon-close"></i></a>
+
+    <!-- Node Info List -->
+    <div class="dotplot-nodeinfolist">
+        {{#each info as |nodedetails|}}
+        <div class="dotplot-nodefield">
+            <h2><span>Question:</span> {{nodedetails.question}}</h2>
+            <p><span>Answer:</span> {{nodedetails.answer}}</p>
+        </div>
+        {{/each}}
+    </div>
+</div>
+
+{{outlet}}

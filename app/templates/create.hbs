@@ -33,7 +33,7 @@
                         </div>
                         <div class="dotplot-frame-controls dotplot-float-right dotplot-text-right">
                             <a href="#" class="dotplot-nostyle-link" {{action "d3Plot" frame}}><i class="dotplot-icon-forcelayout"></i></a>
-                            <a href="#" class="dotplot-nostyle-link" {{action "showModel" "editLabel"}}><i class="dotplot-icon-label"></i></a>
+                            <a href="#" class="dotplot-nostyle-link" {{action "showModel" 'editLabel'}}><i class="dotplot-icon-label"></i></a>
                             <a href="#" class="dotplot-nostyle-link" {{action "deleteFrame" frame}}><i class="dotplot-icon-close"></i></a>
                         </div>
                     {{/mdl-card-actions}}
@@ -113,7 +113,7 @@
         </div>
         <div class="mdl-grid">
             <div class="mdl-cell mdl-cell--4-col">
-                {{mdl-switch text='Show Labels' value=showLabels class="dotplot-wrapper"}}
+                {{mdl-switch text='Show Labels' value=labels class="dotplot-wrapper"}}
             </div>
             <div class="mdl-cell mdl-cell--4-col">
                 {{mdl-switch text='Node Details' value=showNodeInfo class="dotplot-wrapper"}}
@@ -175,7 +175,7 @@
     <header>
         <p class="dotplot-heading">Change the text in the fields to update labels.</p>
         {{#each frame.foci as |label|}}
-            {{mdl-textfield value=label.text label=(concat "Label text for " label.id) class="dotplot-full-width"}}
+            {{mdl-textfield value=label.text label=(concat "Replacement text for " label.text) class="dotplot-full-width"}}
         {{/each}}
     </header>
 
