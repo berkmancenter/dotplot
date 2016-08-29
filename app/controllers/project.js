@@ -5,13 +5,7 @@ import _ from 'lodash/lodash';
 export default Ember.Controller.extend({
     queryParams: ['id'],
 
-    scale: 1.2,
-
     id: null,
-
-    width: 1169.85,
-
-    height: 620,
 
     start: Ember.computed('id', function () {
         var projectId = this.get('id');
@@ -45,8 +39,25 @@ export default Ember.Controller.extend({
 
             var first = true;
 
-            d3.json(file, function (frames) {
-                frames.forEach(function (frameData) {
+            d3.json(file, function (project) {
+                // Update width and height according to window size.
+                var height = Ember.$(window).height() - 140;
+
+                var ratio = height / project.height;
+
+                var width = project.width * ratio;
+
+                that.set('width', width);
+
+                that.set('height', height);
+
+                that.set('scale', ratio);
+
+                d3.select(".dotplot-view-main > svg")
+                    .attr('width', width)
+                    .attr('height', height);
+
+                project.frames.forEach(function (frameData) {
                     // Create a new frame record.
                     var frame = that.get('store')
                         .createRecord('frame', frameData);
@@ -69,7 +80,7 @@ export default Ember.Controller.extend({
                 .findAll('frame')
                 .then(function (frames) {
                     var frameIndex = frames.indexOf(that.get('frame'));
-                
+
                     if (type === 'next') {
                         var nextFrame = frames.objectAt(frameIndex + 1);
 
@@ -171,7 +182,21 @@ export default Ember.Controller.extend({
             // Transition into the new node positions.
             node.transition().duration(1000)
                 .style('opacity', 0.7)
-                .attr("r", frame.get('radius'))
+                .attr("r", function (d) {
+                    var nodeId = d.id;
+
+                    // Check if it's a duplicate node.
+                    if (d.id.indexOf('--') > 0) {
+                        nodeId = d.id.substr(0, d.id.indexOf('--'));
+                    }
+                
+                    // Check if the node is highlighted.
+                    if (nodeId === that.get('node')) {
+                        return frame.get('radius') + 3;
+                    } else {
+                        return frame.get('radius');
+                    }
+                })
                 .attr('cx', function (d) {
                     return d.x * that.get('scale');
                 })

@@ -8,7 +8,7 @@
 
 <!-- DotPlot Main Project View Container -->
 <main class="dotplot-view-main">
-    <svg height=620 width=1169.85></svg>
+    <svg></svg>
     <div class="dotplot-view-controls">
         {{mdl-button isRaised=true text='VIEW PREVIOUS QUESTION' class="dotplot-button dotplot-button-green" click=(action 'changeFrame' 'previous')}}
         {{mdl-button isRaised=true text='VIEW NEXT QUESTION' class="dotplot-button dotplot-button-blue dotplot-float-right" click=(action 'changeFrame' 'next')}}
@@ -16,7 +16,7 @@
 </main>
 
 <!-- DotPlot Node Info Container -->
-<div id="nodeInfo" class="dotplot-dialog dotplot-nodeinfo">
+<div id="nodeInfo" class="dotplot-dialog dotplot-nodeinfo dotplot-view-nodeinfo">
     <!-- Close Info Container Button -->
     <a href="#" class="dotplot-nostyle-link dotplot-hideinfo" {{action "hideNodeInfo"}}><i class="dotplot-icon-close"></i></a>
 

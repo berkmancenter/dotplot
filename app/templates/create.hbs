@@ -32,9 +32,9 @@
                             <i class="dotplot-icon-switch"></i>{{frame.switch}}
                         </div>
                         <div class="dotplot-frame-controls dotplot-float-right dotplot-text-right">
-                            <a href="#" class="dotplot-nostyle-link" {{action "d3Plot" frame}}><i class="dotplot-icon-forcelayout"></i></a>
-                            <a href="#" class="dotplot-nostyle-link" {{action "showModel" 'editLabel'}}><i class="dotplot-icon-label"></i></a>
-                            <a href="#" class="dotplot-nostyle-link" {{action "deleteFrame" frame}}><i class="dotplot-icon-close"></i></a>
+                            <a title="Reset Force Layout" href="#" class="dotplot-nostyle-link" {{action "d3Plot" frame}}><i class="dotplot-icon-forcelayout"></i></a>
+                            <a title="Edit Label Text" href="#" class="dotplot-nostyle-link" {{action "showModel" 'editLabel'}}><i class="dotplot-icon-label"></i></a>
+                            <a title="Delete Frame" href="#" class="dotplot-nostyle-link" {{action "deleteFrame" frame}}><i class="dotplot-icon-close"></i></a>
                         </div>
                     {{/mdl-card-actions}}
                 {{/mdl-card}}
@@ -63,9 +63,8 @@
     
     <!-- Sidebar Footer | Save and Publish -->
     <footer class="dotplot-sidebar-footer">
-        <p>Looks good enough? You can either export the nodes or publish it on our platform.</p>
         <div>
-            {{mdl-button click=(action 'exportData' 'save') isRaised=true text='SAVE' class="dotplot-button dotplot-button-blue"}}
+            {{mdl-button click=(action 'exportData' 'save') isRaised=true text='EXPORT' class="dotplot-button dotplot-button-blue"}}
             {{mdl-button  click=(action 'exportData' 'publish') isRaised=true text='PUBLISH' class="dotplot-button dotplot-button-blue dotplot-float-right"}}
         </div>
     </footer>
@@ -92,7 +91,7 @@
     
     <!-- DotPlot Nodes -->
     <div class="dotplot-nodes">
-        <svg height=530 width=1000></svg>
+        <svg></svg>
     </div>
     
     <!-- DotPlot Controls For Current Frame -->
