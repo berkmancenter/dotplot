@@ -151,7 +151,6 @@ body > div.ember-view {
 .dotplot-sidebar-footer {
     padding: 18px 27px;
     margin-top: 20px;
-    height: 103.5px;
     border-top: 1px solid;
     border-color: #ECECEC;
     bottom: 0;
@@ -172,10 +171,11 @@ body > div.ember-view {
     margin-left: 333px !important;
     position: relative;
     height: 100%;
+    overflow: hidden;
 }
 
 .dotplot-top-bar {
-    width: 70%;
+    width: 75%;
     margin: 0 auto;
     background: #FFFFFF;
     box-shadow: 0px 0px 4px 0px rgba(145, 145, 145, 0.50);
@@ -189,7 +189,7 @@ body > div.ember-view {
 
 .dotplot-bottom-bar {
     height: 120px;
-    width: 70%;
+    width: 75%;
     margin: 0 auto;
     background: #FFFFFF;
     box-shadow: 0px 0px 4px 0px rgba(145, 145, 145, 0.50);
@@ -296,9 +296,10 @@ dialog::backdrop {
 
 .dotplot-nodes {
     height: 65%;
-    width: 1000px;
+    width: 85%;
     margin: 0 auto;
-    top: 110px;
+    text-align: center;
+    top: 100px;
     bottom: 0;
     position: relative;
 }
@@ -357,6 +358,11 @@ dialog::backdrop {
     background-color: #fff;
 }
 
+.dotplot-view-nodeinfo {
+    top: 40%;
+    left: 5%;
+}
+
 .dotplot-nodefield > h2 {
     line-height: 22px;
     font-size: 16px;
@@ -395,6 +401,7 @@ dialog::backdrop {
 
 .dotplot-view-top {
     width: 100%;
+    height: 80px;
     background-color: #fff;
     box-shadow: 0px 2px 7px 0px rgba(144, 144, 144, 0.5);
 }
@@ -413,18 +420,32 @@ dialog::backdrop {
 }
 
 .dotplot-view-main {
-    width: 1169.85px;
-    margin: 0 auto;
+    text-align: center;
     top: 110px;
     bottom: 0;
 }
 
 .dotplot-notification-bottom {
+    max-width: 420px !important;
     position: absolute !important;
     bottom: 170px !important;
 }
 
 .dotplot-view-controls {
     width: 700px;
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 15px;
     margin: 0 auto;
+}
+
+@media only screen and (max-width: 1000px) {
+    .dotplot-top-bar {
+        width: 80%
+    }
+    
+    .dotplot-bottom-bar {
+        width: 80%
+    }
 }
