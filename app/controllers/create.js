@@ -1,6 +1,6 @@
 import Ember from 'ember';
 import d3 from 'd3';
-import _ from 'lodash/lodash';
+import _ from 'lodash';
 
 export default Ember.Controller.extend({
     charge: 12,
@@ -16,6 +16,8 @@ export default Ember.Controller.extend({
     gravity: 4,
 
     nodes: [],
+
+    notifications: Ember.inject.service('notification-messages'),
 
     // Set width and height according to screen resolution.
     init: function () {
@@ -183,7 +185,7 @@ export default Ember.Controller.extend({
         return foci;
     },
     actions: {
-        loadPorject: function () {
+        loadProject: function () {
             var that = this;
 
             var file = '/api/project/' + this.get('projectId');
@@ -240,7 +242,7 @@ export default Ember.Controller.extend({
                 var choices = [];
 
                 nodes.forEach(function (node) {
-                    if (!choices.contains(node[that.get('selectedColumn').get('id')])) {
+                    if (!choices.includes(node[that.get('selectedColumn').get('id')])) {
                         choices.pushObject(node[that.get('selectedColumn').get('id')]);
                     }
                 });
@@ -294,7 +296,7 @@ export default Ember.Controller.extend({
             if (this.get('csvFile')) {
                 this.send('showModel', 'createFrame');
             } else {
-                this.send('showNotification', 'error', 'Please add a <b>CSV</b> file to create frames.', true);
+                this.send('showNotification', 'error', 'Please add a CSV file to create frames.', true);
             }
         },
 
@@ -615,7 +617,7 @@ export default Ember.Controller.extend({
                 });
 
             // For improved performance.
-            var foci = _.indexBy(frame.get('foci'), 'id');
+            var foci = _.keyBy(frame.get('foci'), 'id');
 
             // Move nodes towards different foci.
             function drawNode(alpha) {
@@ -704,12 +706,12 @@ export default Ember.Controller.extend({
                         var nodes = frame.get('nodes').filterBy(frame.get('id'), d.id);
 
                         // Find node with minimum X coordinate.
-                        var minXNode = _.min(nodes, function (node) {
+                        var minXNode = _.minBy(nodes, function (node) {
                             return node.x;
                         });
 
                         // Find node with minimum Y coordinate.
-                        var maxXNode = _.max(nodes, function (node) {
+                        var maxXNode = _.maxBy(nodes, function (node) {
                             return node.x;
                         });
 
@@ -732,7 +734,7 @@ export default Ember.Controller.extend({
                         var nodes = frame.get('nodes').filterBy(frame.get('id'), d.id);
 
                         // Find node with minimum Y coordinate.
-                        var maxYNode = _.max(nodes, function (node) {
+                        var maxYNode = _.maxBy(nodes, function (node) {
                             return node.y;
                         });
 
@@ -807,6 +809,7 @@ export default Ember.Controller.extend({
         },
 
         changeCharge: function (event) {
+            // Get slider value when the value changes.
             this.set('charge', parseInt(event.target.value));
 
             // Remove existing labels.
@@ -921,7 +924,7 @@ export default Ember.Controller.extend({
                     if (d.id.indexOf('--') > 0) {
                         nodeId = d.id.substr(0, d.id.indexOf('--'));
                     }
-                
+
                     // Check if the node is highlighted.
                     if (nodeId === that.get('node')) {
                         return frame.get('radius') + 3;
@@ -951,7 +954,7 @@ export default Ember.Controller.extend({
         showNotification: function (type, message, clear) {
             switch (type) {
             case 'warning':
-                this.notifications.warning(message, {
+                this.get('notifications').warning(message, {
                     autoClear: clear,
                     clearDuration: 2000,
                     htmlContent: true
@@ -959,7 +962,7 @@ export default Ember.Controller.extend({
                 break;
 
             case 'info':
-                this.notifications.info(message, {
+                this.get('notifications').info(message, {
                     autoClear: clear,
                     clearDuration: 2000,
                     htmlContent: true
@@ -967,7 +970,7 @@ export default Ember.Controller.extend({
                 break;
 
             case 'error':
-                this.notifications.error(message, {
+                this.get('notifications').error(message, {
                     autoClear: clear,
                     clearDuration: 2000,
                     htmlContent: true
@@ -975,7 +978,7 @@ export default Ember.Controller.extend({
                 break;
 
             case 'success':
-                this.notifications.success(message, {
+                this.get('notifications').success(message, {
                     autoClear: clear,
                     clearDuration: 2000,
                     htmlContent: true
@@ -1024,7 +1027,7 @@ export default Ember.Controller.extend({
                 if (request.readyState === 4 && request.status === 200) {
                     var projectLink = 'http://localhost:4200/project?id=' + request.responseText;
 
-                    that.send('showNotification', 'info', type + ':<a target=_blank href=' + projectLink + '><b>' + request.responseText + '</b></a>', false);
+                    that.send('showNotification', 'info', type + ':<a class="dotplot-notification-link" target=_blank href=' + projectLink + '><b>' + request.responseText + '</b></a>', false);
                 }
             };
 

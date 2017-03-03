@@ -5,14 +5,14 @@
         <div class="dotplot-logo">
             <img src="assets/img/logo.png" alt="">
         </div>
-        
+
         <!-- DotPlot Buttons | Upload and Setting -->
         <div class="dotplot-sidebar-buttons">
             {{mdl-button isRaised=true text='LOAD DATA' class="dotplot-button dotplot-button-green" click=(action 'showModel' 'fileUpload')}}
             {{mdl-button isRaised=true text='SETTINGS' class="dotplot-button dotplot-button-orange dotplot-float-right"}}
         </div>
     </header>
-    
+
     <!-- DotPlot Sidebar | List of frames -->
     <div class="dotplot-sidebar-data">
         <!-- Created Frames -->
@@ -40,7 +40,7 @@
                 {{/mdl-card}}
             {{/each}}
         </div>
-        
+
         <!-- Create Frame Button -->
         {{#mdl-card class="dotplot-frame dotplot-low-opacity" click=(action 'createDialog')}}
             <div class="mdl-card__supporting-text dotplot-margin-tb9">
@@ -60,7 +60,7 @@
             {{/mdl-card-actions}}
         {{/mdl-card}}
     </div>
-    
+
     <!-- Sidebar Footer | Save and Publish -->
     <footer class="dotplot-sidebar-footer">
         <div>
@@ -88,26 +88,26 @@
             </div>
         </div>
     </div>
-    
+
     <!-- DotPlot Nodes -->
     <div class="dotplot-nodes">
         <svg></svg>
     </div>
-    
+
     <!-- DotPlot Controls For Current Frame -->
     <div class="dotplot-bottom-bar">
         <div class="mdl-grid">
             <div class="mdl-cell mdl-cell--4-col">
                 <p class="dotplot-slider-label">Node Size</p>
-                {{mdl-slider min=0 max=15 value=radius change=(action 'changeRadius')}}
+                {{mdl-slider min=0 max=15 value=radius mouseUp=(action 'changeRadius')}}
             </div>
             <div class="mdl-cell mdl-cell--4-col">
                 <p class="dotplot-slider-label">Foci Distance</p>
-                {{mdl-slider min=0 max=10 value=gravity change=(action 'changeGravity')}}
+                {{mdl-slider min=0 max=10 value=gravity mouseUp=(action 'changeGravity')}}
             </div>
             <div class="mdl-cell mdl-cell--4-col">
                 <p class="dotplot-slider-label">Node Distance</p>
-                {{mdl-slider min=0 max=20 value=charge change=(action 'changeCharge')}}
+                {{mdl-slider min=0 max=20 value=charge mouseUp=(action 'changeCharge')}}
             </div>
         </div>
         <div class="mdl-grid">
@@ -127,7 +127,7 @@
         <p class="dotplot-heading">Create a new frame. Start by selecting a survey question below.</p>
         {{mdl-textfield id="frameTitle" value=frameTitle label='Enter the frame title' class="dotplot-full-width"}}
     </header>
-    
+
     <!-- List Of Columns -->
     <main class="dotplot-column-items">
         {{#each model.columns as |column|}}
@@ -144,7 +144,7 @@
             {{/mdl-card}}
         {{/each}}
     </main>
-    
+
     <!-- Create Frame Dialog Buttons | Create and Cancel -->
     <footer class="dotplot-margin-t25">
         {{mdl-button action=(action "hideModel" 'createFrame') isRaised=true text='CANCEL' class="dotplot-button dotplot-button-green"}}
@@ -159,13 +159,13 @@
         {{mdl-textfield value=projectTitle label='Tell us something about your visualisation.' class="dotplot-full-width"}}
         {{mdl-textfield value=projectId label='Enter your project id to load an already published project.' class="dotplot-full-width"}}
     </header>
-    
+
     <!-- Upload CSV File Dialog Button -->
     <footer class="dotplot-margin-t25">
         {{#x-file-input action=(action "fileUpload")}}
             {{mdl-button isRaised=true text='SELECT CSV OR JSON FILE' class="dotplot-button dotplot-full-width dotplot-button-green dotplot-float-left"}}
         {{/x-file-input}}
-        {{mdl-button action=(action "loadPorject") isRaised=true text='LOAD PROJECT FROM ID' class="dotplot-button dotplot-button-blue dotplot-float-right"}}
+        {{mdl-button action=(action "loadProject") isRaised=true text='LOAD PROJECT FROM ID' class="dotplot-button dotplot-button-blue dotplot-float-right"}}
     </footer>
 </dialog>
 
@@ -189,7 +189,7 @@
 <div id="nodeInfo" class="dotplot-dialog dotplot-nodeinfo">
     <!-- Close Info Container Button -->
     <a href="#" class="dotplot-nostyle-link dotplot-hideinfo" {{action "hideNodeInfo"}}><i class="dotplot-icon-close"></i></a>
-    
+
     <!-- Node Info List -->
     <div class="dotplot-nodeinfolist">
         {{#each info as |nodedetails|}}
