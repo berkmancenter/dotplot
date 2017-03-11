@@ -1,6 +1,6 @@
 import Ember from 'ember';
 import d3 from 'd3';
-import _ from 'lodash/lodash';
+import _ from 'lodash';
 
 export default Ember.Controller.extend({
     queryParams: ['id'],
@@ -189,7 +189,7 @@ export default Ember.Controller.extend({
                     if (d.id.indexOf('--') > 0) {
                         nodeId = d.id.substr(0, d.id.indexOf('--'));
                     }
-                
+
                     // Check if the node is highlighted.
                     if (nodeId === that.get('node')) {
                         return frame.get('radius') + 3;
