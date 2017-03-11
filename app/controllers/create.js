@@ -3,9 +3,13 @@ import d3 from 'd3';
 import _ from 'lodash';
 
 export default Ember.Controller.extend({
-    charge: 12,
+    charge: 6,
 
     scale: 1,
+
+    firstCreate: true,
+
+    firstFoci: [],
 
     radius: 5,
 
@@ -13,7 +17,7 @@ export default Ember.Controller.extend({
 
     showNodeInfo: true,
 
-    gravity: 4,
+    gravity: 8,
 
     nodes: [],
 
@@ -182,6 +186,18 @@ export default Ember.Controller.extend({
             }
         }
 
+        if (this.get('firstCreate')) {
+          var firstFoci =  _.keyBy(foci, 'id');
+          var fill = d3.scale.category20();
+
+          firstFoci = _.mapKeys(firstFoci, function(value, key) {
+              return fill(key);
+          });
+
+          this.set('firstFoci', firstFoci);
+          this.set('firstCreate', false);
+        }
+
         return foci;
     },
     actions: {
@@ -263,7 +279,7 @@ export default Ember.Controller.extend({
                     });
 
                 // Plot the frame.
-                that.send('d3Init', frame);
+                that.send('d3Init', frame, true);
             });
         },
 
@@ -288,7 +304,7 @@ export default Ember.Controller.extend({
                     });
 
                 // Plot the frame
-                that.send('d3Init', frame);
+                that.send('d3Init', frame, true);
             });
         },
 
@@ -304,7 +320,7 @@ export default Ember.Controller.extend({
             this.get('store')
                 .deleteRecord(frame);
 
-            this.send('showNotification', 'error', 'Successfully deleted frame <b>' + frame.get('id') + '</b>.', true);
+            this.send('showNotification', 'error', 'Successfully deleted frame ' + frame.get('id') + '.', true);
         },
 
         showModel: function (modelId) {
@@ -546,7 +562,7 @@ export default Ember.Controller.extend({
                 });
 
             // Create force layout.
-            this.send('d3Plot', frame);
+            this.send('d3Plot', frame, true);
         },
 
         nodeClick: function (node, frame) {
@@ -621,7 +637,7 @@ export default Ember.Controller.extend({
         },
 
 
-        d3Plot: function (frame) {
+        d3Plot: function (frame, hard = false) {
             NProgress.set(0.4);
 
             // Show new labels.
@@ -644,9 +660,20 @@ export default Ember.Controller.extend({
                 return function (d) {
                     var center = foci[d[frame.get('id')]];
 
-                    d.x += (center.x - d.x) * 0.09 * alpha;
+                    d.x += (center.x - d.x) * 0.06 * alpha;
 
-                    d.y += (center.y - d.y) * 0.09 * alpha;
+                    d.y += (center.y - d.y) * 0.06 * alpha;
+                };
+            }
+
+            // Push same color node closer.
+            function pushClose(alpha) {
+                return function (d) {
+                    var center = that.get('firstFoci')[d.fill];
+
+                    d.x += (center.x - d.x) * 0.02 * alpha;
+
+                    d.y += (center.y - d.y) * 0.02 * alpha;
                 };
             }
 
@@ -654,11 +681,13 @@ export default Ember.Controller.extend({
             function tick(e) {
                 NProgress.inc(e.alpha);
 
-                if (e.alpha <= 0.03) {
+                if (e.alpha >= 0.06 && hard) {
+                    node.each(pushClose(e.alpha));
+                } else if (e.alpha <= 0.01) {
                     that.get('force').stop();
+                } else {
+                    node.each(drawNode(e.alpha));
                 }
-
-                node.each(drawNode(e.alpha));
 
                 node.attr("cx", function (d) {
                         return d.x;
@@ -976,8 +1005,7 @@ export default Ember.Controller.extend({
             case 'warning':
                 this.get('notifications').warning(message, {
                     autoClear: clear,
-                    clearDuration: 2000,
-                    htmlContent: true
+                    clearDuration: 2000
                 });
                 break;
 
@@ -992,16 +1020,14 @@ export default Ember.Controller.extend({
             case 'error':
                 this.get('notifications').error(message, {
                     autoClear: clear,
-                    clearDuration: 2000,
-                    htmlContent: true
+                    clearDuration: 2000
                 });
                 break;
 
             case 'success':
                 this.get('notifications').success(message, {
                     autoClear: clear,
-                    clearDuration: 2000,
-                    htmlContent: true
+                    clearDuration: 2000
                 });
                 break;
 
