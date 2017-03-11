@@ -370,14 +370,34 @@ export default Ember.Controller.extend({
                     .attr('height', that.get('height'));
 
                 project.frames.forEach(function (frameData) {
-                    // Create a new frame record.
-                    var frame = that.get('store')
-                        .createRecord('frame', frameData);
+                    var updateNodes =  new Ember.RSVP.Promise(function(resolve) {
+                      frameData.nodes.forEach(function (node, index) {
+                        var newNode = _.cloneDeep(node);
 
-                    if (first) {
-                        that.send('selectFrame', frame);
-                        first = false;
-                    }
+                        newNode.x = node.x * ratio;
+                        newNode.y = node.y * ratio;
+
+                        newNode.px = node.px * ratio;
+                        newNode.py = node.py * ratio;
+
+                        if (index === frameData.nodes.length - 1) {
+                          resolve(true);
+                        }
+                      });
+                    });
+
+                    updateNodes.then(function (value) {
+                      if (value) {
+                        // Create a new frame record.
+                        var frame = that.get('store')
+                            .createRecord('frame', frameData);
+
+                        if (first) {
+                            that.send('selectFrame', frame);
+                            first = false;
+                        }
+                      }
+                    });
 
                     NProgress.inc();
                 });
@@ -719,13 +739,13 @@ export default Ember.Controller.extend({
                         var fociWidth = maxXNode.x - minXNode.x;
 
                         // Update label coordinate value.
-                        d.labelx = minXNode.x * that.get('scale') + (fociWidth * that.get('scale') - this.getBBox().width) / 2;
+                        d.labelx = minXNode.x + (fociWidth - this.getBBox().width) / 2;
 
                         if (!_.isNaN(d.labelx)) {
                             return d.labelx;
                         }
                     } else {
-                        return d.labelx * that.get('scale');
+                        return d.labelx;
                     }
                 })
                 .attr("dy", function (d) {
@@ -739,13 +759,13 @@ export default Ember.Controller.extend({
                         });
 
                         // Update label coordinate value.
-                        d.labely = maxYNode.y * that.get('scale') + 25;
+                        d.labely = maxYNode.y + 25;
 
                         if (!_.isNaN(d.labely)) {
                             return d.labely;
                         }
                     } else {
-                        return d.labely * that.get('scale');
+                        return d.labely;
                     }
                 })
                 .each(function (d) {
@@ -874,7 +894,7 @@ export default Ember.Controller.extend({
                             .findBy("id", nodeId);
 
                         if (mainNode) {
-                            return mainNode.x * that.get('scale');
+                            return mainNode.x;
                         } else {
                             return that.get('width') / 2;
                         }
@@ -892,7 +912,7 @@ export default Ember.Controller.extend({
                             .findBy("id", nodeId);
 
                         if (mainNode) {
-                            return mainNode.y * that.get('scale');
+                            return mainNode.y;
                         } else {
                             return that.get('height') / 2;
                         }
@@ -933,10 +953,10 @@ export default Ember.Controller.extend({
                     }
                 })
                 .attr('cx', function (d) {
-                    return d.x * that.get('scale');
+                    return d.x;
                 })
                 .attr('cy', function (d) {
-                    return d.y * that.get('scale');
+                    return d.y;
                 })
                 .each("end", _.once(function () {
                     if (that.get('labels')) {
