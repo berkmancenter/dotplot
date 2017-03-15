@@ -218,3 +218,11 @@ Make use of the many generators for code, try `ember help generate` for more det
 
 **Accepts:** Type (String)  
 **Action:** Iterates over all the frame records and creates a Blob, calls `sendToServer` if the type is Publish or else downloads a json file `DotPlot.json`.  
+
+## License
+
+Dotplot is licensed under the GPL
+
+## Copyright
+
+2017 President and Fellows of Harvard College
