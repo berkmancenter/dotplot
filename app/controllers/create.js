@@ -207,7 +207,7 @@ export default Ember.Controller.extend({
         loadProject: function () {
             var that = this;
 
-            var file = '/api/project/' + this.get('projectId');
+            var file = 'http://localhost:3000/api/project/' + this.get('projectId');
 
             Ember.$.get(file, function () {
                 that.send('importJSONData', file);
@@ -1057,7 +1057,7 @@ export default Ember.Controller.extend({
                 type = 'Updated';
             } else {
                 // Generate unique project id.
-                var projectId = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+                var projectId = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxyxxx'.replace(/[xy]/g, function (c) {
                     var r = Math.random() * 16 | 0;
                     var v = c === 'x' ? r : (r & 0x3 | 0x8);
                     return v.toString(16);
@@ -1069,7 +1069,7 @@ export default Ember.Controller.extend({
             }
 
             // Open connection.
-            request.open('POST', '/api/project', true);
+            request.open('POST', 'http://localhost:3000/api/project', true);
 
             // Show notification on success.
             request.onreadystatechange = function () {

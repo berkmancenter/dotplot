@@ -22,7 +22,7 @@ export default Ember.Controller.extend({
         Ember.run.next(this, function () {
             var that = this;
 
-            var file = '/api/project/' + this.get('id');
+            var file = 'http://localhost:3000/api/project/' + this.get('id');
 
             Ember.$.get(file, function () {
                 that.send('loadPorject', file);
