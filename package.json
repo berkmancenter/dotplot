@@ -38,7 +38,7 @@
     "ember-load-initializers": "^1.0.0",
     "ember-localstorage-adapter": "^1.0.0",
     "ember-lodash": "^4.17.4",
-    "ember-material-lite": "^0.2.6",
+    "ember-material-lite": "github:chaitanyya/ember-material-lite",
     "ember-resolver": "^4.0.0",
     "ember-source": "~2.13.0",
     "emberx-file-input": "^1.1.2",

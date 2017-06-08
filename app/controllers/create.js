@@ -1,3 +1,5 @@
+/* global saveAs */
+
 import Ember from 'ember';
 import d3 from 'd3';
 import _ from 'lodash';
