@@ -155,6 +155,7 @@ export default Ember.Controller.extend({
             }
         });
     },
+    
     getFoci: function (choices) {
         var that = this;
 
@@ -180,7 +181,7 @@ export default Ember.Controller.extend({
                     id: choices[index],
                     text: choices[index],
                     x: Math.ceil((that.get('width') / (temp + 1)) * (j + 1)),
-                    y: Math.ceil((that.get('height') / (numRow + 1)) * (i + 1))
+                    y: Math.ceil((that.get('height') / numRow) * (i + 1))
                 };
 
                 index++;
