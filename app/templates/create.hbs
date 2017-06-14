@@ -5,11 +5,13 @@
         <div class="dotplot-logo">
             <img src="assets/img/logo.png" alt="">
         </div>
-
         <!-- DotPlot Buttons | Upload and Setting -->
         <div class="dotplot-sidebar-buttons">
-            {{mdl-button isRaised=true text='LOAD DATA' class="dotplot-button dotplot-button-green" click=(action 'showModel' 'fileUpload')}}
-            {{mdl-button isRaised=true text='SETTINGS' class="dotplot-button dotplot-button-orange dotplot-float-right"}}
+            <div class="dotplot-load-buttons">
+                {{mdl-button isRaised=true text='LOAD DATA' class="dotplot-button dotplot-button-green" click=(action 'showModel' 'fileUpload')}}
+                {{mdl-button isRaised=true text='SETTINGS' class="dotplot-button dotplot-button-orange dotplot-float-right"}}
+            </div>
+            {{mdl-textfield value=fuzzyText label='Looking for something?' class="dotplot-full-width"}}
         </div>
     </header>
 

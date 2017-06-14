@@ -10,6 +10,8 @@ export default Ember.Controller.extend({
 
     scale: 1,
 
+    fuzzyText: null,
+
     firstCreate: true,
 
     firstFoci: [],
@@ -38,124 +40,119 @@ export default Ember.Controller.extend({
     // Observe Show Labels toggle.
     labelToggle: function () {
         if (this.get('labels')) {
-            this.send('showLabels', this.get('frame'), true);
+            this.send(
+                'showLabels',
+                this.get('frame'),
+                true
+            );
         } else {
             this.send('removeLabels');
         }
 
     }.observes('labels'),
 
+    fuzzySearch: function () {
+        //
+    }.observes('fuzzyText'),
+
     getNodes: function (frameType) {
         NProgress.start();
 
         var that = this;
+
+        var column = this.get('selectedColumn').get('id');
 
         var nodes = [];
 
         // Ember promise.
         return new Ember.RSVP.Promise(function (resolve, reject) {
             if (frameType === "Single Choice") {
-                d3.csv(that.get('csvFile'), function (d) {
-                    return {
-                        id: d.V1,
-                        value: d[that.get('selectedColumn').get('id')]
-                    };
-                }, function (error, rows) {
-                    if (!that.get('d3Init')) {
-                        // Create new node objects from the existing.
-                        rows.forEach(function (row, index) {
-                            if (index !== 0) {
-                                var nodeObject = that.get('nodes')
-                                    .findBy('id', row.id);
-
-                                var node = {
-                                    id: nodeObject.id,
+                if (!that.get('d3Init')) {
+                    // Create new node objects from the existing.
+                    that.get('store')
+                        .findAll('node')
+                        .then(function (response) {
+                            response.forEach(function(node) {
+                                var newNode = {
+                                    id: node.get('id')
                                 };
 
-                                node[that.get('selectedColumn').get('id')] = row.value;
+                                newNode[column] = node[column];
+                                nodes.pushObject(newNode);
+                            });
 
-                                nodes.pushObject(node);
-                            }
+                            that.set('nodes', nodes);
+                            resolve(nodes);
                         });
-
-                        that.set('nodes', nodes);
-
-                        resolve(nodes);
-                    } else {
-                        // Use existing nodes data to create new nodes.
-                        rows.forEach(function (row, index) {
-                            if (index !== 0) {
+                } else {
+                    // Use existing nodes data to create new nodes.
+                    that.get('store')
+                        .findAll('node')
+                        .then(function (response) {
+                            response.forEach(function(node) {
                                 var nodeObject = that.get('nodes')
-                                    .findBy('id', row.id);
+                                    .findBy('id', node.get('id'));
 
-                                var node = {
+                                var newNode = {
                                     id: nodeObject.id,
                                     x: nodeObject.x,
                                     y: nodeObject.y,
                                     fill: nodeObject.fill
                                 };
 
-                                node[that.get('selectedColumn').get('id')] = row.value;
+                                newNode[column] = node[column];
+                                nodes.pushObject(newNode);
+                            });
 
-                                nodes.pushObject(node);
-                            }
+                            resolve(nodes);
                         });
-
-                        resolve(nodes);
-                    }
-                });
+                }
             } else if (frameType === "Multiple Choice") {
-                d3.csv(that.get('csvFile'), function (rows) {
-                    rows.forEach(function (row, index) {
-                        if (index !== 0) {
+                that.get('store')
+                    .findAll('node')
+                    .then(function (response) {
+                        response.forEach(function (node) {
                             var nodeObject = that.get('nodes')
-                                .findBy('id', row.V1);
+                                .findBy('id', node.get('id'));
 
                             var first = true;
 
                             that.get('selectedColumn')
                                 .get('choice')
                                 .forEach(function (type) {
-                                    // Multiple nodes for different choices.
-                                    if (parseInt(row[type]) === 1) {
-                                        var node = {};
+                                    // Use existing nodes for first choice.
+                                    if (first) {
+                                        first = false;
 
-                                        // Use existing nodes for first choice.
-                                        if (first) {
-                                            first = false;
-
-                                            node = {
-                                                id: nodeObject.id,
-                                                x: nodeObject.x,
-                                                y: nodeObject.y,
-                                                fill: nodeObject.fill
-                                            };
-                                        } else {
-                                            node = {
-                                                id: nodeObject.id + '--' + type,
-                                                x: nodeObject.x,
-                                                y: nodeObject.y,
-                                                fill: nodeObject.fill
-                                            };
-                                        }
-
-                                        node[that.get('selectedColumn').get('id')] = type;
-
-                                        nodes.pushObject(node);
+                                        var newNode = {
+                                            id: nodeObject.id,
+                                            x: nodeObject.x,
+                                            y: nodeObject.y,
+                                            fill: nodeObject.fill
+                                        };
+                                    } else {
+                                        var newNode = {
+                                            id: nodeObject.id + '--' + type,
+                                            x: nodeObject.x,
+                                            y: nodeObject.y,
+                                            fill: nodeObject.fill
+                                        };
                                     }
-                                });
-                        }
-                    });
 
-                    resolve(nodes);
-                });
+                                    newNode[column] = type;
+                                    nodes.pushObject(newNode);
+                                });
+                        });
+
+                        resolve(nodes);
+                    });
             } else {
                 // Reject promise if invalid frame type.
                 reject("Invalid FrameType: " + frameType);
             }
         });
     },
-    
+
     getFoci: function (choices) {
         var that = this;
 
@@ -181,7 +178,7 @@ export default Ember.Controller.extend({
                     id: choices[index],
                     text: choices[index],
                     x: Math.ceil((that.get('width') / (temp + 1)) * (j + 1)),
-                    y: Math.ceil((that.get('height') / numRow) * (i + 1))
+                    y: Math.ceil((that.get('height') / (numRow + 1)) * (i + 1))
                 };
 
                 index++;
@@ -191,19 +188,21 @@ export default Ember.Controller.extend({
         }
 
         if (this.get('firstCreate')) {
-          var firstFoci =  _.keyBy(foci, 'id');
-          var fill = d3.scale.category20();
+            var firstFoci =  _.keyBy(foci, 'id');
+            var fill = d3.scale
+                .category20();
 
-          firstFoci = _.mapKeys(firstFoci, function(value, key) {
-              return fill(key);
-          });
+            firstFoci = _.mapKeys(firstFoci, function(value, key) {
+                return fill(key);
+            });
 
-          this.set('firstFoci', firstFoci);
-          this.set('firstCreate', false);
+            this.set('firstFoci', firstFoci);
+            this.set('firstCreate', false);
         }
 
         return foci;
     },
+
     actions: {
         loadProject: function () {
             var that = this;
@@ -211,16 +210,25 @@ export default Ember.Controller.extend({
             var file = 'http://localhost:3000/api/project/' + this.get('projectId');
 
             Ember.$.get(file, function () {
-                that.send('importJSONData', file);
+                that.send(
+                    'importJSONData',
+                    file
+                );
 
-                that.send('hideModel', 'fileUpload');
+                that.send(
+                    'hideModel',
+                    'fileUpload'
+                );
             }).fail(function () {
                 // Shake effect if no title is provided.
-                Ember.$('#fileUpload').removeClass('zoomIn').addClass('shake');
+                Ember.$('#fileUpload')
+                    .removeClass('zoomIn')
+                    .addClass('shake');
 
                 // Remove class on animation complete.
                 window.setTimeout(function () {
-                    Ember.$('#fileUpload').removeClass('shake');
+                    Ember.$('#fileUpload')
+                        .removeClass('shake');
                 }, 1000);
             });
         },
@@ -228,29 +236,42 @@ export default Ember.Controller.extend({
         createFrame: function () {
             if (!this.get('frameTitle')) {
                 // Shake effect if no title is provided.
-                Ember.$('#createFrame').removeClass('zoomIn').addClass('shake');
+                Ember.$('#createFrame')
+                    .removeClass('zoomIn')
+                    .addClass('shake');
 
                 // Remove class on animation complete.
                 window.setTimeout(function () {
-                    Ember.$('#createFrame').removeClass('shake');
+                    Ember.$('#createFrame')
+                        .removeClass('shake');
                 }, 1000);
             } else {
-                Ember.$('#createFrame').addClass('zoomIn');
+                Ember.$('#createFrame')
+                    .addClass('zoomIn');
 
-                var frameType = this.get('selectedColumn').get('type');
+                var frameType = this.get('selectedColumn')
+                    .get('type');
 
                 if (frameType === "Multiple Choice") {
                     // Hide the model.
-                    this.send('hideModel', 'createFrame');
+                    this.send(
+                        'hideModel',
+                        'createFrame'
+                    );
 
                     // Create multiple choice frame.
                     this.send('createMultipleChoice');
                 } else if (frameType === "Single Choice") {
                     // Hide the model.
-                    this.send('hideModel', 'createFrame');
+                    this.send(
+                        'hideModel',
+                        'createFrame'
+                    );
 
                     // Create single choice frame.
-                    this.send('createSingleChoice');
+                    this.send(
+                        'createSingleChoice'
+                    );
                 }
             }
         },
@@ -258,33 +279,38 @@ export default Ember.Controller.extend({
         createSingleChoice: function () {
             var that = this;
 
-            this.getNodes('Single Choice').then(function (nodes) {
-                var choices = [];
+            this.getNodes('Single Choice')
+                .then(function (nodes) {
+                    var choices = [];
 
-                nodes.forEach(function (node) {
-                    if (!choices.includes(node[that.get('selectedColumn').get('id')])) {
-                        choices.pushObject(node[that.get('selectedColumn').get('id')]);
-                    }
-                });
-
-                // Calculate foci.
-                var foci = that.getFoci(choices);
-
-                // Create a new frame record.
-                var frame = that.get('store')
-                    .createRecord('frame', {
-                        id: that.get('selectedColumn').get('id'),
-                        title: that.get('frameTitle'),
-                        foci: foci,
-                        radius: that.get('radius'),
-                        nodes: nodes,
-                        type: "Single Choice",
-                        switch: "On Click"
+                    nodes.forEach(function (node) {
+                        if (!choices.includes(node[that.get('selectedColumn').get('id')])) {
+                            choices.pushObject(node[that.get('selectedColumn').get('id')]);
+                        }
                     });
 
-                // Plot the frame.
-                that.send('d3Init', frame, true);
-            });
+                    // Calculate foci.
+                    var foci = that.getFoci(choices);
+
+                    // Create a new frame record.
+                    var frame = that.get('store')
+                        .createRecord('frame', {
+                            id: that.get('selectedColumn').get('id'),
+                            title: that.get('frameTitle'),
+                            foci: foci,
+                            radius: that.get('radius'),
+                            nodes: nodes,
+                            type: "Single Choice",
+                            switch: "On Click"
+                        });
+
+                    // Plot the frame.
+                    that.send(
+                        'd3Init',
+                        frame,
+                        true
+                    );
+                });
         },
 
         createMultipleChoice: function () {
@@ -308,15 +334,27 @@ export default Ember.Controller.extend({
                     });
 
                 // Plot the frame
-                that.send('d3Init', frame, true);
+                that.send(
+                    'd3Init',
+                    frame,
+                    true
+                );
             });
         },
 
         createDialog: function () {
             if (this.get('csvFile')) {
-                this.send('showModel', 'createFrame');
+                this.send(
+                    'showModel',
+                    'createFrame'
+                );
             } else {
-                this.send('showNotification', 'error', 'Please add a CSV file to create frames.', true);
+                this.send(
+                    'showNotification',
+                    'error',
+                    'Please add a CSV file to create frames.',
+                    true
+                );
             }
         },
 
@@ -324,7 +362,12 @@ export default Ember.Controller.extend({
             this.get('store')
                 .deleteRecord(frame);
 
-            this.send('showNotification', 'error', 'Successfully deleted frame ' + frame.get('id') + '.', true);
+            this.send(
+                'showNotification',
+                'error',
+                'Successfully deleted frame ' + frame.get('id') + '.',
+                true
+            );
         },
 
         showModel: function (modelId) {
@@ -343,9 +386,15 @@ export default Ember.Controller.extend({
             if (file[0].type === "application/json") {
                 var jsonFile = URL.createObjectURL(file[0]);
 
-                this.send('importJSONData', jsonFile);
+                this.send(
+                    'importJSONData',
+                    jsonFile
+                );
 
-                this.send('hideModel', 'fileUpload');
+                this.send(
+                    'hideModel',
+                    'fileUpload'
+                );
 
                 resetInput();
             } else if (file[0].type === "text/csv") {
@@ -354,15 +403,29 @@ export default Ember.Controller.extend({
 
                 this.set('csvFile', csvFile);
 
-                this.send('importCSVData', csvFile);
+                this.send(
+                    'importCSVData',
+                    csvFile
+                );
 
-                this.send('hideModel', 'fileUpload');
+                this.send(
+                    'hideModel',
+                    'fileUpload'
+                );
 
                 resetInput();
             } else {
-                this.send('hideModel', 'fileUpload');
+                this.send(
+                    'hideModel',
+                    'fileUpload'
+                );
 
-                this.send('showNotification', 'error', 'Invalid file type of uploaded file.', true);
+                this.send(
+                    'showNotification',
+                    'error',
+                    'Invalid file type of uploaded file.',
+                    true
+                );
 
                 resetInput();
             }
@@ -423,7 +486,12 @@ export default Ember.Controller.extend({
                 });
                 NProgress.done();
 
-                that.send('showNotification', 'success', 'Project file successfully imported.', true);
+                that.send(
+                    'showNotification',
+                    'success',
+                    'Project file successfully imported.',
+                    true
+                );
             });
         },
 
@@ -476,6 +544,23 @@ export default Ember.Controller.extend({
                 NProgress.set(0.6);
             });
 
+            d3.csv(file, function(error, rows) {
+                rows.forEach(function(row, index) {
+                    var node = {};
+
+                    if (index != 0) {
+                        _.forOwn(row, function(value, key) {
+                            if (value) {
+                                node[key] = value;
+                            }
+                        });
+
+                        that.get('store')
+                            .createRecord('node', node);
+                    }
+                });
+            });
+
             // Create node objects.
             d3.csv(file, function (rows) {
                 rows.forEach(function (row, index) {
@@ -488,8 +573,12 @@ export default Ember.Controller.extend({
                 });
 
                 NProgress.done();
-
-                that.send('showNotification', 'success', 'CSV file successfully parsed.', true);
+                that.send(
+                    'showNotification',
+                    'success',
+                    'CSV file successfully parsed.',
+                    true
+                );
             });
         },
 
@@ -561,17 +650,25 @@ export default Ember.Controller.extend({
                 })
                 .on('click', function (d) {
                     if (that.get('showNodeInfo')) {
-                        that.send('nodeClick', d, frame);
+                        that.send(
+                            'nodeClick',
+                            d,
+                            frame
+                        );
                     }
                 });
 
             // Create force layout.
-            this.send('d3Plot', frame, true);
+            this.send(
+                'd3Plot',
+                frame,
+                true
+            );
         },
 
         nodeClick: function (node, frame) {
             // Reset node radius.
-            d3.selectAll("[id^=" + this.get('node') + "]")
+            d3.selectAll("[id^='" + this.get('node') + "']")
                 .transition()
                 .duration(500)
                 .attr("r", frame.get('radius'));
@@ -593,7 +690,10 @@ export default Ember.Controller.extend({
             this.set('node', nodeId);
 
             // Display node info.
-            this.send('nodeInfo', nodeId);
+            this.send(
+                'nodeInfo',
+                nodeId
+            );
         },
 
         nodeInfo: function (nodeId) {
@@ -611,7 +711,11 @@ export default Ember.Controller.extend({
                     frame.get('nodes').forEach(function (node) {
                         if (node.id.indexOf(nodeId) >= 0) {
                             var nodeCat = node[frame.get('id')];
-                            var value = frame.get('foci').findBy('id', nodeCat).text;
+
+                            var value = frame.get('foci')
+                                .findBy('id', nodeCat)
+                                .text;
+                            
                             frameInfo.answer += value + " ";
                         }
                     });
@@ -705,12 +809,21 @@ export default Ember.Controller.extend({
             function end() {
                 NProgress.inc();
 
-                that.send('showNotification', 'success', 'Force layout completed, you can now modify it.', true);
+                that.send(
+                    'showNotification',
+                    'success',
+                    'Force layout completed, you can now modify it.',
+                    true
+                );
 
                 that.set('frame', frame);
 
                 if (that.get('labels')) {
-                    that.send('showLabels', frame, true);
+                    that.send(
+                        'showLabels',
+                        frame,
+                        true
+                    );
                 }
             }
 
@@ -756,7 +869,8 @@ export default Ember.Controller.extend({
                 .attr("dx", function (d) {
                     if (updatePosition) {
                         // Find all nodes in the foci.
-                        var nodes = frame.get('nodes').filterBy(frame.get('id'), d.id);
+                        var nodes = frame.get('nodes')
+                            .filterBy(frame.get('id'), d.id);
 
                         // Find node with minimum X coordinate.
                         var minXNode = _.minBy(nodes, function (node) {
@@ -784,7 +898,8 @@ export default Ember.Controller.extend({
                 .attr("dy", function (d) {
                     if (updatePosition) {
                         // Find all nodes in the foci.
-                        var nodes = frame.get('nodes').filterBy(frame.get('id'), d.id);
+                        var nodes = frame.get('nodes')
+                            .filterBy(frame.get('id'), d.id);
 
                         // Find node with minimum Y coordinate.
                         var maxYNode = _.maxBy(nodes, function (node) {
@@ -805,6 +920,7 @@ export default Ember.Controller.extend({
                     // Remove if the option is not selected by anyone.
                     if (_.isNaN(d.labelx) || _.isNaN(d.labely)) {
                         this.remove();
+
                         _.remove(frame.get('foci'), {
                             id: d.id
                         });
@@ -817,21 +933,34 @@ export default Ember.Controller.extend({
                 .style("opacity", 0.7)
                 .each("end", _.once(function () {
                     if (updatePosition) {
-                        that.send('showNotification', 'success', 'Foci labels updated successfully.', true);
+                        that.send(
+                            'showNotification',
+                            'success',
+                            'Foci labels updated successfully.',
+                            true
+                        );
                     }
+
                     NProgress.done();
                 }));
         },
 
         updateLabels: function () {
             // Hide the model.
-            this.send('hideModel', 'editLabel');
+            this.send(
+                'hideModel',
+                'editLabel'
+            );
 
             // Remove existing labels.
             this.send('removeLabels');
 
             // Show new labels.
-            this.send('showLabels', this.get('frame'), true);
+            this.send(
+                'showLabels',
+                this.get('frame'),
+                true
+            );
         },
 
         saveNodePositions: function (frame) {
@@ -858,7 +987,10 @@ export default Ember.Controller.extend({
             this.send('removeLabels');
 
             // Run the force layout again.
-            this.send('d3Plot', this.get('frame'));
+            this.send(
+                'd3Plot',
+                this.get('frame')
+            );
         },
 
         changeCharge: function (event) {
@@ -869,7 +1001,10 @@ export default Ember.Controller.extend({
             this.send('removeLabels');
 
             // Run the force layout again.
-            this.send('d3Plot', this.get('frame'));
+            this.send(
+                'd3Plot',
+                this.get('frame')
+            );
         },
 
         changeRadius: function (event) {
@@ -877,7 +1012,8 @@ export default Ember.Controller.extend({
             var node = d3.select(".dotplot-nodes > svg")
                 .selectAll('circle.node');
 
-            this.get('frame').set('radius', parseInt(event.target.value));
+            this.get('frame')
+                .set('radius', parseInt(event.target.value));
 
             this.set('radius', parseInt(event.target.value));
 
@@ -963,7 +1099,11 @@ export default Ember.Controller.extend({
                 })
                 .on('click', function (d) {
                     if (that.get('showNodeInfo')) {
-                        that.send('nodeClick', d, frame);
+                        that.send(
+                            'nodeClick',
+                            d,
+                            frame
+                        );
                     }
                 });
 
@@ -994,7 +1134,12 @@ export default Ember.Controller.extend({
                 .each("end", _.once(function () {
                     if (that.get('labels')) {
                         NProgress.inc();
-                        that.send('showLabels', frame, false);
+
+                        that.send(
+                            'showLabels',
+                            frame,
+                            false
+                        );
                     } else {
                         NProgress.done();
                     }
@@ -1077,7 +1222,12 @@ export default Ember.Controller.extend({
                 if (request.readyState === 4 && request.status === 200) {
                     var projectLink = 'http://localhost:4200/project?id=' + request.responseText;
 
-                    that.send('showNotification', 'info', type + ':<a class="dotplot-notification-link" target=_blank href=' + projectLink + '><b>' + request.responseText + '</b></a>', false);
+                    that.send(
+                        'showNotification',
+                        'info',
+                        type + ':<a class="dotplot-notification-link" target=_blank href=' + projectLink + '><b>' + request.responseText + '</b></a>',
+                        false
+                    );
                 }
             };
 
@@ -1120,7 +1270,11 @@ export default Ember.Controller.extend({
                 });
 
                 if (type === "publish") {
-                    that.send('sendToServer', blob, 'DotPlot.json');
+                    that.send(
+                        'sendToServer',
+                        blob,
+                        'DotPlot.json'
+                    );
                 } else if (type === "save") {
                     saveAs(blob, "DotPlot.json");
                 } else {
