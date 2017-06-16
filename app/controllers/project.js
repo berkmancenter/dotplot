@@ -2,6 +2,7 @@ import Ember from 'ember';
 import d3 from 'd3';
 import _ from 'lodash';
 import NProgress from 'ember-cli-nprogress';
+import * as config from '../config';
 
 export default Ember.Controller.extend({
     queryParams: ['id'],
@@ -22,7 +23,7 @@ export default Ember.Controller.extend({
         Ember.run.next(this, function () {
             var that = this;
 
-            var file = 'http://localhost:3000/api/project/' + this.get('id');
+            var file = config.serverConf.apiEndpoint + this.get('id');
 
             Ember.$.get(file, function () {
                 that.send('loadPorject', file);

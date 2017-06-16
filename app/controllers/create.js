@@ -1,14 +1,17 @@
-/* global saveAs */
+/* global saveAs, Fuse */
 
 import Ember from 'ember';
 import d3 from 'd3';
 import _ from 'lodash';
 import NProgress from 'ember-cli-nprogress';
+import * as config from '../config';
 
 export default Ember.Controller.extend({
     charge: 6,
 
     scale: 1,
+
+    fuzzyNodes: [],
 
     fuzzyText: null,
 
@@ -52,7 +55,28 @@ export default Ember.Controller.extend({
     }.observes('labels'),
 
     fuzzySearch: function () {
-        //
+        if (this.get('fuzzyText').length > 3) {
+            var fuse = new Fuse(this.get('fuzzyNodes'), config.fuzzyConf);
+
+            var results = fuse.search(this.get('fuzzyText'));
+
+            if (results.length) {
+                this.send(
+                    'nodeFilter',
+                    results
+                );
+            } else {
+                this.send(
+                    'nodeFilter',
+                    false
+                );
+            }
+        } else {
+            this.send(
+                'nodeFilter',
+                false
+            );
+        }
     }.observes('fuzzyText'),
 
     getNodes: function (frameType) {
@@ -120,18 +144,20 @@ export default Ember.Controller.extend({
                             that.get('selectedColumn')
                                 .get('choice')
                                 .forEach(function (type) {
+                                    var newNode = {};
+                                    
                                     // Use existing nodes for first choice.
                                     if (first) {
                                         first = false;
 
-                                        var newNode = {
+                                        newNode = {
                                             id: nodeObject.id,
                                             x: nodeObject.x,
                                             y: nodeObject.y,
                                             fill: nodeObject.fill
                                         };
                                     } else {
-                                        var newNode = {
+                                        newNode = {
                                             id: nodeObject.id + '--' + type,
                                             x: nodeObject.x,
                                             y: nodeObject.y,
@@ -207,7 +233,7 @@ export default Ember.Controller.extend({
         loadProject: function () {
             var that = this;
 
-            var file = 'http://localhost:3000/api/project/' + this.get('projectId');
+            var file = config.serverConf.apiEndpoint + this.get('projectId');
 
             Ember.$.get(file, function () {
                 that.send(
@@ -476,7 +502,10 @@ export default Ember.Controller.extend({
                             .createRecord('frame', frameData);
 
                         if (first) {
-                            that.send('selectFrame', frame);
+                            that.send(
+                                'selectFrame',
+                                frame
+                            );
                             first = false;
                         }
                       }
@@ -546,17 +575,28 @@ export default Ember.Controller.extend({
 
             d3.csv(file, function(error, rows) {
                 rows.forEach(function(row, index) {
-                    var node = {};
+                    var node = {
+                        id: row.V1
+                    };
+                    var fuzzyNode = {};
 
                     if (index != 0) {
                         _.forOwn(row, function(value, key) {
                             if (value) {
                                 node[key] = value;
+
+                                // This is specific to Qualtrics and will be replaced in future.
+                                if (_.isNaN(parseInt(value))) {
+                                    fuzzyNode[key] = value;
+                                }
                             }
                         });
 
-                        that.get('store')
+                        var storeNode = that.get('store')
                             .createRecord('node', node);
+                        
+                        fuzzyNode['id'] = storeNode.get('id');
+                        that.get('fuzzyNodes').pushObject(fuzzyNode);
                     }
                 });
             });
@@ -696,6 +736,31 @@ export default Ember.Controller.extend({
             );
         },
 
+        nodeFilter: function(nodes) {
+            if (nodes) {
+                var that = this;
+
+                d3.selectAll('circle.node')
+                    .transition()
+                    .duration(200)
+                    .style("opacity", 0.3);
+
+                _.map(nodes, function(node) {
+                    return d3.selectAll("[id^=" + node + "]")
+                        .transition()
+                        .duration(500)
+                        .attr("r", that.get('radius') + 3)
+                        .style("opacity", 1);
+                });
+            } else {
+                d3.selectAll('circle.node')
+                    .transition()
+                    .duration(200)
+                    .attr("r", this.get('radius'))
+                    .style("opacity", 0.7);
+            }
+        },
+
         nodeInfo: function (nodeId) {
             var info = [];
 
@@ -769,7 +834,6 @@ export default Ember.Controller.extend({
                     var center = foci[d[frame.get('id')]];
 
                     d.x += (center.x - d.x) * 0.06 * alpha;
-
                     d.y += (center.y - d.y) * 0.06 * alpha;
                 };
             }
@@ -780,7 +844,6 @@ export default Ember.Controller.extend({
                     var center = that.get('firstFoci')[d.fill];
 
                     d.x += (center.x - d.x) * 0.02 * alpha;
-
                     d.y += (center.y - d.y) * 0.02 * alpha;
                 };
             }
@@ -1215,12 +1278,12 @@ export default Ember.Controller.extend({
             }
 
             // Open connection.
-            request.open('POST', 'http://localhost:3000/api/project', true);
+            request.open('POST', config.serverConf.apiEndpoint, true);
 
             // Show notification on success.
             request.onreadystatechange = function () {
                 if (request.readyState === 4 && request.status === 200) {
-                    var projectLink = 'http://localhost:4200/project?id=' + request.responseText;
+                    var projectLink = config.serverConf.previewEndpoint + request.responseText;
 
                     that.send(
                         'showNotification',
