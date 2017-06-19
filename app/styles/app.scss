@@ -1,5 +1,28 @@
 @import 'material-design-lite';
 
+input[type="color"] {
+    -webkit-appearance: none;
+    background-color: #fff;
+    border: 2px solid #dfdfdf;
+    width: 22px;
+    height: 22px;
+    border-radius: 5px;
+}
+
+input[type="color"]::-webkit-color-swatch-wrapper {
+    padding: 0;
+    border-radius: 5px;
+}
+
+input[type="color"]::-webkit-color-swatch {
+    border: none;
+    border-radius: 5px;
+}
+
+.dotplot-color-pallet {
+    padding-bottom: 20px;
+}
+
 body {
     background-color: #FAFAFA;
     width: 100%;

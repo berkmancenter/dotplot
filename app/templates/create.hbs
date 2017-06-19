@@ -12,6 +12,11 @@
                 {{mdl-button isRaised=true text='SETTINGS' class="dotplot-button dotplot-button-orange dotplot-float-right"}}
             </div>
             {{mdl-textfield value=fuzzyText label='Looking for something?' class="dotplot-full-width"}}
+            <div class="dotplot-color-pallet">
+                {{#each-in firstFoci as |color foci|}}
+                    <input type="color" name="{{foci.id}}" value="{{color}}" onchange={{action "changeColor" foci}}>
+                {{/each-in}}
+            </div>
         </div>
     </header>
 

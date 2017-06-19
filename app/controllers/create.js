@@ -17,7 +17,7 @@ export default Ember.Controller.extend({
 
     firstCreate: true,
 
-    firstFoci: [],
+    firstFoci: {},
 
     radius: 5,
 
@@ -257,6 +257,15 @@ export default Ember.Controller.extend({
                         .removeClass('shake');
                 }, 1000);
             });
+        },
+
+        changeColor: function (foci, event) {
+            var color = event.target.value;
+
+            d3.selectAll('.foci-' + foci.id)
+                .transition()
+                .style("fill", color)
+                .style("stroke", d3.rgb(color).darker(2))
         },
 
         createFrame: function () {
@@ -663,7 +672,9 @@ export default Ember.Controller.extend({
             // Create nodes that are not already present on the SVG.
             node.enter()
                 .append("circle")
-                .attr("class", "node")
+                .attr("class", function(d) {
+                    return "node foci-" + d[frame.get('id')];
+                })
                 .attr("id", function (d) {
                     return d.id;
                 })
@@ -1172,22 +1183,6 @@ export default Ember.Controller.extend({
 
             // Transition into the new node positions.
             node.transition().duration(1000)
-                .style('opacity', 0.7)
-                .attr("r", function (d) {
-                    var nodeId = d.id;
-
-                    // Check if it's a duplicate node.
-                    if (d.id.indexOf('--') > 0) {
-                        nodeId = d.id.substr(0, d.id.indexOf('--'));
-                    }
-
-                    // Check if the node is highlighted.
-                    if (nodeId === that.get('node')) {
-                        return frame.get('radius') + 3;
-                    } else {
-                        return frame.get('radius');
-                    }
-                })
                 .attr('cx', function (d) {
                     return d.x;
                 })
