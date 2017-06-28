@@ -48,7 +48,5 @@
     "node": ">= 4"
   },
   "private": true,
-  "dependencies": {
-    "multer": "^1.3.0"
-  }
+  "dependencies": {}
 }

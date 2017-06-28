@@ -39,7 +39,7 @@ export default Ember.Controller.extend({
         this.set('width', width);
         this.set('height', height);
     },
-
+ 
     // Observe Show Labels toggle.
     labelToggle: function () {
         if (this.get('labels')) {
@@ -587,6 +587,7 @@ export default Ember.Controller.extend({
                     var node = {
                         id: row.V1
                     };
+                    
                     var fuzzyNode = {};
 
                     if (index != 0) {
@@ -655,6 +656,47 @@ export default Ember.Controller.extend({
 
             var fill = d3.scale.category20();
 
+            var nodeIds = "";
+
+            // Drag to change foci location.
+            var drag = d3.behavior
+                .drag()
+                .on('dragstart', function (d) {
+                    that.send('removeLabels');
+
+                    var nodes = that.get('frame')
+                        .get('nodes')
+                        .filterBy(
+                            that.get('frame').get('id'),
+                            d[that.get('frame').get('id')]
+                        );
+
+                    nodes = _.map(nodes, function (node) {
+                        return "#" + node.id;
+                    });
+
+                    nodeIds = _.toString(nodes);
+                })
+                .on('drag', function () {
+                    that.send(
+                        'changeFoci',
+                        nodeIds,
+                        d3.event
+                    );
+                })
+                .on('dragend', function (d) {
+                    that.send(
+                        'updateNodePosition',
+                        d
+                    );
+
+                    that.send(
+                        'showLabels',
+                        that.get('frame'),
+                        true
+                    );
+                });
+
             // Update node data.
             var node = d3.select(".dotplot-nodes > svg")
                 .selectAll(".node")
@@ -700,14 +742,19 @@ export default Ember.Controller.extend({
                     return d3.rgb(d.fill).darker(2);
                 })
                 .on('click', function (d) {
-                    if (that.get('showNodeInfo')) {
+                    if (d3.event.defaultPrevented) {
+                        return;
+                    } else if (that.get('showNodeInfo')) {
                         that.send(
                             'nodeClick',
                             d,
                             frame
                         );
+                    } else {
+                        return;
                     }
-                });
+                })
+                .call(drag);
 
             // Create force layout.
             this.send(
@@ -715,6 +762,38 @@ export default Ember.Controller.extend({
                 frame,
                 true
             );
+        },
+
+        updateNodePosition: function (node) {
+            var that = this;
+
+            this.get('frame')
+                .get('nodes')
+                .filterBy(
+                    that.get('frame').get('id'),
+                    node[that.get('frame').get('id')]
+                )
+                .forEach(function (node) {
+                    var x = d3.select("[id="+ node.id +"]")
+                        .attr("cx");
+                    var y = d3.select("[id="+ node.id +"]")
+                        .attr("cy");
+                    
+                    node.x = +x;
+                    node.y = +y;
+                });
+        },
+
+        changeFoci: function (nodeIds, event) {
+            d3.selectAll(nodeIds)
+                .attr("cx", function () {
+                    return + d3.select(this).attr("cx") + event.dx;
+                });
+
+            d3.selectAll(nodeIds)
+                .attr("cy", function () {
+                    return + d3.select(this).attr("cy") + event.dy;
+                });
         },
 
         nodeClick: function (node, frame) {
@@ -1058,7 +1137,7 @@ export default Ember.Controller.extend({
             this.set('gravity', parseInt(event.target.value));
 
             // Remove existing labels.
-            this.send('removeLabels');
+            this.send('removeLabels');         
 
             // Run the force layout again.
             this.send(
@@ -1105,6 +1184,46 @@ export default Ember.Controller.extend({
 
             // Controller reference.
             var that = this;
+
+            var nodeIds = "";
+            
+            // Drag to change foci location.
+            var drag = d3.behavior
+                .drag()
+                .on('dragstart', function (d) {
+                    that.send('removeLabels');
+
+                    var nodes = frame.get('nodes')
+                        .filterBy(
+                            frame.get('id'),
+                            d[frame.get('id')]
+                        );
+
+                    nodes = _.map(nodes, function (node) {
+                        return "#" + node.id;
+                    });
+
+                    nodeIds = _.toString(nodes);
+                })
+                .on('drag', function () {
+                    that.send(
+                        'changeFoci',
+                        nodeIds,
+                        d3.event
+                    );
+                })
+                .on('dragend', function (d) {
+                    that.send(
+                        'updateNodePosition',
+                        d
+                    );
+
+                    that.send(
+                        'showLabels',
+                        that.get('frame'),
+                        true
+                    );
+                });
 
             // Update node data.
             var node = d3.select(".dotplot-nodes > svg")
@@ -1167,19 +1286,24 @@ export default Ember.Controller.extend({
                 .style("fill", function (d) {
                     return d.fill;
                 })
-                .style("opacity", 0)
+                .style("opacity", 0.7)
                 .style("stroke", function (d) {
                     return d3.rgb(d.fill).darker(2);
                 })
                 .on('click', function (d) {
-                    if (that.get('showNodeInfo')) {
+                    if (d3.event.defaultPrevented) {
+                        return;
+                    } else if (that.get('showNodeInfo')) {
                         that.send(
                             'nodeClick',
                             d,
                             frame
                         );
+                    } else {
+                        return;
                     }
-                });
+                })
+                .call(drag);
 
             // Transition into the new node positions.
             node.transition().duration(1000)
