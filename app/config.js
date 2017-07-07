@@ -16,5 +16,6 @@ export const fuzzyConf = {
 
 export const serverConf = {
     apiEndpoint: 'http://localhost:3000/api/project/',
+    renderEndpoint: 'http://localhost:3000/api/render/',
     previewEndpoint: 'http://localhost:4200/project?id='
 }

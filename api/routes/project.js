@@ -1,5 +1,4 @@
-var express = require('express');
-var app = express();
+var projectRouter = require('express').Router();
 var multer = require('multer');
 
 var storage = multer.diskStorage({
@@ -20,8 +19,6 @@ var upload = multer({
     storage: storage
 });
 
-var projectRouter = express.Router();
-
 projectRouter.post('/', upload.single('projectData'), function (req, res) {
     res.send(req.file.filename);
 });
@@ -36,14 +33,4 @@ projectRouter.delete('/:id', function (req, res) {
     res.status(204).end();
 });
 
-app.use(function(req, res, next) {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "X-Requested-With");
-  next();
-});
-
-app.use('/api/project', projectRouter);
-
-app.listen(3000, function () {
-  console.log('The DotPlot file serving server is listening on port 3000!')
-});
+module.exports = projectRouter;

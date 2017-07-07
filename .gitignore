@@ -9,6 +9,7 @@
 
 # dependencies
 /node_modules
+/api/node_modules
 /bower_components
 
 # misc

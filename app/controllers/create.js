@@ -17,6 +17,8 @@ export default Ember.Controller.extend({
 
     firstCreate: true,
 
+    serverRender: false,
+
     firstFoci: {},
 
     radius: 5,
@@ -757,11 +759,18 @@ export default Ember.Controller.extend({
                 .call(drag);
 
             // Create force layout.
-            this.send(
-                'd3Plot',
-                frame,
-                true
-            );
+            if (this.get('serverRender')) {
+                this.send(
+                    'serverPlot',
+                    frame,
+                );
+            } else {
+                this.send(
+                    'd3Plot',
+                    frame,
+                    true
+                );
+            }
         },
 
         updateNodePosition: function (node) {
@@ -899,6 +908,60 @@ export default Ember.Controller.extend({
                 .attr("r", that.get('frame').get('radius'));
         },
 
+        serverPlot: function (frame) {
+            var foci = _.keyBy(frame.get('foci'), 'id');
+            
+            var that = this;
+
+            this.send('removeLabels');
+
+            Ember.$.ajax({
+                type: "POST",
+                url: config.serverConf.renderEndpoint,
+                data: {
+                    id: frame.get('id'),
+                    nodes: JSON.stringify(frame.get('nodes')),
+                    foci: JSON.stringify(foci),
+                    charge: that.get('charge'),
+                    gravity: that.get('gravity'),
+                    width: that.get('width'),
+                    height: that.get('height')
+                },
+                success: function (data) {
+                    frame.set('nodes', data);
+                    
+                    d3.select(".dotplot-nodes > svg")
+                        .selectAll('circle.node')
+                        .data(data, function (d) {
+                            return d.id;
+                        })
+                        .transition()
+                        .attr("cx", function (d) {
+                            return d.x;
+                        })
+                        .attr("cy", function (d) {
+                            return d.y;
+                        });
+                    
+                    that.send(
+                        'showNotification',
+                        'success',
+                        'Server render completed, you can now modify it.',
+                        true
+                    );
+
+                    that.set('frame', frame);
+
+                    if (that.get('labels')) {
+                        that.send(
+                            'showLabels',
+                            frame,
+                            true
+                        );
+                    }
+                }
+            });
+        },
 
         d3Plot: function (frame, hard = false) {
             NProgress.set(0.4);
@@ -908,15 +971,17 @@ export default Ember.Controller.extend({
 
             var that = this;
 
+            var nodeData = frame.get('nodes');
+            
+            // For improved performance.
+            var foci = _.keyBy(frame.get('foci'), 'id');
+
             // Update node data.
             var node = d3.select(".dotplot-nodes > svg")
                 .selectAll('circle.node')
-                .data(frame.get('nodes'), function (d) {
+                .data(nodeData, function (d) {
                     return d.id;
                 });
-
-            // For improved performance.
-            var foci = _.keyBy(frame.get('foci'), 'id');
 
             // Move nodes towards different foci.
             function drawNode(alpha) {
@@ -983,7 +1048,7 @@ export default Ember.Controller.extend({
             // Define force properties.
             var force = d3.layout
                 .force()
-                .nodes(frame.get('nodes'))
+                .nodes(nodeData)
                 .size([that.get('width'), that.get('height')])
                 .on("tick", tick)
                 .on('end', end)
@@ -1140,10 +1205,18 @@ export default Ember.Controller.extend({
             this.send('removeLabels');         
 
             // Run the force layout again.
-            this.send(
-                'd3Plot',
-                this.get('frame')
-            );
+            if (this.get('serverRender')) {
+                this.send(
+                    'serverPlot',
+                    this.get('frame'),
+                );
+            } else {
+                this.send(
+                    'd3Plot',
+                    this.get('frame'),
+                    false
+                );
+            }
         },
 
         changeCharge: function (event) {
@@ -1154,10 +1227,18 @@ export default Ember.Controller.extend({
             this.send('removeLabels');
 
             // Run the force layout again.
-            this.send(
-                'd3Plot',
-                this.get('frame')
-            );
+            if (this.get('serverRender')) {
+                this.send(
+                    'serverPlot',
+                    this.get('frame'),
+                );
+            } else {
+                this.send(
+                    'd3Plot',
+                    this.get('frame'),
+                    false
+                );
+            }
         },
 
         changeRadius: function (event) {
