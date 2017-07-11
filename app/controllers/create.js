@@ -1,10 +1,16 @@
 /* global saveAs, Fuse */
 
 import Ember from 'ember';
-import d3 from 'd3';
 import _ from 'lodash';
 import NProgress from 'ember-cli-nprogress';
 import * as config from '../config';
+import { select, selectAll, event } from 'd3-selection';
+import { } from 'd3-transition';
+import { forceSimulation, forceX, forceY, forceCollide } from 'd3-force';
+import { scaleOrdinal, schemeCategory20 } from 'd3-scale';
+import { rgb } from 'd3-color';
+import { json as requestJson, csv as requestCsv } from 'd3-request';
+import { drag as d3Drag } from 'd3-drag';
 
 export default Ember.Controller.extend({
     charge: 6,
@@ -41,7 +47,7 @@ export default Ember.Controller.extend({
         this.set('width', width);
         this.set('height', height);
     },
- 
+
     // Observe Show Labels toggle.
     labelToggle: function () {
         if (this.get('labels')) {
@@ -147,7 +153,7 @@ export default Ember.Controller.extend({
                                 .get('choice')
                                 .forEach(function (type) {
                                     var newNode = {};
-                                    
+
                                     // Use existing nodes for first choice.
                                     if (first) {
                                         first = false;
@@ -217,8 +223,7 @@ export default Ember.Controller.extend({
 
         if (this.get('firstCreate')) {
             var firstFoci =  _.keyBy(foci, 'id');
-            var fill = d3.scale
-                .category20();
+            var fill = scaleOrdinal(schemeCategory20);
 
             firstFoci = _.mapKeys(firstFoci, function(value, key) {
                 return fill(key);
@@ -264,10 +269,10 @@ export default Ember.Controller.extend({
         changeColor: function (foci, event) {
             var color = event.target.value;
 
-            d3.selectAll('.foci-' + foci.id)
+            selectAll('.foci-' + foci.id)
                 .transition()
                 .style("fill", color)
-                .style("stroke", d3.rgb(color).darker(2))
+                .style("stroke", rgb(color).darker(2))
         },
 
         createFrame: function () {
@@ -475,7 +480,7 @@ export default Ember.Controller.extend({
 
             var first = true;
 
-            d3.json(file, function (project) {
+            requestJson(file, function (project) {
                 // Update width and height according to window size.
                 var ratio = that.get('height') / project.height;
 
@@ -485,7 +490,7 @@ export default Ember.Controller.extend({
 
                 that.set('scale', ratio);
 
-                d3.select(".dotplot-nodes > svg")
+                select(".dotplot-nodes > svg")
                     .attr('width', width)
                     .attr('height', that.get('height'));
 
@@ -541,8 +546,8 @@ export default Ember.Controller.extend({
             var that = this;
 
             // Loop : CSV rows.
-            d3.csv(file, function (d) {
-                d3.select(".dotplot-nodes > svg")
+            requestCsv(file, function (d) {
+                select(".dotplot-nodes > svg")
                     .attr('width', that.get('width'))
                     .attr('height', that.get('height'));
 
@@ -584,12 +589,12 @@ export default Ember.Controller.extend({
                 NProgress.set(0.6);
             });
 
-            d3.csv(file, function(error, rows) {
+            requestCsv(file, function(error, rows) {
                 rows.forEach(function(row, index) {
                     var node = {
                         id: row.V1
                     };
-                    
+
                     var fuzzyNode = {};
 
                     if (index != 0) {
@@ -606,7 +611,7 @@ export default Ember.Controller.extend({
 
                         var storeNode = that.get('store')
                             .createRecord('node', node);
-                        
+
                         fuzzyNode['id'] = storeNode.get('id');
                         that.get('fuzzyNodes').pushObject(fuzzyNode);
                     }
@@ -614,7 +619,7 @@ export default Ember.Controller.extend({
             });
 
             // Create node objects.
-            d3.csv(file, function (rows) {
+            requestCsv(file, function (rows) {
                 rows.forEach(function (row, index) {
                     if (index !== 0) {
                         that.get('nodes')
@@ -656,14 +661,13 @@ export default Ember.Controller.extend({
 
             var that = this;
 
-            var fill = d3.scale.category20();
+            var fill = scaleOrdinal(schemeCategory20);
 
             var nodeIds = "";
 
             // Drag to change foci location.
-            var drag = d3.behavior
-                .drag()
-                .on('dragstart', function (d) {
+            var drag = d3Drag()
+                .on('start', function (d) {
                     that.send('removeLabels');
 
                     var nodes = that.get('frame')
@@ -683,10 +687,10 @@ export default Ember.Controller.extend({
                     that.send(
                         'changeFoci',
                         nodeIds,
-                        d3.event
+                        event
                     );
                 })
-                .on('dragend', function (d) {
+                .on('end', function (d) {
                     that.send(
                         'updateNodePosition',
                         d
@@ -700,7 +704,7 @@ export default Ember.Controller.extend({
                 });
 
             // Update node data.
-            var node = d3.select(".dotplot-nodes > svg")
+            var node = select(".dotplot-nodes > svg")
                 .selectAll(".node")
                 .data(frame.get('nodes'), function (d) {
                     return d.id;
@@ -741,10 +745,10 @@ export default Ember.Controller.extend({
                 .style("opacity", 0.7)
                 .style("stroke", function (d) {
                     // Return darker shade of node fill.
-                    return d3.rgb(d.fill).darker(2);
+                    return rgb(d.fill).darker(2);
                 })
                 .on('click', function (d) {
-                    if (d3.event.defaultPrevented) {
+                    if (event.defaultPrevented) {
                         return;
                     } else if (that.get('showNodeInfo')) {
                         that.send(
@@ -783,31 +787,31 @@ export default Ember.Controller.extend({
                     node[that.get('frame').get('id')]
                 )
                 .forEach(function (node) {
-                    var x = d3.select("[id="+ node.id +"]")
+                    var x = select("[id="+ node.id +"]")
                         .attr("cx");
-                    var y = d3.select("[id="+ node.id +"]")
+                    var y = select("[id="+ node.id +"]")
                         .attr("cy");
-                    
+
                     node.x = +x;
                     node.y = +y;
                 });
         },
 
         changeFoci: function (nodeIds, event) {
-            d3.selectAll(nodeIds)
+            selectAll(nodeIds)
                 .attr("cx", function () {
-                    return + d3.select(this).attr("cx") + event.dx;
+                    return + select(this).attr("cx") + event.dx;
                 });
 
-            d3.selectAll(nodeIds)
+            selectAll(nodeIds)
                 .attr("cy", function () {
-                    return + d3.select(this).attr("cy") + event.dy;
+                    return + select(this).attr("cy") + event.dy;
                 });
         },
 
         nodeClick: function (node, frame) {
             // Reset node radius.
-            d3.selectAll("[id^='" + this.get('node') + "']")
+            selectAll("[id^='" + this.get('node') + "']")
                 .transition()
                 .duration(500)
                 .attr("r", frame.get('radius'));
@@ -820,7 +824,7 @@ export default Ember.Controller.extend({
             }
 
             // Change radius on node selection.
-            d3.selectAll("[id^=" + nodeId + "]")
+            selectAll("[id^=" + nodeId + "]")
                 .transition()
                 .duration(500)
                 .attr("r", frame.get('radius') + 3);
@@ -839,20 +843,20 @@ export default Ember.Controller.extend({
             if (nodes) {
                 var that = this;
 
-                d3.selectAll('circle.node')
+                selectAll('circle.node')
                     .transition()
                     .duration(200)
                     .style("opacity", 0.3);
 
                 _.map(nodes, function(node) {
-                    return d3.selectAll("[id^=" + node + "]")
+                    return selectAll("[id^=" + node + "]")
                         .transition()
                         .duration(500)
                         .attr("r", that.get('radius') + 3)
                         .style("opacity", 1);
                 });
             } else {
-                d3.selectAll('circle.node')
+                selectAll('circle.node')
                     .transition()
                     .duration(200)
                     .attr("r", this.get('radius'))
@@ -879,7 +883,7 @@ export default Ember.Controller.extend({
                             var value = frame.get('foci')
                                 .findBy('id', nodeCat)
                                 .text;
-                            
+
                             frameInfo.answer += value + " ";
                         }
                     });
@@ -902,7 +906,7 @@ export default Ember.Controller.extend({
             Ember.$("#nodeInfo").fadeOut();
 
             // Reset node radius.
-            d3.selectAll("[id^=" + this.get('node') + "]")
+            selectAll("[id^=" + this.get('node') + "]")
                 .transition()
                 .duration(500)
                 .attr("r", that.get('frame').get('radius'));
@@ -910,7 +914,7 @@ export default Ember.Controller.extend({
 
         serverPlot: function (frame) {
             var foci = _.keyBy(frame.get('foci'), 'id');
-            
+
             var that = this;
 
             this.send('removeLabels');
@@ -929,8 +933,8 @@ export default Ember.Controller.extend({
                 },
                 success: function (data) {
                     frame.set('nodes', data);
-                    
-                    d3.select(".dotplot-nodes > svg")
+
+                    select(".dotplot-nodes > svg")
                         .selectAll('circle.node')
                         .data(data, function (d) {
                             return d.id;
@@ -942,7 +946,7 @@ export default Ember.Controller.extend({
                         .attr("cy", function (d) {
                             return d.y;
                         });
-                    
+
                     that.send(
                         'showNotification',
                         'success',
@@ -963,8 +967,8 @@ export default Ember.Controller.extend({
             });
         },
 
-        d3Plot: function (frame, hard = false) {
-            NProgress.set(0.4);
+        d3Plot: function (frame) {
+            NProgress.set(0.0);
 
             // Show new labels.
             this.send('removeLabels');
@@ -972,60 +976,20 @@ export default Ember.Controller.extend({
             var that = this;
 
             var nodeData = frame.get('nodes');
-            
+
             // For improved performance.
             var foci = _.keyBy(frame.get('foci'), 'id');
 
             // Update node data.
-            var node = d3.select(".dotplot-nodes > svg")
+            var node = select(".dotplot-nodes > svg")
                 .selectAll('circle.node')
                 .data(nodeData, function (d) {
                     return d.id;
                 });
 
-            // Move nodes towards different foci.
-            function drawNode(alpha) {
-                return function (d) {
-                    var center = foci[d[frame.get('id')]];
-
-                    d.x += (center.x - d.x) * 0.06 * alpha;
-                    d.y += (center.y - d.y) * 0.06 * alpha;
-                };
-            }
-
-            // Push same color node closer.
-            function pushClose(alpha) {
-                return function (d) {
-                    var center = that.get('firstFoci')[d.fill];
-
-                    d.x += (center.x - d.x) * 0.02 * alpha;
-                    d.y += (center.y - d.y) * 0.02 * alpha;
-                };
-            }
-
-            // Update node position with every tick.
-            function tick(e) {
-                NProgress.inc(e.alpha);
-
-                if (e.alpha >= 0.06 && hard) {
-                    node.each(pushClose(e.alpha));
-                } else if (e.alpha <= 0.01) {
-                    that.get('force').stop();
-                } else {
-                    node.each(drawNode(e.alpha));
-                }
-
-                node.attr("cx", function (d) {
-                        return d.x;
-                    })
-                    .attr("cy", function (d) {
-                        return d.y;
-                    });
-            }
-
             // Show labels and update nProgress.
             function end() {
-                NProgress.inc();
+                NProgress.done();
 
                 that.send(
                     'showNotification',
@@ -1033,6 +997,13 @@ export default Ember.Controller.extend({
                     'Force layout completed, you can now modify it.',
                     true
                 );
+
+                node.attr("cx", function (d) {
+                        return d.x;
+                    })
+                    .attr("cy", function (d) {
+                        return d.y;
+                    });
 
                 that.set('frame', frame);
 
@@ -1046,23 +1017,61 @@ export default Ember.Controller.extend({
             }
 
             // Define force properties.
-            var force = d3.layout
-                .force()
+            var collisionForce = forceCollide().radius(frame.get('radius'));
+            var positionForce = function(frame, firstFoci, foci) {
+              var fociXForce, fociYForce, colorXForce, colorYForce;
+
+              function force(alpha) {
+                // Alpha moves from 1.0 to ~0.0 as simulation progresses.
+                // When sim starts, move nodes toward color foci. Later, move
+                // them toward regular foci. This ensure when they reach their
+                // final destination, like colors will be closer to one
+                // another.
+                if (alpha < 0.5) {
+                  fociXForce(alpha);
+                  fociYForce(alpha);
+                } else {
+                  colorXForce(alpha);
+                  colorYForce(alpha);
+                }
+              }
+
+              force.initialize = function(n) {
+                fociXForce = forceX(function(n) { return foci[n[frame.get('id')]].x; });
+                fociYForce = forceY(function(n) { return foci[n[frame.get('id')]].y; });
+                colorXForce = forceX(function(n) { return firstFoci[n.fill].x; });
+                colorYForce = forceY(function(n) { return firstFoci[n.fill].y; });
+                fociXForce.initialize(n);
+                fociYForce.initialize(n);
+                colorXForce.initialize(n);
+                colorYForce.initialize(n);
+              }
+
+              return force;
+            }(frame, that.get('firstFoci'), foci);
+
+            var force = forceSimulation()
+                .force("collision", collisionForce)
+                .force("foci", positionForce)
                 .nodes(nodeData)
-                .size([that.get('width'), that.get('height')])
-                .on("tick", tick)
-                .on('end', end)
-                .charge(-1 * that.get('charge'))
-                .gravity((10 - that.get('gravity')) / 100);
+                .stop();
 
             this.set('force', force);
 
             // Start the force layout.
-            force.start();
+            // This could be in a web worker.
+            var numTicks = Math.ceil(Math.log(force.alphaMin()) / Math.log(1 - force.alphaDecay()));
+            setTimeout(function() {
+              for (var i = 0; i < numTicks; ++i) {
+                force.tick();
+                NProgress.set(i / numTicks);
+              }
+              end();
+            }, 0);
         },
 
         removeLabels: function () {
-            d3.select(".dotplot-nodes > svg")
+            select(".dotplot-nodes > svg")
                 .selectAll('.label')
                 .remove();
         },
@@ -1071,7 +1080,7 @@ export default Ember.Controller.extend({
             var that = this;
 
             // Update label data.
-            var label = d3.select(".dotplot-nodes > svg")
+            var label = select(".dotplot-nodes > svg")
                 .selectAll(".label")
                 .data(frame.get('foci'));
 
@@ -1183,7 +1192,7 @@ export default Ember.Controller.extend({
 
         saveNodePositions: function (frame) {
             // Select all nodes on the SVG.
-            var node = d3.select(".dotplot-nodes > svg")
+            var node = select(".dotplot-nodes > svg")
                 .selectAll('circle.node');
 
             // Find the node (Frame Model) and update coordinate values.
@@ -1202,7 +1211,7 @@ export default Ember.Controller.extend({
             this.set('gravity', parseInt(event.target.value));
 
             // Remove existing labels.
-            this.send('removeLabels');         
+            this.send('removeLabels');
 
             // Run the force layout again.
             if (this.get('serverRender')) {
@@ -1243,7 +1252,7 @@ export default Ember.Controller.extend({
 
         changeRadius: function (event) {
             // Select all nodes on the SVG.
-            var node = d3.select(".dotplot-nodes > svg")
+            var node = select(".dotplot-nodes > svg")
                 .selectAll('circle.node');
 
             this.get('frame')
@@ -1267,11 +1276,10 @@ export default Ember.Controller.extend({
             var that = this;
 
             var nodeIds = "";
-            
+
             // Drag to change foci location.
-            var drag = d3.behavior
-                .drag()
-                .on('dragstart', function (d) {
+            var drag = d3Drag()
+                .on('start', function (d) {
                     that.send('removeLabels');
 
                     var nodes = frame.get('nodes')
@@ -1290,10 +1298,10 @@ export default Ember.Controller.extend({
                     that.send(
                         'changeFoci',
                         nodeIds,
-                        d3.event
+                        event
                     );
                 })
-                .on('dragend', function (d) {
+                .on('end', function (d) {
                     that.send(
                         'updateNodePosition',
                         d
@@ -1307,7 +1315,7 @@ export default Ember.Controller.extend({
                 });
 
             // Update node data.
-            var node = d3.select(".dotplot-nodes > svg")
+            var node = select(".dotplot-nodes > svg")
                 .selectAll('circle.node')
                 .data(frame.get('nodes'), function (d) {
                     return d.id;
@@ -1369,10 +1377,10 @@ export default Ember.Controller.extend({
                 })
                 .style("opacity", 0.7)
                 .style("stroke", function (d) {
-                    return d3.rgb(d.fill).darker(2);
+                    return rgb(d.fill).darker(2);
                 })
                 .on('click', function (d) {
-                    if (d3.event.defaultPrevented) {
+                    if (event.defaultPrevented) {
                         return;
                     } else if (that.get('showNodeInfo')) {
                         that.send(
