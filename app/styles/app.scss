@@ -1,5 +1,11 @@
 @import 'material-design-lite';
 
+#dotplot-howto {
+    display: block;
+    width: 700px;
+    margin: 0 auto;
+}
+
 input[type="color"] {
     -webkit-appearance: none;
     background-color: #fff;
@@ -125,6 +131,10 @@ body > div.ember-view {
 
 .dotplot-button-blue:hover {
     background-color: #3788C7 !important;
+}
+
+.dotplot-button-center {
+    width: 300px;
 }
 
 .dotplot-frame {

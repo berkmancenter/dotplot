@@ -41,7 +41,7 @@ export default Ember.Controller.extend({
         this.set('width', width);
         this.set('height', height);
     },
- 
+
     // Observe Show Labels toggle.
     labelToggle: function () {
         if (this.get('labels')) {
@@ -232,7 +232,14 @@ export default Ember.Controller.extend({
     },
 
     actions: {
+        loadSampleData: function () {
+            this.set('projectId', 'sampleData');
+            this.send('loadProject');
+        },
+
         loadProject: function () {
+            this.send('hideIntro');
+
             var that = this;
 
             var file = config.serverConf.apiEndpoint + this.get('projectId');
@@ -407,6 +414,12 @@ export default Ember.Controller.extend({
             );
         },
 
+
+        hideIntro: function () {
+            Ember.$('#dotplot-introSteps').remove();
+            Ember.$('#dotplot-button-sampleData').remove();
+        },
+
         showModel: function (modelId) {
             var dialog = document.querySelector('#' + modelId);
 
@@ -420,6 +433,8 @@ export default Ember.Controller.extend({
         },
 
         fileUpload: function (file, resetInput) {
+            this.send('hideIntro');
+            
             if (file[0].type === "application/json") {
                 var jsonFile = URL.createObjectURL(file[0]);
 

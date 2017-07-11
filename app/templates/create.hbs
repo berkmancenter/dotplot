@@ -82,7 +82,7 @@
     {{notification-container class="dotplot-notification-bottom" notifications=notifications position="bottom"}}
     <!-- Current Frame Information -->
     <div class="dotplot-top-bar">
-        <p>{{if frame frame.title "Oops! Looks like you have not created any frames."}}</p>
+        <p>{{if frame frame.title "Looks like you have not created any frames."}}</p>
         <div class="dotplot-top-details mdl-grid">
             <div class="mdl-cell mdl-cell--4-col">
                 <b>Charge Points:</b> {{if frame frame.foci.length "No Data"}}
@@ -98,7 +98,10 @@
 
     <!-- DotPlot Nodes -->
     <div class="dotplot-nodes">
-        <svg></svg>
+        <svg width="750" height="400">
+             <image x="0" y="100" xlink:href="assets/img/howto.svg" id="dotplot-introSteps"/>
+        </svg>
+       {{mdl-button  click=(action 'loadSampleData') isRaised=true text='LOAD SAMPLE DATA' id='dotplot-button-sampleData' class="dotplot-button dotplot-button-blue dotplot-button-center"}} 
     </div>
 
     <!-- DotPlot Controls For Current Frame -->

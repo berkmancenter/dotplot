@@ -10,7 +10,7 @@ app.use(function(req, res, next) {
 });
 
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
+app.use(bodyParser.json({limit: '50mb'}));
 
 app.use('/api/project', project);
 app.use('/api/render', render);
