@@ -1,3 +1,6 @@
+const serverURL = 'http://localhost:3000';
+const frontendURL = 'http://localhost:4200';
+
 export const fuzzyConf = {
     id: 'id',
     shouldSort: true,
@@ -14,8 +17,19 @@ export const fuzzyConf = {
     ]
 };
 
+export const visualConf = {
+    opacity: 0.7,
+    transitionIn: 500,
+    transitionOut: 100,
+    notificationDuration: 2000,
+    radius: 5,
+    charge: 6,
+    gravity: 8,
+    scale: 1
+};
+
 export const serverConf = {
-    apiEndpoint: 'http://localhost:3000/api/project/',
-    renderEndpoint: 'http://localhost:3000/api/render/',
-    previewEndpoint: 'http://localhost:4200/project?id='
-}
+    apiEndpoint: serverURL + '/project',
+    renderEndpoint: serverURL + '/render',
+    previewEndpoint: frontendURL + '/project?id='
+};

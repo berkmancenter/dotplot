@@ -81,6 +81,7 @@ body > div.ember-view {
 }
 
 .dotplot-button {
+    padding: 0;
     font-family: 'Open Sans', sans-serif;
     width: 47%;
     height: 45px;
@@ -135,6 +136,8 @@ body > div.ember-view {
 
 .dotplot-button-center {
     width: 300px;
+    display: block;
+    margin: 0 auto;
 }
 
 .dotplot-frame {
@@ -223,6 +226,7 @@ body > div.ember-view {
     box-shadow: 0px 0px 4px 0px rgba(145, 145, 145, 0.50);
     border-radius: 0 0 10px 10px;
     top: 0;
+    max-height: 100px;
     position: absolute;
     left: 0;
     right: 0;
@@ -230,7 +234,7 @@ body > div.ember-view {
 }
 
 .dotplot-bottom-bar {
-    height: 120px;
+    max-height: 120px;
     width: 75%;
     margin: 0 auto;
     background: #FFFFFF;
@@ -298,6 +302,26 @@ body > div.ember-view {
     font-family: 'Open Sans';
 }
 
+.dotplot-paragraph {
+    text-align: justify;
+}
+
+.dotplot-data-status {
+    font-size: 12px;
+    font-weight: 700;
+    color: #fff;
+    padding: 5px;
+    vertical-align: middle;
+}
+
+.dotplot-data-present {
+    background-color: #00d64c;
+}
+
+.dotplot-data-absent {
+    background-color: #f10059;
+}
+
 .dotplot-full-width {
     width: 100% !important;
 }
@@ -341,7 +365,7 @@ dialog::backdrop {
     width: 85%;
     margin: 0 auto;
     text-align: center;
-    top: 100px;
+    top: 105px;
     bottom: 0;
     position: relative;
 }
@@ -488,10 +512,32 @@ dialog::backdrop {
 
 @media only screen and (max-width: 1000px) {
     .dotplot-top-bar {
-        width: 80%
+        width: 90%;
     }
 
     .dotplot-bottom-bar {
-        width: 80%
+        width: 90%;
+    }
+}
+
+@media only screen 
+and (min-device-width : 768px) 
+and (max-device-width : 1024px) 
+and (orientation : landscape) {
+    .dotplot-top-bar {
+        width: 90%;
+    }
+
+    .dotplot-nodes > svg {
+        width: 600px !important;
+        height: 400px !important;
+    }
+
+    #dotplot-introSteps {
+        width: 600px;
+    }
+
+    .dotplot-bottom-bar {
+        width: 90%;
     }
 }
