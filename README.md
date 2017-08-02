@@ -18,18 +18,28 @@ To contribute to this project, you will need the following things properly insta
 * [Ember CLI](http://ember-cli.com/)
 * [PhantomJS](http://phantomjs.org/)
 
-## Installation
+## Installation (Frontend)
 
 * `git clone https://github.com/berkmancenter/dotplot.git` this repository
 * change into the new directory
 * `npm install`
 * `bower install`
 
-## Running / Development
+## Running / Development (Frontend)
 
 * `ember server`
 * Visit your app at [http://localhost:4200/create](http://localhost:4200/create).
 * Public View: `http://localhost:4200/project?id=<Your Project Id>`.
+
+## Installation (API Server)
+
+* Switch to API directory `cd api/`
+* Install the dependencies `npm install`
+
+## Running / Development (API Server)
+
+* Start the nodes server `node index.js`
+* Make HTTP requests at `http://locahost:3000/api/<API Endpoint>`
 
 ### Code Generators
 
