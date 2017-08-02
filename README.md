@@ -33,12 +33,12 @@ To contribute to this project, you will need the following things properly insta
 
 ## Installation (API Server)
 
-* Switch to API directory `cd api/`
-* Install the dependencies `npm install`
+* Change into the API directory `cd api/`
+* `npm install`
 
 ## Running / Development (API Server)
 
-* Start the nodes server `node index.js`
+* `node index.js`
 * Make HTTP requests at `http://locahost:3000/api/<API Endpoint>`
 
 ### Code Generators
