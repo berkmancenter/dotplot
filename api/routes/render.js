@@ -62,6 +62,7 @@ renderRouter.post('/', function (req, res) {
             }
 
             function end() {
+                console.log(nodes);
                 res.json(nodes);
             }
 

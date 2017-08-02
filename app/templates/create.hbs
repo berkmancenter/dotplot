@@ -16,11 +16,6 @@
                 {{mdl-button isRaised=true text='SETTINGS' class="dotplot-button dotplot-button-orange dotplot-float-right"}}
             </div>
             {{mdl-textfield value=fuzzyText label='Looking for something?' class="dotplot-full-width"}}
-            <div class="dotplot-color-pallet">
-                {{#each-in firstFoci as |color foci|}}
-                    <input type="color" name="{{foci.id}}" value="{{color}}" onchange={{action "changeColor" foci}}>
-                {{/each-in}}
-            </div>
         </div>
     </header>
 
@@ -53,23 +48,7 @@
         </div>
 
         <!-- Create Frame Button -->
-        {{#mdl-card class="dotplot-frame dotplot-low-opacity" click=(action 'createDialog')}}
-            <div class="mdl-card__supporting-text dotplot-margin-tb9">
-                <div class="dotplot-frame-add">
-                    ADD FRAME
-                </div>
-            </div>
-            {{#mdl-card-actions class="dotplot-frame-footer"}}
-                <div class="dotplot-frame-controls dotplot-float-left">
-                    <i class="dotplot-icon-switch"></i> On Click
-                </div>
-                <div class="dotplot-frame-controls dotplot-float-right dotplot-text-right">
-                    <i class="dotplot-icon-forcelayout"></i>
-                    <i class="dotplot-icon-label"></i>
-                    <i class="dotplot-icon-close"></i>
-                </div>
-            {{/mdl-card-actions}}
-        {{/mdl-card}}
+        {{mdl-button click=(action 'createDialog') isRaised=true text='CREATE A NEW FRAME' class="dotplot-button dotplot-button-frame"}}
     </div>
 
     <!-- Sidebar Footer | Save and Publish -->
@@ -104,10 +83,17 @@
 
     <!-- DotPlot Nodes -->
     <div class="dotplot-nodes">
-        <svg width="750" height="400">
-             <image x="0" y="100" xlink:href="assets/img/howto.svg" id="dotplot-introSteps"/>
-        </svg>
-       {{mdl-button  click=(action 'loadSampleData') isRaised=true text='LOAD SAMPLE DATA' id='dotplot-button-sampleData' class="dotplot-button dotplot-button-blue dotplot-button-center"}} 
+        <div id="dotplot-introData" class="dotplot-intro">
+            <h1>Welcome to Dotplot!</h1>
+            <ol class="dotplot-intro-list">
+                <li>To create a visualisation start by uploading file using <b>"Load Data"</b> button.</li>
+                <li>After uploading the file, click on <b>"Add Frame"</b> to create a visualisation.</li>
+                <li>You may adjust the visuals by using the controls provided below.</li>
+                <li>Once you're happy with the visuals you can either <b>export or pubhish it</b>.</li>
+            </ol>
+        </div>
+        <svg width="0" height="0"></svg>
+        {{mdl-button  click=(action 'loadSampleData') isRaised=true text='LOAD SAMPLE DATA' id='dotplot-button-sampleData' class="dotplot-button dotplot-button-blue dotplot-button-center"}} 
     </div>
 
     <!-- DotPlot Controls For Current Frame -->
@@ -134,7 +120,7 @@
                 {{mdl-switch text='Node Details' value=showNodeInfo class="dotplot-wrapper"}}
             </div>
             <div class="mdl-cell mdl-cell--4-col">
-                {{mdl-switch text='Server Render' value=serverRender class="dotplot-wrapper"}}
+                {{mdl-switch text='Server Render' value=server class="dotplot-wrapper"}}
             </div>
         </div>
     </div>

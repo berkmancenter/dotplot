@@ -29,7 +29,7 @@ export const visualConf = {
 };
 
 export const serverConf = {
-    apiEndpoint: serverURL + '/project',
-    renderEndpoint: serverURL + '/render',
+    apiEndpoint: serverURL + '/api/project/',
+    renderEndpoint: serverURL + '/api/render',
     previewEndpoint: frontendURL + '/project?id='
 };

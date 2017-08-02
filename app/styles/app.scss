@@ -6,6 +6,37 @@
     margin: 0 auto;
 }
 
+.dotplot-intro {
+    width: 80%;
+    margin: 100px auto 0;
+}
+
+.dotplot-intro > h1 {
+    font-size: 45px;
+}
+
+.dotplot-intro-list {
+    font-size: 20px;
+    text-align: left;
+    line-height: 45px;
+    list-style-type: none;
+}
+
+.dotplot-intro-list li {
+    counter-increment: step-counter;
+}
+
+.dotplot-intro-list li::before {
+    content: counter(step-counter);
+    margin-right: 15px;
+    font-size: 80%;
+    background-color: #50BACC;
+    color: white;
+    font-weight: bold;
+    padding: 5px 10px;
+    border-radius: 500px;
+}
+
 input[type="color"] {
     -webkit-appearance: none;
     background-color: #fff;
@@ -102,6 +133,12 @@ body > div.ember-view {
     text-align: right;
 }
 
+.dotplot-button-frame {
+    background-color: #afafaf !important;
+    margin: 20px 0;
+    width: 100%;
+}
+
 .dotplot-button-green {
     background-color: #50BACC !important;
 }
@@ -119,11 +156,11 @@ body > div.ember-view {
 }
 
 .dotplot-button-red {
-    background-color: #ff0057 !important;
+    background-color: #ff6161 !important;
 }
 
 .dotplot-button-red:hover {
-    background-color: #ff3479 !important;
+    background-color: #ff7676 !important;
 }
 
 .dotplot-button-blue {
@@ -526,15 +563,6 @@ and (max-device-width : 1024px)
 and (orientation : landscape) {
     .dotplot-top-bar {
         width: 90%;
-    }
-
-    .dotplot-nodes > svg {
-        width: 600px !important;
-        height: 400px !important;
-    }
-
-    #dotplot-introSteps {
-        width: 600px;
     }
 
     .dotplot-bottom-bar {
