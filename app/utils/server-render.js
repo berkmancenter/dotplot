@@ -13,6 +13,6 @@ export default function serverRender(serverObject) {
       gravity: serverObject.gravity,
       width: serverObject.width,
       height: serverObject.height
-    },
+    }
   });
-};
+}

@@ -98,102 +98,167 @@ export default Ember.Controller.extend({
     getNodes: function (frameType) {
         NProgress.start();
 
-        var that = this;
+        var controller = this;
 
         var column = this.get('selectedColumn').get('id');
 
-        var nodes = [];
+        function multipleChoiceNode(nodeObject, type, first) {
+            var newNode = {};
+
+            if (first) {
+                newNode = {
+                    id: nodeObject.id,
+                    x: nodeObject.x,
+                    y: nodeObject.y,
+                    fill: nodeObject.fill
+                };
+            } else {
+                newNode = {
+                    id: nodeObject.id + '--' + type,
+                    x: nodeObject.x,
+                    y: nodeObject.y,
+                    fill: nodeObject.fill
+                };
+            }
+
+            newNode[column] = type;
+            return newNode;
+        }
+
+        function multipleChoiceTypes(controller, node) {
+            var nodeArr = [];
+
+            var nodeObject = controller.get('nodes')
+                .findBy('id', node.get('id'));
+
+            var first = true;
+
+            controller.get('selectedColumn')
+                .get('choice')
+                .forEach(function (type) {
+                    if (!node.get(type)) {
+                        return;
+                    } else {
+                        var newNode = multipleChoiceNode(
+                            nodeObject,
+                            type,
+                            first
+                        );
+
+                        first = false;
+                        nodeArr.push(newNode);
+                    }
+
+                });
+
+            return nodeArr;
+        }
+
+        function multipleChoiceNodes(controller, nodes) {
+            var nodeArr = [];
+
+            nodes.forEach(function (node) {
+                var newNodes = multipleChoiceTypes(
+                    controller,
+                    node
+                );
+
+                if(newNodes.length) {
+                    nodeArr = nodeArr.concat(newNodes);
+                } else {
+                    return;
+                }
+            });
+
+            return nodeArr;
+        }
+
+        function singleChoiceNode(controller, createNew, node) {
+            var newNode = {};
+
+            if (!node[column]) {
+                return;
+            } else if (createNew) {
+                newNode = {
+                    id: node.get('id')
+                };
+
+                newNode[column] = node[column];
+                return newNode;
+            } else {
+                var nodeObject = controller.get('nodes')
+                    .findBy('id', node.get('id'));
+
+                newNode = {
+                    id: nodeObject.id,
+                    x: nodeObject.x,
+                    y: nodeObject.y,
+                    fill: nodeObject.fill
+                };
+
+                newNode[column] = node[column];
+                return newNode;
+            }
+        }
+
+        function singleChoiceNodes(controller, createNew, nodes) {
+            var nodesArr = [];
+
+            nodes.forEach(function (node) {
+                var newNode = singleChoiceNode(
+                    controller,
+                    createNew,
+                    node
+                );
+                if (!newNode) {
+                    return;
+                } else {
+                    nodesArr.push(newNode);
+                }
+            });
+
+            controller.set('nodes', nodesArr);
+            return nodesArr;
+        }
+
+        function processSingleChoice(controller, createNew) {
+            var nodes = controller.get('store')
+                .findAll('node')
+                .then(
+                    singleChoiceNodes.bind(
+                        this,
+                        controller,
+                        createNew
+                    )
+                );
+            
+            return nodes;
+        }
+
+        function processMultipleChoice(controller) {
+            var nodes = controller.get('store')
+                .findAll('node')
+                .then(
+                    multipleChoiceNodes.bind(
+                        this,
+                        controller
+                    )
+                );
+            
+            return nodes;
+        }
 
         // Ember promise.
         return new Ember.RSVP.Promise(function (resolve, reject) {
             if (frameType === 'Single Choice') {
-                if (!that.get('d3Init')) {
-                    // Create new node objects from the existing.
-                    that.get('store')
-                        .findAll('node')
-                        .then(function (response) {
-                            response.forEach(function (node) {
-                                if (node[column]) {
-                                    var newNode = {
-                                        id: node.get('id')
-                                    };
-
-                                    newNode[column] = node[column];
-                                    nodes.pushObject(newNode);
-                                }
-                            });
-
-                            that.set('nodes', nodes);
-                            resolve(nodes);
-                        });
-                } else {
-                    // Use existing nodes data to create new nodes.
-                    that.get('store')
-                        .findAll('node')
-                        .then(function (response) {
-                            response.forEach(function (node) {
-                                if (node[column]) {
-                                    var nodeObject = that.get('nodes')
-                                        .findBy('id', node.get('id'));
-
-                                    var newNode = {
-                                        id: nodeObject.id,
-                                        x: nodeObject.x,
-                                        y: nodeObject.y,
-                                        fill: nodeObject.fill
-                                    };
-
-                                    newNode[column] = node[column];
-                                    nodes.pushObject(newNode);
-                                }
-                            });
-
-                            resolve(nodes);
-                        });
-                }
-            } else if (frameType === 'Multiple Choice') {
-                that.get('store')
-                    .findAll('node')
-                    .then(function (response) {
-                        response.forEach(function (node) {
-                            var nodeObject = that.get('nodes')
-                                .findBy('id', node.get('id'));
-
-                            var first = true;
-
-                            that.get('selectedColumn')
-                                .get('choice')
-                                .forEach(function (type) {
-                                    if (node.get(type)) {
-                                        var newNode = {};
-
-                                        // Use existing nodes for first choice.
-                                        if (first) {
-                                            first = false;
-
-                                            newNode = {
-                                                id: nodeObject.id,
-                                                x: nodeObject.x,
-                                                y: nodeObject.y,
-                                                fill: nodeObject.fill
-                                            };
-                                        } else {
-                                            newNode = {
-                                                id: nodeObject.id + '--' + type,
-                                                x: nodeObject.x,
-                                                y: nodeObject.y,
-                                                fill: nodeObject.fill
-                                            };
-                                        }
-
-                                        newNode[column] = type;
-                                        nodes.pushObject(newNode);
-                                    }
-                                });
-                        });
-
+                var createNew = !controller.get('d3Init');
+                processSingleChoice(controller, createNew).then(function (nodes) {
                         resolve(nodes);
                     });
+            } else if (frameType === 'Multiple Choice') {
+                processMultipleChoice(controller).then(function (nodes) {
+                    resolve(nodes);
+                });
             } else {
                 // Reject promise if invalid frame type.
                 reject('Invalid FrameType: ' + frameType);
@@ -1097,7 +1162,13 @@ export default Ember.Controller.extend({
                 }
             }
 
-            serverRender(serverObject).then(plotNodes.bind(this, controller));
+            serverRender(serverObject)
+                .then(
+                    plotNodes.bind(
+                        this,
+                        controller
+                    )
+                );
         },
 
         d3Plot: function (frame) {
@@ -1205,7 +1276,9 @@ export default Ember.Controller.extend({
 
             // Start the force layout.
             // This could be in a web worker.
-            var numTicks = Math.ceil(Math.log(force.alphaMin()) / Math.log(1 - force.alphaDecay()));
+            var numTicks = Math.ceil(
+                Math.log(force.alphaMin()) / Math.log(1 - force.alphaDecay())
+            );
 
             setTimeout(function () {
                 for (var i = 0; i < numTicks; ++i) {

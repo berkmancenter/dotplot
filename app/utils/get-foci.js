@@ -1,6 +1,4 @@
 export default function getFoci(choices, width, height) {
-  var that = this;
-
   var index = 0;
 
   var foci = [];
