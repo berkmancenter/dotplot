@@ -9,10 +9,11 @@ import { } from 'd3-transition';
 import { forceSimulation, forceX, forceY, forceCollide } from 'd3-force';
 import { scaleOrdinal, schemeCategory20 } from 'd3-scale';
 import { rgb } from 'd3-color';
-import { json as requestJson, csv as requestCsv } from 'd3-request';
+import { json as requestJson } from 'd3-request';
 import { drag as d3Drag } from 'd3-drag';
 import getFoci from '../utils/get-foci';
 import serverRender from '../utils/server-render';
+import importCSVData from '../utils/csv_import';
 
 export default Ember.Controller.extend({
     charge: config.visualConf.charge,
@@ -35,7 +36,7 @@ export default Ember.Controller.extend({
         Name:       Ember Init
         Run:        On app start.
         Task:       Set width and height.
-    
+
     */
     init: function () {
         var width = (Ember.$(window).width() - 333) * 85 / 100;
@@ -43,6 +44,7 @@ export default Ember.Controller.extend({
 
         this.set('width', width);
         this.set('height', height);
+
     },
 
 
@@ -73,7 +75,7 @@ export default Ember.Controller.extend({
         Run:        On fuzzyTest change.
         Task:       Highlights matching nodes.
         Observes:   fuzzyText.
-    
+
     */
     fuzzySearch: function () {
         var queryLength = this.get('fuzzyText').length;
@@ -120,6 +122,8 @@ export default Ember.Controller.extend({
     getNodes: function (frameType) {
         NProgress.start();
         var controller = this;
+
+        // This is the column in the data we're building a set of nodes for.
         var column = this.get('selectedColumn').get('id');
 
 
@@ -166,7 +170,7 @@ export default Ember.Controller.extend({
                 controller: Parent controller (scope)
                 node:       Original node (string)
             Returns:    Nodes collection for type (array)
- 
+
         */
         function multipleChoiceTypes(controller, node) {
             var nodeArr = [];
@@ -201,7 +205,7 @@ export default Ember.Controller.extend({
                 controller: Parent controller (scope)
                 nodes:      Nodes collection (array)
             Returns:    Nodes collection (array)
- 
+
         */
         function multipleChoiceNodes(controller, nodes) {
             var nodeArr = [];
@@ -945,7 +949,6 @@ export default Ember.Controller.extend({
             requestJson(file, processJson.bind(this, controller));
         },
 
-
         /*  ACTION
 
             Name:       Import CSV Data.
@@ -955,195 +958,7 @@ export default Ember.Controller.extend({
             Task:       Parses data in CSV file.
 
         */
-        importCSVData: function (file) {
-            NProgress.start();
-            var controller = this;
-            select('.dotplot-nodes > svg')
-                .attr('width', this.get('width'))
-                .attr('height', this.get('height'));
-
-            
-            /*  FUNCTION
-
-                Name:       Multiple Choice.
-                Run:        When called.
-                Accepts:
-                    column: CSV column data (array)
-                    id:     Column id (string)
-                Task:       Create multiple choice question.
-
-            */
-            function multipleChoice(column, id) {
-                var newId = id.substr(0, id.indexOf('_'));
-                var recordExists = controller.get('store')
-                    .hasRecordForId('column', newId);
-                if (!recordExists) {
-                    controller.get('store')
-                        .createRecord('column', {
-                            id: newId,
-                            text: column.substr(0, column.indexOf('-')),
-                            choice: [id],
-                            type: 'Multiple Choice'
-                        });
-                } else {
-                    controller.get('store')
-                        .findRecord('column', newId)
-                        .then(function (column) {
-                            column.get('choice').pushObject(id);
-                        });
-                }
-            }
-
-
-            /*  FUNCTION
-
-                Name:       Single Choice.
-                Run:        When called.
-                Accepts:
-                    column: CSV column data (array)
-                    id:     Column id (string)
-                Task:       Create single choice question.
-
-            */
-            function singleChoice(column, id) {
-                controller.get('store')
-                    .createRecord('column', {
-                        id: id,
-                        text: column,
-                        type: 'Single Choice'
-                    });
-            }
-
-
-            /*  FUNCTION
-
-                Name:       Is Valid Question.
-                Run:        When called.
-                Accepts:
-                    id:     Column id (string)
-                Task:       Check if valid question column.
-                Returns:    Question validity (boolean).
-
-            */
-            function isValidQuestion(id) {
-                var textValue = id.indexOf('TEXT');
-                var questionValue = id.indexOf('Q');
-                if (textValue === -1 && questionValue === 0) {
-                    return true;
-                } else {
-                    return false;
-                }
-            }
-
-
-            /*  FUNCTION
-
-                Name:       Process CSV Column.
-                Run:        When called.
-                Accepts:
-                    column: CSV column data (array)
-                    id:     Column id (string)
-                Task:       Call column specific function.
-
-            */
-            function parseRow(column, id) {
-                if (isValidQuestion(id)) {
-                    if (id.indexOf('_') > 0) {
-                        multipleChoice(column, id);
-                    } else {
-                        singleChoice(column, id);
-                    }
-                } else {
-                    return;
-                }
-            }
-
-
-            /*  FUNCTION
-
-                Name:       Parse Questions.
-                Run:        When called.
-                Accepts:
-                    row:    CSV row data (array)
-                Task:       Parse questions from CSV.
-
-            */
-            function parseQuestions(row) {
-                _.forEach(row[0], parseRow);
-                NProgress.done();
-            }
-
-
-            /*  FUNCTION
-
-                Name:       Create Node.
-                Run:        When called.
-                Accepts:
-                    row:        CSV row data (array)
-                    node:       Node data (object)
-                    fuzzyNode:  Fuzzy node text data (object)
-                Task:       Save nodes, and create fuzzy search object.
-
-            */
-            function createNode(row, node, fuzzyNode) {
-                _.forOwn(row, function (value, key) {
-                    if (!value) {
-                        return;
-                    } else {
-                        node[key] = value;
-                        if (_.isNaN(parseInt(value))) {
-                            fuzzyNode[key] = value;
-                        } else {
-                            return;
-                        }
-                    }
-                });
-                var storeNode = controller.get('store')
-                    .createRecord('node', node);
-                fuzzyNode['id'] = storeNode.get('id');
-                controller.get('fuzzyNodes')
-                    .pushObject(fuzzyNode);
-            }
-
-
-            /*  FUNCTION
-
-                Name:       Create Nodes.
-                Run:        When called.
-                Accepts:
-                    row:    CSV row data (array)
-                Task:       Process nodes and create collection for DOM.
-
-            */
-            function createNodes(rows) {
-                rows.forEach(function (row, index) {
-                    var node = {
-                        id: row.V1
-                    };
-                    var fuzzyNode = {};
-                    if (index !== 0) {
-                        controller.get('nodes')
-                            .pushObject({
-                                id: row.V1
-                            });
-                        if (index !== 1) {
-                            createNode(
-                                row,
-                                node,
-                                fuzzyNode
-                            );
-                        } else {
-                            return;
-                        }
-                    } else {
-                        return;
-                    }
-                });
-            }
-            requestCsv(file, parseQuestions);
-            requestCsv(file, createNodes);
-        },
-
+        importCSVData: importCSVData,
 
         /*  ACTION
 
@@ -1179,6 +994,10 @@ export default Ember.Controller.extend({
             var controller = this;
             var fill = scaleOrdinal(schemeCategory20);
             var nodeIds = '';
+
+            select('.dotplot-nodes > svg')
+                .attr('width', this.get('width'))
+                .attr('height', this.get('height'));
 
 
             /*  FUNCTION
@@ -1531,7 +1350,7 @@ export default Ember.Controller.extend({
                 .attr('r', controller.get('frame').get('radius'));
         },
 
-        
+
         /*  ACTION
 
             Name:       Server Plot.
@@ -1747,7 +1566,7 @@ export default Ember.Controller.extend({
             Run:        When called.
             Accepts:
                 frame:          Frame data (object)
-                updatePosition: Update cordinates (boolean)   
+                updatePosition: Update cordinates (boolean)
             Task:       Displays labels on SVG.
 
         */
