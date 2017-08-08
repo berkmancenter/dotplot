@@ -245,14 +245,19 @@ export default Ember.Controller.extend({
             } else {
                 var nodeObject = controller.get('nodes')
                     .findBy('id', node.get('id'));
-                newNode = {
-                    id: nodeObject.id,
-                    x: nodeObject.x,
-                    y: nodeObject.y,
-                    fill: nodeObject.fill
-                };
-                newNode[column] = node[column];
-                return newNode;
+
+                if (!nodeObject) {
+                    return;
+                } else {
+                    newNode = {
+                        id: nodeObject.id,
+                        x: nodeObject.x,
+                        y: nodeObject.y,
+                        fill: nodeObject.fill
+                    };
+                    newNode[column] = node[column];
+                    return newNode;
+                }
             }
         }
 
