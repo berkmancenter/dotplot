@@ -1,6 +1,9 @@
 import Ember from 'ember';
-import d3 from 'd3';
+import { select, selectAll } from 'd3-selection';
+import { } from 'd3-transition';
+import { json as requestJson} from 'd3-request';
 import _ from 'lodash';
+import { rgb } from 'd3-color';
 import NProgress from 'ember-cli-nprogress';
 import * as config from '../config';
 
@@ -41,7 +44,7 @@ export default Ember.Controller.extend({
 
             var first = true;
 
-            d3.json(file, function (project) {
+            requestJson(file, function (project) {
                 // Update width and height according to window size.
                 var height = Ember.$(window).height() - 140;
 
@@ -55,7 +58,7 @@ export default Ember.Controller.extend({
 
                 that.set('scale', ratio);
 
-                d3.select(".dotplot-view-main > svg")
+                select(".dotplot-view-main > svg")
                     .attr('width', width)
                     .attr('height', height);
 
@@ -113,7 +116,7 @@ export default Ember.Controller.extend({
             var that = this;
 
             // Update node data.
-            var node = d3.select(".dotplot-view-main > svg")
+            var node = select(".dotplot-view-main > svg")
                 .selectAll('circle.node')
                 .data(frame.get('nodes'), function (d) {
                     return d.id;
@@ -175,7 +178,7 @@ export default Ember.Controller.extend({
                 })
                 .style("opacity", 0)
                 .style("stroke", function (d) {
-                    return d3.rgb(d.fill).darker(2);
+                    return rgb(d.fill).darker(2);
                 })
                 .on('click', function (d) {
                     that.send('nodeClick', d, frame);
@@ -205,7 +208,7 @@ export default Ember.Controller.extend({
                 .attr('cy', function (d) {
                     return d.y * that.get('scale');
                 })
-                .each("end", _.once(function () {
+                .on("end", _.once(function () {
                     that.send('showLabels', frame);
                     NProgress.done();
                 }));
@@ -215,7 +218,7 @@ export default Ember.Controller.extend({
 
         nodeClick: function (node, frame) {
             // Reset node radius.
-            d3.selectAll("[id^=" + this.get('node') + "]")
+            selectAll("[id^=" + this.get('node') + "]")
                 .transition()
                 .duration(500)
                 .attr("r", frame.get('radius'));
@@ -228,7 +231,7 @@ export default Ember.Controller.extend({
             }
 
             // Change radius on node selection.
-            d3.selectAll("[id^=" + nodeId + "]")
+            selectAll("[id^=" + nodeId + "]")
                 .transition()
                 .duration(500)
                 .attr("r", frame.get('radius') + 3);
@@ -278,7 +281,7 @@ export default Ember.Controller.extend({
             Ember.$("#nodeInfo").fadeOut();
 
             // Reset node radius.
-            d3.selectAll("[id^=" + this.get('node') + "]")
+            selectAll("[id^=" + this.get('node') + "]")
                 .transition()
                 .duration(500)
                 .attr("r", that.get('frame').get('radius'));
@@ -288,7 +291,7 @@ export default Ember.Controller.extend({
             var that = this;
 
             // Update label data.
-            var label = d3.select(".dotplot-view-main > svg")
+            var label = select(".dotplot-view-main > svg")
                 .selectAll(".label")
                 .data(frame.get('foci'));
 
@@ -296,7 +299,6 @@ export default Ember.Controller.extend({
             label.enter()
                 .append("text")
                 .attr("class", "label")
-                .style("opacity", 0)
                 .style("font-family", "Open Sans")
                 .text(function (d) {
                     return d.text;
@@ -318,7 +320,7 @@ export default Ember.Controller.extend({
         },
 
         removeLabels: function () {
-            d3.select(".dotplot-view-main > svg")
+            select(".dotplot-view-main > svg")
                 .selectAll('text.label')
                 .remove();
         }
