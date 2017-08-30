@@ -6,8 +6,9 @@ const Router = Ember.Router.extend({
 });
 
 Router.map(function () {
-    this.route('create');
-    this.route('project');
+  this.route('create');
+  this.route('project');
+  this.route('gallery');
 });
 
 export default Router;

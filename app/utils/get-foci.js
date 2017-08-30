@@ -1,10 +1,14 @@
+import _ from 'lodash';
+
 export default function getFoci(choices, width, height) {
   var index = 0;
 
   var foci = [];
 
+  let keys = _.keys(choices);
+
   // Number of foci required.
-  var fociCount = choices.length;
+  var fociCount = keys.length;
 
   // Foci per row.
   var perRow = Math.ceil(Math.sqrt(fociCount));
@@ -18,8 +22,8 @@ export default function getFoci(choices, width, height) {
     for (var j = 0; j < temp; j++) {
       // Caluclate foci X and Y coordinates.
       var point = {
-        id: choices[index],
-        text: choices[index],
+        id: parseInt(keys[index]),
+        text: choices[keys[index]],
         x: Math.ceil((width / (temp + 1)) * (j + 1)),
         y: Math.ceil((height / (numRow + 1)) * (i + 1))
       };

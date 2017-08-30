@@ -8,10 +8,10 @@
         <!-- DotPlot Buttons | Upload and Setting -->
         <div class="dotplot-sidebar-buttons">
             <div class="dotplot-load-buttons">
-                {{#if model.columns}}
+                {{#if model.project.survey}}
                     {{#mdl-button isRaised=true class="dotplot-button dotplot-button-red" click=(action 'resetApp')}} DELETE DATA {{/mdl-button}}
                 {{else}}
-                    {{#mdl-button isRaised=true class="dotplot-button dotplot-button-green" click=(action 'showModel' 'fileUpload')}} LOAD DATA {{/mdl-button}}
+                    {{#mdl-button isRaised=true class="dotplot-button dotplot-button-green" click=(action 'showModal' 'fileUpload')}} LOAD DATA {{/mdl-button}}
                 {{/if}}
                 {{mdl-button isRaised=true text='SETTINGS' class="dotplot-button dotplot-button-orange dotplot-float-right"}}
             </div>
@@ -23,7 +23,7 @@
     <div class="dotplot-sidebar-data">
         <!-- Created Frames -->
         <div class="dotplot-frames">
-            {{#each model.frames as |frame|}}
+            {{#each model.project.frames as |frame|}}
                 {{#mdl-card class="dotplot-frame animated fadeIn"}}
                     <div class="mdl-card__supporting-text dotplot-margin-tb9 dotplot-pointer"  onclick={{action 'selectFrame' frame}}>
                         <div class="dotplot-font-medium">
@@ -39,7 +39,7 @@
                         </div>
                         <div class="dotplot-frame-controls dotplot-float-right dotplot-text-right">
                             <a title="Reset Force Layout" href="#" class="dotplot-nostyle-link" {{action "d3Plot" frame}}><i class="dotplot-icon-forcelayout"></i></a>
-                            <a title="Edit Label Text" href="#" class="dotplot-nostyle-link" {{action "showModel" 'editLabel'}}><i class="dotplot-icon-label"></i></a>
+                            <a title="Edit Label Text" href="#" class="dotplot-nostyle-link" {{action "showModal" 'editLabel'}}><i class="dotplot-icon-label"></i></a>
                             <a title="Delete Frame" href="#" class="dotplot-nostyle-link" {{action "deleteFrame" frame}}><i class="dotplot-icon-close"></i></a>
                         </div>
                     {{/mdl-card-actions}}
@@ -93,7 +93,7 @@
             </ol>
         </div>
         <svg width="0" height="0"></svg>
-        {{mdl-button  click=(action 'loadSampleData') isRaised=true text='LOAD SAMPLE DATA' id='dotplot-button-sampleData' class="dotplot-button dotplot-button-blue dotplot-button-center"}} 
+        {{mdl-button  click=(action 'loadSampleData') isRaised=true text='LOAD SAMPLE DATA' id='dotplot-button-sampleData' class="dotplot-button dotplot-button-blue dotplot-button-center"}}
     </div>
 
     <!-- DotPlot Controls For Current Frame -->
@@ -135,15 +135,15 @@
 
     <!-- List Of Columns -->
     <main class="dotplot-column-items">
-        {{#each model.columns as |column|}}
+        {{#each (framable-columns model.project.survey.columns) as |column|}}
             {{#mdl-card click=(action "selectColumn" column) id=(concat "column_" column.id)}}
                 <div class="mdl-card__supporting-text dotplot-margin-tb9">
                     <div class="dotplot-font-medium dotplot-margin-b12">
                         <span class="dotplot-margin-right"><b>Question: </b> {{column.id}}</span>
-                        <span class="dotplot-margin-right"><b>Type: </b> {{column.type}}</span>
+                        <span class="dotplot-margin-right"><b>Type: </b> {{question-type column.type}}</span>
                     </div>
                     <div class="dotplot-font-medium">
-                        <span>{{column.text}}</span>
+                        <span>{{column.question}}</span>
                     </div>
                 </div>
             {{/mdl-card}}
@@ -152,8 +152,8 @@
 
     <!-- Create Frame Dialog Buttons | Create and Cancel -->
     <footer class="dotplot-margin-t25">
-        {{mdl-button action=(action "hideModel" 'createFrame') isRaised=true text='CANCEL' class="dotplot-button dotplot-button-green"}}
-        {{mdl-button action=(action "createFrame") isRaised=true text='CREATE' class="dotplot-button dotplot-button-blue dotplot-float-right"}}
+        {{mdl-button action=(action "hideModal" 'createFrame') isRaised=true text='CANCEL' class="dotplot-button dotplot-button-green"}}
+        {{mdl-button action=(action "onCreateFrame") isRaised=true text='CREATE' class="dotplot-button dotplot-button-blue dotplot-float-right"}}
     </footer>
 </dialog>
 
@@ -186,7 +186,7 @@
 
     <!-- Edit Frame Labels Buttons | Cancel and Update Labels -->
     <footer class="dotplot-margin-t25">
-        {{mdl-button action=(action "hideModel" 'editLabel') isRaised=true text='CANCEL' class="dotplot-button dotplot-button-green"}}
+        {{mdl-button action=(action "hideModal" 'editLabel') isRaised=true text='CANCEL' class="dotplot-button dotplot-button-green"}}
         {{mdl-button action=(action "updateLabels") isRaised=true text='UPDATE LABELS' class="dotplot-button dotplot-button-blue dotplot-float-right"}}
     </footer>
 </dialog>

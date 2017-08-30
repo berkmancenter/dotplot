@@ -20,12 +20,16 @@ export const fuzzyConf = {
 export const visualConf = {
     opacity: 0.7,
     transitionIn: 500,
+    transition: 200,
     transitionOut: 100,
     notificationDuration: 2000,
     radius: 5,
     charge: 6,
     gravity: 8,
-    scale: 1
+    scale: 1,
+    collisionStrength: 0.8,
+    missingColor: '#AAA',
+    forceFociTransition: 0.45
 };
 
 export const serverConf = {
