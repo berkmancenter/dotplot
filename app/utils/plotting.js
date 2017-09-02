@@ -85,15 +85,15 @@ let fillScales = {};
 
 function d3Init(canvasSelector, frame, width, height) {
   const fill = scaleOrdinal(schemeCategory20);
-  fillScales[frame.get('columnId')] = fill;
+  fillScales[frame.columnId] = fill;
   select(canvasSelector)
     .attr('width', width)
     .attr('height', height);
 }
 
 function buildPositionForce(frame, colorFrame) {
-  const foci = _.keyBy(frame.get('foci'), 'id');
-  const colorFoci = _.keyBy(colorFrame.get('foci'), 'id');
+  const foci = _.keyBy(frame.foci, 'id');
+  const colorFoci = _.keyBy(colorFrame.foci, 'id');
 
   let fociXForce, fociYForce, colorXForce, colorYForce;
 
@@ -129,7 +129,7 @@ function buildPositionForce(frame, colorFrame) {
 }
 
 function getFill(colorFrame, d) {
-  return d.colorFocus ? fillScales[colorFrame.get('columnId')](d.colorFocus) : config.visualConf.missingColor;
+  return d.colorFocus ? fillScales[colorFrame.columnId](d.colorFocus) : config.visualConf.missingColor;
 }
 
 function d3Transition(canvasSelector, dotData, layoutFrame, colorFrame, onClick) {
@@ -154,8 +154,10 @@ function d3Transition(canvasSelector, dotData, layoutFrame, colorFrame, onClick)
   // Enter
   dots.enter()
     .append('circle')
-    .attr('class', d => 'dot foci-' + d.layoutFocus)
-    .attr('r', layoutFrame.get('radius'))
+    .attr('class', d => `dot foci-${d.layoutFocus} resp-${d.respId}`)
+    .attr('r', layoutFrame.radius)
+    .attr('cx', select(canvasSelector).attr('width') / 2)
+    .attr('cy', select(canvasSelector).attr('height') / 2)
     .style('fill', d => getFill(colorFrame, d))
     .style('stroke', d => rgb(getFill(colorFrame, d)).darker(2))
     .on('click', onClick)
@@ -203,6 +205,18 @@ function d3Transition(canvasSelector, dotData, layoutFrame, colorFrame, onClick)
    */
 }
 
+function limitPrecision(dots) {
+  return _.map(dots, d => {
+    const attrs = ['x', 'y', 'vx', 'vy'];
+    attrs.forEach(attr => {
+      if (d[attr]) {
+        d[attr] = Math.round(d[attr] * 100) / 100;
+      }
+    });
+    return d;
+  });
+}
+
 function d3Layout(canvasSelector, dotData, layoutFrame, colorFrame, radius, onTick) {
   const collisionForce = forceCollide()
     .radius(radius)
@@ -222,7 +236,7 @@ function d3Layout(canvasSelector, dotData, layoutFrame, colorFrame, radius, onTi
         force.tick();
         onTick(i, numTicks);
       }
-      resolve(force.nodes());
+      resolve(limitPrecision(force.nodes()));
     }, 0);
   });
 }

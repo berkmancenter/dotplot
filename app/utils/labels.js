@@ -27,7 +27,7 @@ function calculateY(focus, elem, dots) {
 function cleanUp(focus, elem, frame) {
   if (_.isNaN(focus.labelx) || _.isNaN(focus.labely)) {
     elem.remove();
-    _.remove(frame.get('foci'), { id: focus.id });
+    _.remove(frame.foci, { id: focus.id });
   }
 }
 
@@ -40,7 +40,7 @@ function removeLabels(canvasSelector) {
 function showLabels(canvasSelector, dots, frame, updatePosition) {
   const label = select(canvasSelector)
     .selectAll('.label')
-    .data(frame.get('foci'));
+    .data(frame.foci);
 
   label.enter()
     .append('text')

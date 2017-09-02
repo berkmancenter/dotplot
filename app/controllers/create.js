@@ -1,4 +1,4 @@
-/* global Fuse, saveAs */
+/* global Fuse */
 
 import Ember from 'ember';
 import _ from 'lodash';
@@ -16,36 +16,28 @@ import importJSONData from '../utils/json_import';
 import fetchDots from '../utils/get_dots';
 import { d3Init, d3Layout, d3Transition } from '../utils/plotting';
 import { showLabels, removeLabels } from '../utils/labels';
+import { normalizeDots, growDots } from '../utils/dot_interaction';
 
 const canvasSelector = '.dotplot-nodes > svg';
 
 export default Ember.Controller.extend({
     charge: config.visualConf.charge,
-    scale: config.visualConf.scale,
-    fuzzyNodes: [],
-    fuzzyText: null,
-    firstCreate: true,
+    //scale: config.visualConf.scale,
+    //fuzzyNodes: [],
+    //fuzzyText: null,
     server: false,
-    colorFrame: {},
-    radius: config.visualConf.radius,
+    //radius: config.visualConf.radius,
     labels: true,
-    showNodeInfo: true,
-    gravity: config.visualConf.gravity,
-    nodes: [],
+    canShowDotInfo: true,
+    //gravity: config.visualConf.gravity,
+    //nodes: [],
     notifications: Ember.inject.service('notification-messages'),
 
-    init: function () {
-        var width = (Ember.$(window).width() - 333) * 85 / 100;
-        var height = Ember.$(window).height() * 65 / 100;
-
-        this.set('width', width);
-        this.set('height', height);
-
-    },
+    init: function () { },
 
     labelToggle: function () {
         if (this.get('labels')) {
-            this.send('showLabels', this.get('frame'), true);
+            this.send('showLabels', this.get('currentFrame'), true);
         } else {
             this.send('removeLabels');
         }
@@ -79,7 +71,8 @@ export default Ember.Controller.extend({
     },
 
     getFoci: function(column) {
-      return getFoci(column.choices, this.get('width'), this.get('height'));
+      return getFoci(column.choices, this.model.project.get('width'),
+          this.model.project.get('height'));
     },
 
     actions: {
@@ -139,25 +132,25 @@ export default Ember.Controller.extend({
         const column = controller.get('selectedColumn');
 
         const foci = controller.getFoci(column);
-        const frameData = {
+        const frame = {
           columnId: column.id,
           title: controller.get('frameTitle'),
           foci: foci,
-          radius: controller.get('radius'),
+          radius: config.visualConf.radius,
           type: column.type,
           switch: 'On Click'
         };
-        const frame = controller.get('store').createRecord('frame', frameData);
         project.get('frames').pushObject(frame);
-        if (controller.get('firstCreate')) {
-          project.set('colorByFrameId', frame.get('columnId'));
-          controller.set('firstCreate', false);
+        if (!project.get('colorByFrameId')) {
+          project.set('colorByFrameId', frame.columnId);
         }
         controller.send('d3Init', frame);
+        controller.send('selectFrame', frame);
         NProgress.done();
       },
 
         resetApp: function () {
+          /*
             function deleteColumns(columns) {
                 columns.toArray().forEach(function (column) {
                     column.deleteRecord();
@@ -185,6 +178,7 @@ export default Ember.Controller.extend({
                 .findAll('frame')
                 .then(deleteFrames);
             window.location.reload(true);
+            */
         },
 
         createDialog: function () {
@@ -199,19 +193,20 @@ export default Ember.Controller.extend({
         deleteFrame: function (frame) {
           const controller = this;
           const project = controller.model.project;
-          if (frame.get('columnId') === project.get('colorByFrameId')) {
-            project.get('frames').then(frames => {
-              const newColorFrame = frames.find(f => f.get('columnId') !== frame.get('columnId'));
-              if (newColorFrame) {
-                project.set('colorByFrameId', newColorFrame.get('columnId'));
-              } else {
-                project.set('colorByFrameId', null);
-              }
-            });
+
+          // Elect new frame to color by.
+          if (frame.columnId === project.get('colorByFrameId')) {
+            const newColorFrame = project.get('frames').find(f => f.columnId !== frame.columnId);
+            if (newColorFrame) {
+              project.set('colorByFrameId', newColorFrame.columnId);
+            } else {
+              project.set('colorByFrameId', null);
+            }
           }
-          controller.get('store').deleteRecord(frame);
+
+          project.set('frames', _.remove(project.get('frames'), frame));
           controller.send('showNotification', 'error',
-              'Successfully deleted frame ' + frame.get('title') + '.', true);
+              'Successfully deleted frame ' + frame.title + '.', true);
         },
 
         hideIntro: function () {
@@ -248,7 +243,6 @@ export default Ember.Controller.extend({
             NProgress.start();
             parseQualtrics(csvFile)
               .then(survey => {
-                console.log(survey);
                 project.set('survey', survey);
                 NProgress.done();
               });
@@ -274,13 +268,13 @@ export default Ember.Controller.extend({
 
         d3Init: function(frame) {
           const controller = this;
+          const project = controller.model.project;
 
           controller.set('d3Init', true);
-          d3Init(canvasSelector, frame, controller.get('width'), controller.get('height'));
-          controller.send('d3Plot', frame);
+          d3Init(canvasSelector, frame, project.get('width'), project.get('height'));
         },
 
-        d3Plot: function(frame) {
+        d3Plot: function(frame, relayout) {
           const controller = this;
           const project = controller.model.project;
           NProgress.start();
@@ -288,8 +282,8 @@ export default Ember.Controller.extend({
           controller.send('removeLabels');
 
           function onDotClick(d) {
-            if (controller.get('showNodeInfo')) {
-              controller.send('nodeClick', d, frame);
+            if (controller.get('canShowDotInfo')) {
+              controller.send('onDotClick', d, frame);
             }
           }
 
@@ -309,17 +303,18 @@ export default Ember.Controller.extend({
             NProgress.set(i / numTicks);
           }
 
-          project.get('colorByFrame')
-            .then(colorFrame => {
-              const dots = project.dots(frame, colorFrame);
-              const needsLayout = _.isUndefined(dots[0].x);
-              if (needsLayout) {
-                return d3Layout(canvasSelector, dots, frame, colorFrame, controller.get('charge'), onTick)
-                  .then(newDots => project.updateLayouts(frame, colorFrame, newDots))
-                  .then(dots => d3Transition(canvasSelector, dots, frame, colorFrame, onDotClick));
-              }
-              return d3Transition(canvasSelector, dots, frame, colorFrame, onDotClick); })
-            .then(onEnd);
+          const colorFrame = project.get('colorByFrame');
+          const dots = project.dots(frame, colorFrame);
+          const needsLayout = !project.layoutHasBeenSimulated(frame, colorFrame) || relayout;
+          let promise;
+          if (needsLayout) {
+            promise = d3Layout(canvasSelector, dots, frame, colorFrame, controller.get('charge'), onTick)
+              .then(newDots => project.updateLayouts(frame, colorFrame, newDots))
+              .then(dots => d3Transition(canvasSelector, dots, frame, colorFrame, onDotClick));
+          } else {
+            promise = d3Transition(canvasSelector, dots, frame, colorFrame, onDotClick);
+          }
+          promise.then(onEnd);
         },
 
         showLabels: function(dots, frame, updatePosition) {
@@ -328,9 +323,11 @@ export default Ember.Controller.extend({
         updateLabels: function() {
           this.send('hideModal', 'editLabel');
           this.send('removeLabels');
-          this.send('showLabels', this.get('frame'), true);
+          //TODO pass dots
+          this.send('showLabels', this.get('currentFrame'), true);
         },
 
+        /*
         updateNodePosition: function (node) {
             var frameId = this.get('frame').get('id');
 
@@ -361,12 +358,10 @@ export default Ember.Controller.extend({
                     return + select(this).attr('cy') + event.dy;
                 });
         },
+        */
 
-        nodeClick: function (node) {
-          this.set('node', node.id);
-          this.send('nodeInfo', node.respId);
-        },
 
+        /*
         nodeFilter: function (nodes) {
             var controller = this;
             if (nodes) {
@@ -389,36 +384,32 @@ export default Ember.Controller.extend({
                     .style('opacity', config.visualConf.opacity);
             }
         },
+        */
 
-        nodeInfo: function (nodeId) {
+        onDotClick: function (dot) {
+          const controller = this;
+          const frame = controller.get('currentFrame');
+          normalizeDots(canvasSelector, frame.radius);
+          controller.set('node', dot.id);
+          growDots(canvasSelector, dot, frame.radius + config.visualConf.dotExpansionOnSelect);
+          controller.send('showDotInfo', dot);
+        },
+
+        showDotInfo: function (dot) {
           const controller = this;
           const project = controller.model.project;
-          const survey = project.get('survey');
-          let info = [];
-
-          const resp = _.find(survey.responses, ['id', nodeId]);
-          survey.columns.forEach(col => {
-            if (!resp.answers[col.id]) { return; }
-            info.push({
-              question: col.question,
-              answer: resp.answers[col.id].join('; ')
-            });
-          });
+          const info = project.getDotInfo(dot);
           controller.set('info', info);
           Ember.$('#nodeInfo').fadeIn();
         },
 
-        hideNodeInfo: function () {
-            //var controller = this;
-            Ember.$('#nodeInfo').fadeOut();
-            /*
-            selectAll('[id^=' + this.get('node') + ']')
-                .transition()
-                .duration(config.visualConf.transitionIn)
-                .attr('r', controller.get('frame').get('radius'));
-                */
+        hideDotInfo: function() {
+          const controller = this;
+          Ember.$('#nodeInfo').fadeOut();
+          normalizeDots(canvasSelector, controller.get('currentFrame').radius);
         },
 
+        /*
         saveNodePositions: function (frame) {
             var node = select(canvasSelector)
                 .selectAll('circle.node');
@@ -462,30 +453,13 @@ export default Ember.Controller.extend({
                 .duration(config.visualConf.transitionIn)
                 .attr('r', parseInt(event.target.value));
         },
+        */
 
         selectFrame: function (frame) {
           const controller = this;
           const project = controller.model.project;
-
-          NProgress.start();
-          controller.send('removeLabels');
-
-          function nodeClick(d) {
-            if (controller.get('showNodeInfo')) {
-              controller.send('nodeClick', d, frame);
-            }
-          }
-
-          project.get('colorByFrame')
-            .then(colorFrame => d3Transition(canvasSelector,
-                  project.dots(frame, colorFrame), frame, colorFrame, nodeClick))
-            .then(dots => {
-              controller.set('frame', frame);
-              NProgress.done();
-              if (controller.get('labels')) {
-                controller.send('showLabels', dots, frame, false);
-              }
-            });
+          project.set('currentFrame', frame);
+          controller.send('d3Plot', frame);
         },
 
         showNotification: function (type, message, clear) {
@@ -523,6 +497,7 @@ export default Ember.Controller.extend({
             }
         },
 
+        /*
         sendToServer: function (blob) {
             NProgress.start();
             var request = new XMLHttpRequest();
@@ -556,8 +531,16 @@ export default Ember.Controller.extend({
             };
             request.send(data);
         },
+        */
 
-        exportData: function (type) {
+        exportData: function () {
+          const controller = this;
+          const project = controller.model.project;
+          project.save()
+            .then(() => {})
+            .catch(() => {});
+          return;
+          /*
             var project = {
                 width: this.get('width'),
                 height: this.get('height'),
@@ -587,6 +570,7 @@ export default Ember.Controller.extend({
             this.get('store')
                 .findAll('frame')
                 .then(exportData);
+                */
         }
     }
 });

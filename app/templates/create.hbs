@@ -38,7 +38,7 @@
                             <i class="dotplot-icon-switch"></i>{{frame.switch}}
                         </div>
                         <div class="dotplot-frame-controls dotplot-float-right dotplot-text-right">
-                            <a title="Reset Force Layout" href="#" class="dotplot-nostyle-link" {{action "d3Plot" frame}}><i class="dotplot-icon-forcelayout"></i></a>
+                            <a title="Reset Force Layout" href="#" class="dotplot-nostyle-link" {{action "d3Plot" frame true}}><i class="dotplot-icon-forcelayout"></i></a>
                             <a title="Edit Label Text" href="#" class="dotplot-nostyle-link" {{action "showModal" 'editLabel'}}><i class="dotplot-icon-label"></i></a>
                             <a title="Delete Frame" href="#" class="dotplot-nostyle-link" {{action "deleteFrame" frame}}><i class="dotplot-icon-close"></i></a>
                         </div>
@@ -76,7 +76,7 @@
                 <b>Node Count:</b> {{if frame frame.nodes.length "No Data"}}
             </div>
             <div class="mdl-cell mdl-cell--4-col">
-                <b>Type:</b> {{if frame frame.type "No Data"}}
+                <b>Type:</b> {{if frame (question-type frame.type) "No Data"}}
             </div>
         </div>
     </div>
@@ -97,6 +97,7 @@
     </div>
 
     <!-- DotPlot Controls For Current Frame -->
+    <!--
     <div class="dotplot-bottom-bar">
         <div class="mdl-grid">
             <div class="mdl-cell mdl-cell--4-col">
@@ -124,6 +125,7 @@
             </div>
         </div>
     </div>
+    -->
 </main>
 
 <!-- DotPlot Create New Frame Dialog -->
@@ -194,7 +196,7 @@
 <!-- DotPlot Node Info Container -->
 <div id="nodeInfo" class="dotplot-dialog dotplot-nodeinfo">
     <!-- Close Info Container Button -->
-    <a href="#" class="dotplot-nostyle-link dotplot-hideinfo" {{action "hideNodeInfo"}}><i class="dotplot-icon-close"></i></a>
+    <a href="#" class="dotplot-nostyle-link dotplot-hideinfo" {{action "hideDotInfo"}}><i class="dotplot-icon-close"></i></a>
 
     <!-- Node Info List -->
     <div class="dotplot-nodeinfolist">

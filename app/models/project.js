@@ -2,6 +2,7 @@ import DS from 'ember-data';
 import Ember from 'ember';
 import _ from 'lodash';
 
+
 function getDots(responses, layoutFrame, colorFrame) {
   // All the dots that are generated for the color frame should continue to
   // exist throughout all subsequent frames. This means that if the color frame
@@ -26,8 +27,8 @@ function getDots(responses, layoutFrame, colorFrame) {
   // but not the layout frame.
 
   let dots = [];
-  const layoutCol = layoutFrame.get('columnId');
-  const colorCol = colorFrame.get('columnId');
+  const layoutCol = layoutFrame.columnId;
+  const colorCol = colorFrame.columnId;
 
   responses.forEach(resp => {
     const layoutAns = resp.answerIds[layoutCol];
@@ -67,18 +68,26 @@ function getDots(responses, layoutFrame, colorFrame) {
 }
 
 export default DS.Model.extend({
-  frames: DS.hasMany('frame'),
+  frames: DS.attr(),
   survey: DS.attr(),
   width: DS.attr('number'),
   height: DS.attr('number'),
   colorByFrameId: DS.attr(),
+  currentFrameIndex: DS.attr(),
   layouts: DS.attr(),
+
+  layoutHasBeenSimulated(layoutFrame, colorFrame) {
+    const layouts = this.get('layouts');
+    const colorFrameId = colorFrame.columnId,
+          layoutFrameId = layoutFrame.columnId;
+    return layouts[colorFrameId] && layouts[colorFrameId][layoutFrameId] &&
+      layouts[colorFrameId][layoutFrameId][0].vx;
+  },
 
   updateLayouts(layoutFrame, colorFrame, dots) {
     let layouts = this.get('layouts');
-    if (!layouts) { layouts = {}; }
-    const colorFrameId = colorFrame.get('columnId'),
-          layoutFrameId = layoutFrame.get('columnId');
+    const colorFrameId = colorFrame.columnId,
+          layoutFrameId = layoutFrame.columnId;
     if (!layouts[colorFrameId]) {
       layouts[colorFrameId] = {};
     }
@@ -89,9 +98,8 @@ export default DS.Model.extend({
 
   dots(layoutFrame, colorFrame) {
     let layouts = this.get('layouts');
-    if (!layouts) { layouts = {}; }
-    const colorFrameId = colorFrame.get('columnId'),
-          layoutFrameId = layoutFrame.get('columnId');
+    const colorFrameId = colorFrame.columnId,
+          layoutFrameId = layoutFrame.columnId;
 
     if (layouts[colorFrameId] && layouts[colorFrameId][layoutFrameId]) {
       return layouts[colorFrameId][layoutFrameId];
@@ -104,6 +112,36 @@ export default DS.Model.extend({
 
   colorByFrame: Ember.computed('frames', 'colorByFrameId', function() {
     const frameId = this.get('colorByFrameId');
-    return this.get('frames').then(frames => frames.find(f => f.get('columnId') === frameId));
-  })
+    return _.find(this.get('frames'), ['columnId', frameId]);
+  }),
+
+  currentFrame: Ember.computed('frames', 'currentFrameIndex', {
+    get() {
+      const frames = this.get('frames'),
+            i = this.get('currentFrameIndex');
+      if (frames.length <= i) { return; }
+      return frames[i];
+    },
+    set(key, value) {
+      const frames = this.get('frames'),
+            frame = value;
+      this.set('currentFrameIndex', frames.indexOf(frame));
+      return value;
+    }
+  }),
+
+  getDotInfo(dot) {
+    let info = [];
+
+    const resp = _.find(this.get('survey').responses, ['id', dot.respId]);
+    this.get('survey').columns.forEach(col => {
+      if (!resp.answers[col.id]) { return; }
+      info.push({
+        question: col.question,
+        answer: resp.answers[col.id].join('; ')
+      });
+    });
+
+    return info;
+  }
 });

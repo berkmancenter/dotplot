@@ -3,7 +3,8 @@
     <div class="dotplot-view-logo">
         <img src="assets/img/logo-view.png" alt="">
     </div>
-    <h3>{{if frame frame.title "Sorry the provided project id is invalid."}}</h3>
+    {{mdl-button click=(action 'logProject') text="Log"}}
+    <h3>{{if project.currentFrame project.currentFrame.title "Sorry the provided project id is invalid."}}</h3>
 </header>
 
 <!-- DotPlot Main Project View Container -->

@@ -8,76 +8,10 @@ import NProgress from 'ember-cli-nprogress';
 import * as config from '../config';
 
 export default Ember.Controller.extend({
-    queryParams: ['id'],
-
-    id: null,
-
-    start: Ember.computed('id', function () {
-        var projectId = this.get('id');
-
-        if (projectId) {
-            return projectId;
-        } else {
-            return 'boo';
-        }
-    }),
-
-    init: function () {
-        Ember.run.next(this, function () {
-            var that = this;
-
-            var file = config.serverConf.apiEndpoint + this.get('id');
-
-            Ember.$.get(file, function () {
-                that.send('loadPorject', file);
-            }).fail(function () {
-                that.set('title', 'You have provided an invalid project id.');
-            });
-        });
-    },
-
     actions: {
-        loadPorject: function (file) {
-            NProgress.start();
-
-            var that = this;
-
-            var first = true;
-
-            requestJson(file, function (project) {
-                // Update width and height according to window size.
-                var height = Ember.$(window).height() - 140;
-
-                var ratio = height / project.height;
-
-                var width = project.width * ratio;
-
-                that.set('width', width);
-
-                that.set('height', height);
-
-                that.set('scale', ratio);
-
-                select(".dotplot-view-main > svg")
-                    .attr('width', width)
-                    .attr('height', height);
-
-                project.frames.forEach(function (frameData) {
-                    // Create a new frame record.
-                    var frame = that.get('store')
-                        .createRecord('frame', frameData);
-
-                    if (first) {
-                        that.send('frameTransition', frame);
-                        first = false;
-                    }
-
-                    NProgress.inc();
-                });
-
-                NProgress.done();
-            });
-        },
+      logProject() {
+        console.log(this.model.project.get('frames'));
+      },
 
         changeFrame: function (type) {
             var that = this;

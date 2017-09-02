@@ -1,5 +1,3 @@
-const serverURL = 'http://localhost:3000';
-const frontendURL = 'http://localhost:4200';
 
 export const fuzzyConf = {
     id: 'id',
@@ -29,11 +27,11 @@ export const visualConf = {
     scale: 1,
     collisionStrength: 0.8,
     missingColor: '#AAA',
-    forceFociTransition: 0.45
+    forceFociTransition: 0.45,
+    dotExpansionOnSelect: 3,
 };
 
 export const serverConf = {
-    apiEndpoint: serverURL + '/api/project/',
-    renderEndpoint: serverURL + '/api/render',
-    previewEndpoint: frontendURL + '/project?id='
+    host: 'http://localhost:3000',
+    namespace: 'api'
 };
