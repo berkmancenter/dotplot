@@ -1,0 +1,41 @@
+<!-- DotPlot Logo and Frame Title -->
+<header class="dotplot-view-top">
+    <div class="dotplot-view-logo">
+        <img src="assets/img/logo-view.png" alt="">
+    </div>
+    <h3>{{if model.project.currentFrame model.project.currentFrame.title "Sorry the provided project id is invalid."}}</h3>
+</header>
+
+<!-- DotPlot Main Project View Container -->
+<main class="dotplot-view-main">
+    <div id="canvas-wrapper">
+      <svg></svg>
+      <div id="foci-labels"></div>
+    </div>
+    <div class="dotplot-view-controls">
+      {{#if model.project.hasPreviousFrame }}
+        {{mdl-button isRaised=true text='PREVIOUS' class="dotplot-button dotplot-button-green" click=(action 'changeFrame' 'previous')}}
+      {{/if}}
+      {{#if model.project.hasNextFrame }}
+        {{mdl-button isRaised=true text='NEXT' class="dotplot-button dotplot-button-blue" click=(action 'changeFrame' 'next')}}
+      {{/if}}
+    </div>
+</main>
+
+<!-- DotPlot Node Info Container -->
+<div id="nodeInfo" class="dotplot-dialog dotplot-nodeinfo">
+    <!-- Close Info Container Button -->
+    <a href="#" class="dotplot-nostyle-link dotplot-hideinfo" {{action "hideDotInfo"}}><i class="dotplot-icon-close"></i></a>
+
+    <!-- Node Info List -->
+    <div class="dotplot-nodeinfolist">
+        {{#each info as |nodedetails|}}
+        <div class="dotplot-nodefield">
+            <h2><span>Question:</span> {{nodedetails.question}}</h2>
+            <p><span>Answer:</span> {{nodedetails.answer}}</p>
+        </div>
+        {{/each}}
+    </div>
+</div>
+
+{{outlet}}

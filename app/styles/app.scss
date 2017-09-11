@@ -398,13 +398,11 @@ dialog::backdrop {
 }
 
 .dotplot-nodes {
-    height: 65%;
-    width: 85%;
     margin: 0 auto;
     text-align: center;
+    position: relative;
     top: 105px;
     bottom: 0;
-    position: relative;
 }
 
 .dotplot-margin-left {
@@ -451,13 +449,13 @@ dialog::backdrop {
 
 .dotplot-nodeinfo {
     display: none;
-    width: 360px;
+    width: 95%;
     padding: 10px;
     box-shadow: 0px 0px 4px 0px rgba(145, 145, 145, 0.5);
     position: absolute;
     z-index: 20;
-    top: 200px;
-    left: 450px;
+    bottom: 75px;
+    left: 15px;
     background-color: #fff;
 }
 
@@ -498,7 +496,7 @@ dialog::backdrop {
 
 .dotplot-nodeinfolist {
     margin: 20px;
-    max-height: 300px;
+    max-height: 130px;
     overflow-y: scroll;
 }
 
@@ -507,19 +505,21 @@ dialog::backdrop {
     height: 80px;
     background-color: #fff;
     box-shadow: 0px 2px 7px 0px rgba(144, 144, 144, 0.5);
+    text-align: center;
 }
 
 .dotplot-view-top > h3 {
+    font-family: "Open Sans";
     font-weight: 100;
-    margin: 0 20px;
-    font-size: 30px;
+    margin: 0.4em 0;
+    font-size: 24px;
+    line-height: 1.2em;
     display: inline-block;
     vertical-align: middle;
 }
 
 .dotplot-view-logo {
-    display: inline-block;
-    margin: 20px;
+    display: none;
 }
 
 .dotplot-view-main {
@@ -545,6 +545,35 @@ dialog::backdrop {
     right: 0;
     bottom: 15px;
     margin: 0 auto;
+}
+
+/************/
+
+#canvas-wrapper {
+  position: relative;
+}
+
+#foci-labels {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+}
+
+.label {
+  position: absolute;
+  max-width: 150px;
+  background: rgba(255, 255, 255, 0.5);
+  border: 1px solid #ddd;
+  border-radius: 3px;
+  font-size: 0.8em;
+  line-height: 1.2em;
+  padding: 2px 5px 3px;
+  max-width: 135px;
+  text-align: center;
+  z-index: 10;
+  color: #444;
+  font-weight: bold;
 }
 
 @media only screen and (max-width: 1000px) {

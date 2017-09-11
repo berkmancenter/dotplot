@@ -6,8 +6,11 @@ const Router = Ember.Router.extend({
 });
 
 Router.map(function () {
-  this.route('create');
-  this.route('project', { path: '/projects/:project_id' });
+  this.route('projects', function() {
+    this.route('new');
+    this.route('view', { path: '/:project_id' });
+    this.route('edit', { path: '/:project_id/edit' });
+  });
   this.route('gallery');
 });
 

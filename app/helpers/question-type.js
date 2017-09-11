@@ -6,6 +6,7 @@ typeToText[QTYPES.SINGLE] = 'Single Choice';
 typeToText[QTYPES.MULTIPLE] = 'Multiple Choice';
 typeToText[QTYPES.TEXT] = 'Text';
 typeToText[QTYPES.MULTITEXT] = 'Multiple Text';
+typeToText[QTYPES.MULTIPLE_MULTITEXT] = 'Multiple Choice + Multiple Text';
 
 export function questionType(params/*, hash*/) {
   return typeToText[params[0]];

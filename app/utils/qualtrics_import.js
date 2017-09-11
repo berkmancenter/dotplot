@@ -9,6 +9,7 @@ const QTYPES = {
   MULTIPLE: 2,
   TEXT: 3,
   MULTITEXT: 4,
+  MULTIPLE_MULTITEXT: 5
 };
 
 function isIdOfValidCol(id) {
@@ -18,6 +19,13 @@ function isIdOfValidCol(id) {
 function parseQuestion(q) {
   const trimmed = q.replace(/[0-9]+(\.|\)) +/, '').replace(/ - (Selected Choice|Other:|Text)/, '')
   return trimmed.slice(0, trimmed.lastIndexOf('-'));
+}
+
+function parseChoice(q) {
+  const matches = q.match(/- Selected Choice - (.*)$/);
+  if (matches && matches[1]) {
+    return matches[1];
+  }
 }
 
 function parseQuestionId(colHeader) {
@@ -42,7 +50,7 @@ function parseChoices(qId, csv) {
   let choices = {};
   const qType = getQuestionType(qId, csv);
 
-  if (qType === QTYPES.MULTIPLE) {
+  if (qType === QTYPES.MULTIPLE || qType === QTYPES.MULTIPLE_MULTITEXT) {
     _.toPairs(csv[1]).forEach(idBlob => {
       const colQId = parseQuestionId(idBlob[0]);
       if (colQId !== qId) { return; }
@@ -53,6 +61,11 @@ function parseChoices(qId, csv) {
       if (!choiceId) { return; }
 
       choices[choiceId] = uniqueValsInCol(idBlob[0], csv)[0];
+      // There might be no one who selected this option, so instead try to
+      // parse it from the question text.
+      if (typeof choices[choiceId] === 'undefined') {
+        choices[choiceId] = parseChoice(csv[0][qId + '_' + choiceId]);
+      }
     });
   } else if (qType === QTYPES.SINGLE) {
       uniqueValsInCol(qId, csv).forEach((v, i) => choices[i + 1] = v);
@@ -65,18 +78,26 @@ function getQuestionType(id, csv) {
   const relevantPairs = getQuestionMetadata(id, csv);
 
   // Has only a single col which also has "TEXT" in ImportId metadata.
-  if (relevantPairs.length === 1 && relevantPairs[0][1].ImportId.endsWith('_TEXT')) {
+  const hasSingleTextCol = (relevantPairs.length === 1 &&
+      relevantPairs[0][1].ImportId.endsWith('_TEXT'));
+  const hasMultipleTextCol = _.filter(relevantPairs, p => p[1].ImportId.endsWith('_TEXT')).length > 1;
+  const hasChoiceCol = _.some(_.map(relevantPairs, p => p[1]), 'choiceId');
+
+  if (hasSingleTextCol) {
     return QTYPES.TEXT;
   }
 
   // Has multiple cols where ImportId ends in "TEXT"
-  if (_.filter(relevantPairs, p => p[1].ImportId.endsWith('_TEXT')).length > 1) {
+  if (hasMultipleTextCol) {
+    if (hasChoiceCol) {
+      return QTYPES.MULTIPLE_MULTITEXT;
+    }
     return QTYPES.MULTITEXT;
   }
 
   // Has only a single col + maybe "Other", and no col has "choiceId" in its
   // metadata.
-  if (relevantPairs.length < 3 && !_.some(_.map(relevantPairs, p => p[1]), 'choiceId')) {
+  if (relevantPairs.length < 3 && !hasChoiceCol) {
     return QTYPES.SINGLE;
   }
 
@@ -166,8 +187,10 @@ function addResponses(csvRows, survey) {
   csvRows.forEach(function (row, index) {
     if (index === 0 || index === 1) return;
 
-    var resp = createResponse(row);
-    storeResponse(resp, survey);
+    if (row.Finished === 'True') {
+      var resp = createResponse(row);
+      storeResponse(resp, survey);
+    }
   });
 }
 
@@ -194,7 +217,8 @@ function addAnswerIds(survey) {
   const responses = survey.responses.map(resp => {
     _.keys(resp.answers).forEach(qId => {
       const col = _.find(survey.columns, c => c.id === qId);
-      if (!col || ![QTYPES.SINGLE, QTYPES.MULTIPLE].includes(col.type)) { return; }
+      if (!col ||
+          ![QTYPES.SINGLE, QTYPES.MULTIPLE, QTYPES.MULTIPLE_MULTITEXT].includes(col.type)) { return; }
       const ansToId = _.invert(col.choices);
       if (!resp.answerIds) { resp.answerIds = {}; }
       resp.answers[qId].forEach(ans => {
@@ -202,10 +226,11 @@ function addAnswerIds(survey) {
         const id = parseInt(ansToId[ans]);
         if (id) {
           resp.answerIds[qId].push(id);
-        } else {
-          resp.answerIds[qId].push(ansToId[col.otherChoice]);
+        } else if (col.otherChoice) {
+          resp.answerIds[qId].push(parseInt(ansToId[col.otherChoice]));
         }
       });
+      resp.answerIds[qId] = _.uniq(resp.answerIds[qId]);
     });
     return resp;
   });

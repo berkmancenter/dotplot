@@ -1,9 +1,11 @@
 import Ember from 'ember';
 
 export default Ember.Route.extend({
-  model (params) {
-    return {
+  templateName: 'projects/edit',
+  controllerName: 'projects/edit',
+  model(params) {
+    return Ember.RSVP.hash({
       project: this.get('store').findRecord('project', params.project_id)
-    };
+    });
   }
 });

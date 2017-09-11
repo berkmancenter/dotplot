@@ -3,25 +3,39 @@
 import Ember from 'ember';
 import _ from 'lodash';
 import NProgress from 'ember-cli-nprogress';
-import * as config from '../config';
 
-import { select, selectAll } from 'd3-selection';
-import { } from 'd3-transition';
-import { rgb } from 'd3-color';
-//import { drag as d3Drag } from 'd3-drag';
+import config from '../../config';
 
-import getFoci from '../utils/get-foci';
-import { parseQualtrics } from '../utils/qualtrics_import';
-import importJSONData from '../utils/json_import';
-import fetchDots from '../utils/get_dots';
-import { d3Init, d3Layout, d3Transition } from '../utils/plotting';
-import { showLabels, removeLabels } from '../utils/labels';
-import { normalizeDots, growDots } from '../utils/dot_interaction';
+import getFoci from '../../utils/get-foci';
+import { parseQualtrics } from '../../utils/qualtrics_import';
+import importJSONData from '../../utils/json_import';
+import fetchDots from '../../utils/get_dots';
+import { d3Layout, d3Transition } from '../../utils/plotting';
+import { showLabels, removeLabels } from '../../utils/labels';
+import { normalizeDots, growDots } from '../../utils/dot_interaction';
 
-const canvasSelector = '.dotplot-nodes > svg';
+const canvasSelector = '#canvas-wrapper > svg';
+const labelsSelector = '#foci-labels';
+
+function getCanvasArea() {
+  const margins = config.editor.margins;
+  return {
+    width: Ember.$(window).width() - margins.width,
+    height: Ember.$(window).height() - margins.height
+  };
+}
+
+function setCanvasDims(dims) {
+  Ember.$(canvasSelector)
+    .attr('width', dims.width)
+    .attr('height', dims.height);
+  Ember.$(labelsSelector)
+    .css('width', dims.width)
+    .css('height', dims.height);
+}
 
 export default Ember.Controller.extend({
-    charge: config.visualConf.charge,
+    charge: config.editor.charge,
     //scale: config.visualConf.scale,
     //fuzzyNodes: [],
     //fuzzyText: null,
@@ -33,14 +47,18 @@ export default Ember.Controller.extend({
     //nodes: [],
     notifications: Ember.inject.service('notification-messages'),
 
-    init: function () { },
+    init: function() {
+      Ember.$(function() {
+        setCanvasDims(getCanvasArea());
+      });
+    },
 
     labelToggle: function () {
-        if (this.get('labels')) {
-            this.send('showLabels', this.get('currentFrame'), true);
-        } else {
-            this.send('removeLabels');
-        }
+      if (this.get('labels')) {
+        this.send('showLabels', this.model.project.get('currentFrame'), true);
+      } else {
+        this.send('removeLabels');
+      }
     }.observes('labels'),
 
     fuzzySearch: function () {
@@ -49,7 +67,7 @@ export default Ember.Controller.extend({
         if (queryLength > 3) {
             var fuse = new Fuse(
                 this.get('fuzzyNodes'),
-                config.fuzzyConf
+                config.fuzzy
             );
 
             var results = fuse.search(
@@ -70,18 +88,26 @@ export default Ember.Controller.extend({
       return fetchDots(columnId, survey, existingDots);
     },
 
-    getFoci: function(column) {
-      return getFoci(column.choices, this.model.project.get('width'),
-          this.model.project.get('height'));
+    getFoci: function(survey, column) {
+      const choices = _.pickBy(column.choices, (choice, cId) => {
+        return _.some(survey.responses, r => {
+          return r.answerIds[column.id] && r.answerIds[column.id].includes(parseInt(cId));
+        });
+      });
+      const dims = getCanvasArea();
+      return getFoci(choices, dims.width, dims.height);
     },
 
     actions: {
         loadSampleData: function () {
+          /*
             this.set('projectId', 'sampleData');
             this.send('loadProject');
+            */
         },
 
         loadProject: function () {
+          /*
             this.send('hideIntro');
             var file = config.serverConf.apiEndpoint + this.get('projectId');
 
@@ -101,27 +127,31 @@ export default Ember.Controller.extend({
             }
             Ember.$.get(file, sendData(this))
                 .fail(dataFailure);
+                */
         },
 
-        changeColor: function (foci, event) {
+        changeColor: function (/*foci, event*/) {
+          /*
             var color = event.target.value;
             selectAll('.foci-' + foci.id)
                 .transition()
                 .style('fill', color)
                 .style('stroke', rgb(color).darker(2))
+                */
         },
 
       onCreateFrame: function () {
-        if (!this.get('frameTitle')) {
+        const controller = this;
+        const project = controller.model.project;
+        if (!project.get('survey')) {
           Ember.$('#createFrame').removeClass('zoomIn').addClass('shake');
           window.setTimeout(function () {
             Ember.$('#createFrame').removeClass('shake');
           }, 1000);
         } else {
           Ember.$('#createFrame').addClass('zoomIn');
-
-          this.send('createFrame');
-          this.send('hideModal', 'createFrame');
+          controller.send('createFrame');
+          controller.send('hideModal', 'createFrame');
         }
       },
 
@@ -131,12 +161,12 @@ export default Ember.Controller.extend({
         const project = controller.model.project;
         const column = controller.get('selectedColumn');
 
-        const foci = controller.getFoci(column);
+        const foci = controller.getFoci(project.get('survey'), column);
         const frame = {
           columnId: column.id,
           title: controller.get('frameTitle'),
           foci: foci,
-          radius: config.visualConf.radius,
+          radius: config.editor.radius,
           type: column.type,
           switch: 'On Click'
         };
@@ -144,7 +174,6 @@ export default Ember.Controller.extend({
         if (!project.get('colorByFrameId')) {
           project.set('colorByFrameId', frame.columnId);
         }
-        controller.send('d3Init', frame);
         controller.send('selectFrame', frame);
         NProgress.done();
       },
@@ -181,13 +210,16 @@ export default Ember.Controller.extend({
             */
         },
 
-        createDialog: function () {
-            if (this.get('csvFile')) {
-                this.send('showModal', 'createFrame');
-            } else {
-                this.send('showNotification', 'error',
-                    'Please add a CSV file to create frames.', true);
-            }
+        onNewFrame: function () {
+          const controller = this;
+          const project = controller.model.project;
+
+          if (project.get('survey')) {
+            controller.send('showModal', 'createFrame');
+          } else {
+            controller.send('showNotification', 'error',
+                'Please add a CSV file to create frames.', true);
+          }
         },
 
         deleteFrame: function (frame) {
@@ -243,6 +275,7 @@ export default Ember.Controller.extend({
             NProgress.start();
             parseQualtrics(csvFile)
               .then(survey => {
+                //console.log(survey);
                 project.set('survey', survey);
                 NProgress.done();
               });
@@ -266,20 +299,15 @@ export default Ember.Controller.extend({
             Ember.$('#frameTitle').addClass('is-focused');
         },
 
-        d3Init: function(frame) {
-          const controller = this;
-          const project = controller.model.project;
-
-          controller.set('d3Init', true);
-          d3Init(canvasSelector, frame, project.get('width'), project.get('height'));
-        },
-
         d3Plot: function(frame, relayout) {
           const controller = this;
           const project = controller.model.project;
-          NProgress.start();
 
           controller.send('removeLabels');
+
+          const colorFrame = project.get('colorByFrame');
+          const needsLayout = !project.layoutHasBeenSimulated(frame, colorFrame) || relayout;
+
 
           function onDotClick(d) {
             if (controller.get('canShowDotInfo')) {
@@ -288,9 +316,11 @@ export default Ember.Controller.extend({
           }
 
           function onEnd(dots) {
-            NProgress.done();
-            controller.send('showNotification', 'success',
-                'Force layout completed, you can now modify it.', true);
+            if (needsLayout) {
+              NProgress.done();
+              controller.send('showNotification', 'success',
+                  'Force layout completed, you can now modify it.', true);
+            }
             controller.set('frame', frame);
             if (controller.get('labels')) {
               controller.send('showLabels', dots, frame, true);
@@ -303,28 +333,31 @@ export default Ember.Controller.extend({
             NProgress.set(i / numTicks);
           }
 
-          const colorFrame = project.get('colorByFrame');
-          const dots = project.dots(frame, colorFrame);
-          const needsLayout = !project.layoutHasBeenSimulated(frame, colorFrame) || relayout;
+          const dots = project.dots(frame, colorFrame, getCanvasArea(), config.editor.padding);
           let promise;
           if (needsLayout) {
-            promise = d3Layout(canvasSelector, dots, frame, colorFrame, controller.get('charge'), onTick)
+            NProgress.start();
+            const survey = project.get('survey')
+            const layoutFoci = controller.getFoci(survey, _.find(survey.columns, ['id', frame.columnId]));
+            const colorFoci = controller.getFoci(survey, _.find(survey.columns, ['id', colorFrame.columnId]));
+            promise = d3Layout(config.editor, dots, layoutFoci, colorFoci, controller.get('charge'), onTick)
               .then(newDots => project.updateLayouts(frame, colorFrame, newDots))
-              .then(dots => d3Transition(canvasSelector, dots, frame, colorFrame, onDotClick));
+              .then(dots => d3Transition(canvasSelector, config.editor, dots, frame, colorFrame, onDotClick));
           } else {
-            promise = d3Transition(canvasSelector, dots, frame, colorFrame, onDotClick);
+            promise = d3Transition(canvasSelector, config.editor, dots, frame, colorFrame, onDotClick);
           }
           promise.then(onEnd);
         },
 
         showLabels: function(dots, frame, updatePosition) {
-          return showLabels(canvasSelector, dots, frame, updatePosition); },
-        removeLabels: function() { return removeLabels(canvasSelector); },
+          return showLabels(canvasSelector, labelsSelector, config.editor, dots, frame, updatePosition); },
+        removeLabels: function() { return removeLabels(labelsSelector); },
         updateLabels: function() {
           this.send('hideModal', 'editLabel');
           this.send('removeLabels');
-          //TODO pass dots
-          this.send('showLabels', this.get('currentFrame'), true);
+          const project = this.model.project;
+          const dots = project.dots(project.get('currentFrame'), project.get('colorByFrame'), getCanvasArea(), config.editor.padding);
+          this.send('showLabels', dots, project.get('currentFrame'), true);
         },
 
         /*
@@ -388,10 +421,11 @@ export default Ember.Controller.extend({
 
         onDotClick: function (dot) {
           const controller = this;
-          const frame = controller.get('currentFrame');
+          const project = controller.model.project;
+          const frame = project.get('currentFrame');
           normalizeDots(canvasSelector, frame.radius);
           controller.set('node', dot.id);
-          growDots(canvasSelector, dot, frame.radius + config.visualConf.dotExpansionOnSelect);
+          growDots(canvasSelector, dot, frame.radius + config.editor.dotExpansionOnSelect);
           controller.send('showDotInfo', dot);
         },
 
@@ -405,8 +439,9 @@ export default Ember.Controller.extend({
 
         hideDotInfo: function() {
           const controller = this;
+          const project = controller.model.project;
           Ember.$('#nodeInfo').fadeOut();
-          normalizeDots(canvasSelector, controller.get('currentFrame').radius);
+          normalizeDots(canvasSelector, project.get('currentFrame').radius);
         },
 
         /*
@@ -467,30 +502,26 @@ export default Ember.Controller.extend({
                 case 'warning':
                     this.get('notifications').warning(message, {
                         autoClear: clear,
-                        clearDuration: config.visualConf
-                            .notificationDuration
+                        clearDuration: config.editor.notificationDuration
                     });
                     break;
                 case 'info':
                     this.get('notifications').info(message, {
                         autoClear: clear,
                         htmlContent: true,
-                        clearDuration: config.visualConf
-                            .notificationDuration
+                        clearDuration: config.editor.notificationDuration
                     });
                     break;
                 case 'error':
                     this.get('notifications').error(message, {
                         autoClear: clear,
-                        clearDuration: config.visualConf
-                            .notificationDuration
+                        clearDuration: config.editor.notificationDuration
                     });
                     break;
                 case 'success':
                     this.get('notifications').success(message, {
                         autoClear: clear,
-                        clearDuration: config.visualConf
-                            .notificationDuration
+                        clearDuration: config.editor.notificationDuration
                     });
                     break;
                 default:
@@ -537,7 +568,14 @@ export default Ember.Controller.extend({
           const controller = this;
           const project = controller.model.project;
           project.save()
-            .then(() => {})
+            .then(savedProject => {
+              if (controller.get('target') !== 'projects.edit') {
+                controller.replaceRoute('projects.edit', savedProject.id);
+              } else {
+                controller.send('showNotification', 'success',
+                    'Changes have been saved', true);
+              }
+            })
             .catch(() => {});
           return;
           /*

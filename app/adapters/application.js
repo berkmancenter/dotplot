@@ -1,7 +1,7 @@
 import DS from 'ember-data';
-import { serverConf } from '../config';
+import config from '../config';
 
 export default DS.JSONAPIAdapter.extend({
-  host: serverConf.host,
-  namespace: serverConf.namespace
+  host: config.endpoints.server.host,
+  namespace: config.endpoints.server.namespace
 });

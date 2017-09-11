@@ -1,5 +1,5 @@
-
-export const fuzzyConf = {
+export default {
+  fuzzy: {
     id: 'id',
     shouldSort: true,
     threshold: 0.3,
@@ -13,9 +13,8 @@ export const fuzzyConf = {
         "V1",
         "V2"
     ]
-};
-
-export const visualConf = {
+  },
+  editor: {
     opacity: 0.7,
     transitionIn: 500,
     transition: 200,
@@ -28,10 +27,36 @@ export const visualConf = {
     collisionStrength: 0.8,
     missingColor: '#AAA',
     forceFociTransition: 0.45,
-    dotExpansionOnSelect: 3,
+    dotExpansionOnSelect: 7,
+    velocityDecay: 0.35,
+    labelOffset: 10,
+    margins: { height: 220, width: 333 },
+    padding: { top: 10, right: 10, bottom: 10, left: 10 },
+  },
+  viewer: {
+    opacity: 0.7,
+    transitionIn: 1000,
+    transition: 1000,
+    transitionOut: 500,
+    notificationDuration: 2000,
+    radius: 5,
+    charge: 6,
+    gravity: 8,
+    scale: 1,
+    collisionStrength: 0.8,
+    missingColor: '#AAA',
+    forceFociTransition: 0.45,
+    dotExpansionOnSelect: 7,
+    labelOffset: 10,
+    margins: { height: 220, width: 100 },
+    padding: { top: 10, right: 10, bottom: 10, left: 10 },
+  },
+  endpoints: {
+    server: {
+      host: 'http://localhost:3000',
+      namespace: 'api'
+    }
+  }
 };
 
-export const serverConf = {
-    host: 'http://localhost:3000',
-    namespace: 'api'
-};
+

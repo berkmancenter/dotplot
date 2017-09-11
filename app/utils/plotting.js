@@ -3,7 +3,8 @@ import { scaleOrdinal, schemeCategory20 } from 'd3-scale';
 import { rgb } from 'd3-color';
 import { select } from 'd3-selection';
 import { forceSimulation, forceX, forceY, forceCollide } from 'd3-force';
-import * as config from '../config';
+import 'd3-transition';
+
 //import { drag as d3Drag } from 'd3-drag';
 //import serverRender from './server-render';
 
@@ -83,22 +84,14 @@ function serverPlot(frame) {
 
 let fillScales = {};
 
-function d3Init(canvasSelector, frame, width, height) {
-  const fill = scaleOrdinal(schemeCategory20);
-  fillScales[frame.columnId] = fill;
-  select(canvasSelector)
-    .attr('width', width)
-    .attr('height', height);
-}
-
-function buildPositionForce(frame, colorFrame) {
-  const foci = _.keyBy(frame.foci, 'id');
-  const colorFoci = _.keyBy(colorFrame.foci, 'id');
+function buildPositionForce(layoutFoci, colorFoci, config) {
+  const layoutFociMap = _.keyBy(layoutFoci, 'id');
+  const colorFociMap = _.keyBy(colorFoci, 'id');
 
   let fociXForce, fociYForce, colorXForce, colorYForce;
 
   function force(alpha) {
-    if (alpha < config.visualConf.forceFociTransition) {
+    if (alpha < config.forceFociTransition) {
       fociXForce(alpha);
       fociYForce(alpha);
     } else {
@@ -109,14 +102,14 @@ function buildPositionForce(frame, colorFrame) {
 
   force.initialize = function(nodes) {
     fociXForce = forceX(r => {
-      return foci[r.layoutFocus].x;
+      return layoutFociMap[r.layoutFocus].x;
     });
-    fociYForce = forceY(r => foci[r.layoutFocus].y);
+    fociYForce = forceY(r => layoutFociMap[r.layoutFocus].y);
     colorXForce = forceX(r => {
-      return r.colorFocus ? colorFoci[r.colorFocus].x : 0;
+      return r.colorFocus ? colorFociMap[r.colorFocus].x : 0;
     });
     colorYForce = forceY(r => {
-      return r.colorFocus ? colorFoci[r.colorFocus].y : 0;
+      return r.colorFocus ? colorFociMap[r.colorFocus].y : 0;
     });
 
     fociXForce.initialize(nodes);
@@ -128,11 +121,16 @@ function buildPositionForce(frame, colorFrame) {
   return force;
 }
 
-function getFill(colorFrame, d) {
-  return d.colorFocus ? fillScales[colorFrame.columnId](d.colorFocus) : config.visualConf.missingColor;
+function getFill(colorFrame, d, missingColor) {
+  if (!d.colorFocus) { return missingColor; }
+  if (!fillScales[colorFrame.columnId]) {
+    const fill = scaleOrdinal(schemeCategory20);
+    fillScales[colorFrame.columnId] = fill;
+  }
+  return fillScales[colorFrame.columnId](d.colorFocus);
 }
 
-function d3Transition(canvasSelector, dotData, layoutFrame, colorFrame, onClick) {
+function d3Transition(canvasSelector, config, dotData, layoutFrame, colorFrame, onClick) {
   const dots = select(canvasSelector)
     .selectAll('.dot')
     .data(dotData, d => d.id);
@@ -140,14 +138,14 @@ function d3Transition(canvasSelector, dotData, layoutFrame, colorFrame, onClick)
   // Update
   dots
     .transition()
-    .duration(config.visualConf.transition)
+    .duration(config.transition)
     .attr('cx', d => d.x)
     .attr('cy', d => d.y);
 
   // Exit
   dots.exit()
     .transition()
-    .duration(config.visualConf.transitionOut)
+    .duration(config.transitionOut)
     .style('opacity', 0)
     .remove();
 
@@ -158,23 +156,24 @@ function d3Transition(canvasSelector, dotData, layoutFrame, colorFrame, onClick)
     .attr('r', layoutFrame.radius)
     .attr('cx', select(canvasSelector).attr('width') / 2)
     .attr('cy', select(canvasSelector).attr('height') / 2)
-    .style('fill', d => getFill(colorFrame, d))
-    .style('stroke', d => rgb(getFill(colorFrame, d)).darker(2))
+    .style('fill', d => getFill(colorFrame, d, config.missingColor))
+    .style('stroke', d => rgb(getFill(colorFrame, d, config.missingColor)).darker(2))
     .on('click', onClick)
+    .style('opacity', 0)
     .transition()
-    .duration(config.visualConf.transitionIn)
+    .duration(config.transitionIn)
     .attr('cx', d => d.x)
     .attr('cy', d => d.y)
-    .style('opacity', config.visualConf.opacity);
+    .style('opacity', config.opacity);
 
   return new Promise(function(resolve) {
     // Resolve after all transitions have run. Note that the longest may not
     // run, so there might be a gap.
     setTimeout(() => resolve(dotData),
         Math.max(
-          config.visualConf.transitionIn,
-          config.visualConf.transition,
-          config.visualConf.transitionOut));
+          config.transitionIn,
+          config.transition,
+          config.transitionOut));
   });
 
     //TODO
@@ -217,15 +216,16 @@ function limitPrecision(dots) {
   });
 }
 
-function d3Layout(canvasSelector, dotData, layoutFrame, colorFrame, radius, onTick) {
+function d3Layout(config, dotData, layoutFoci, colorFoci, radius, onTick) {
   const collisionForce = forceCollide()
     .radius(radius)
-    .strength(config.visualConf.collisionStrength);
-  const positionForce = buildPositionForce(layoutFrame, colorFrame);
+    .strength(config.collisionStrength);
+  const positionForce = buildPositionForce(layoutFoci, colorFoci, config);
   const force = forceSimulation()
     .nodes(dotData)
     .force('collision', collisionForce)
     .force('foci', positionForce)
+    .velocityDecay(config.velocityDecay)
     .stop();
   const numTicks =
     Math.ceil(Math.log(force.alphaMin()) / Math.log(1 - force.alphaDecay()));
@@ -241,4 +241,4 @@ function d3Layout(canvasSelector, dotData, layoutFrame, colorFrame, radius, onTi
   });
 }
 
-export { d3Init, d3Layout, d3Transition };
+export { d3Layout, d3Transition };

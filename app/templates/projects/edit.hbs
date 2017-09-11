@@ -3,7 +3,7 @@
     <header class="dotplot-sidebar-header">
         <!-- DotPlot Logo -->
         <div class="dotplot-logo">
-            <img src="assets/img/logo.png" alt="">
+            <img src="/assets/img/logo.png" alt="">
         </div>
         <!-- DotPlot Buttons | Upload and Setting -->
         <div class="dotplot-sidebar-buttons">
@@ -48,7 +48,7 @@
         </div>
 
         <!-- Create Frame Button -->
-        {{mdl-button click=(action 'createDialog') isRaised=true text='CREATE A NEW FRAME' class="dotplot-button dotplot-button-frame"}}
+        {{mdl-button click=(action 'onNewFrame') isRaised=true text='CREATE A NEW FRAME' class="dotplot-button dotplot-button-frame"}}
     </div>
 
     <!-- Sidebar Footer | Save and Publish -->
@@ -83,6 +83,12 @@
 
     <!-- DotPlot Nodes -->
     <div class="dotplot-nodes">
+      {{# if model.project.survey }}
+        <div id="canvas-wrapper">
+          <svg></svg>
+          <div id="foci-labels"></div>
+        </div>
+      {{else}}
         <div id="dotplot-introData" class="dotplot-intro">
             <h1>Welcome to Dotplot!</h1>
             <ol class="dotplot-intro-list">
@@ -92,8 +98,8 @@
                 <li>Once you're happy with the visuals you can either <b>export or pubhish it</b>.</li>
             </ol>
         </div>
-        <svg width="0" height="0"></svg>
         {{mdl-button  click=(action 'loadSampleData') isRaised=true text='LOAD SAMPLE DATA' id='dotplot-button-sampleData' class="dotplot-button dotplot-button-blue dotplot-button-center"}}
+      {{/if}}
     </div>
 
     <!-- DotPlot Controls For Current Frame -->

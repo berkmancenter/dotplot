@@ -1,25 +1,25 @@
-import * as config from '../config';
 import _ from 'lodash';
+import $ from 'jquery'
 import { select } from 'd3-selection';
 
-function calculateX(focus, elem, dots) {
+function calculateX(focus, elem, dots, offset) {
   dots = _.filter(dots, ['layoutFocus', focus.id]);
 
   const minXDot = _.minBy(dots, d => d.x);
   const maxXDot = _.maxBy(dots, d => d.x);
   const focusWidth = maxXDot.x - minXDot.x;
 
-  focus.labelx = minXDot.x + (focusWidth - elem.getBBox().width) / 2;
+  focus.labelx = minXDot.x + (focusWidth - $(elem).outerWidth()) / 2 + offset;
   if (_.isNaN(focus.labelx)) { return; }
   return focus.labelx;
 }
 
-function calculateY(focus, elem, dots) {
+function calculateY(focus, elem, dots, offset) {
   dots = _.filter(dots, ['layoutFocus', focus.id]);
 
   const maxYDot = _.maxBy(dots, d => d.y);
 
-  focus.labely = maxYDot.y + 25;
+  focus.labely = maxYDot.y + offset;
   if (_.isNaN(focus.labely)) { return; }
   return focus.labely;
 }
@@ -31,30 +31,33 @@ function cleanUp(focus, elem, frame) {
   }
 }
 
-function removeLabels(canvasSelector) {
-  select(canvasSelector)
+function removeLabels(labelsSelector) {
+  select(labelsSelector)
     .selectAll('.label')
     .remove();
 }
 
-function showLabels(canvasSelector, dots, frame, updatePosition) {
-  const label = select(canvasSelector)
+function showLabels(canvasSelector, labelsSelector, config, dots, frame, updatePosition) {
+  const label = select(labelsSelector)
     .selectAll('.label')
     .data(frame.foci);
 
   label.enter()
-    .append('text')
+    .append('div')
     .attr('class', 'label')
-    .style('opacity', config.visualConf.opacity)
-    .style('font-family', 'Open Sans')
     .text(d => d.text)
-    .attr('dx', function(d) {
-      if (updatePosition) { return calculateX(d, this, dots); }
-      return d.labelx; })
-    .attr('dy', function(d) {
-      if (updatePosition) { return calculateY(d, this, dots); }
-      return d.labely; })
-    .each(function(d) { cleanUp(d, this, frame); });
+    .style('font-family', 'Open Sans')
+    .style('opacity', 0)
+    .style('left', function(d) {
+      if (updatePosition) { return calculateX(d, this, dots, 0) + 'px'; }
+      return d.labelx + 'px'; })
+    .style('top', function(d) {
+      if (updatePosition) { return calculateY(d, this, dots, config.labelOffset) + 'px'; }
+      return d.labely + 'px'; })
+    .each(function(d) { cleanUp(d, this, frame); })
+    .transition()
+    .duration(200)
+    .style('opacity', 1);
 }
 
 export { showLabels, removeLabels };
