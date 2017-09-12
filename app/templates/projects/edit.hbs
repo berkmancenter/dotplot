@@ -79,23 +79,20 @@
 
     <!-- DotPlot Nodes -->
     <div class="dotplot-nodes">
-      {{# if model.project.survey }}
-        <div id="canvas-wrapper">
-          <svg></svg>
-          <div id="foci-labels"></div>
-        </div>
-      {{else}}
-        <div id="dotplot-introData" class="dotplot-intro">
-            <h1>Welcome to Dotplot!</h1>
-            <ol class="dotplot-intro-list">
-                <li>To create a visualisation start by uploading file using <b>"Load Data"</b> button.</li>
-                <li>After uploading the file, click on <b>"Add Frame"</b> to create a visualisation.</li>
-                <li>You may adjust the visuals by using the controls provided below.</li>
-                <li>Once you're happy with the visuals you can either <b>export or pubhish it</b>.</li>
-            </ol>
-        </div>
-        {{mdl-button  click=(action 'loadSampleData') isRaised=true text='LOAD SAMPLE DATA' id='dotplot-button-sampleData' class="dotplot-button dotplot-button-blue dotplot-button-center"}}
-      {{/if}}
+      <div id="canvas-wrapper" style="{{ if model.project.survey "" "display: none;" }}">
+        <svg></svg>
+        <div id="foci-labels"></div>
+      </div>
+      <div id="dotplot-introData" class="dotplot-intro">
+          <h1>Welcome to Dotplot!</h1>
+          <ol class="dotplot-intro-list">
+              <li>To create a visualisation start by uploading file using <b>"Load Data"</b> button.</li>
+              <li>After uploading the file, click on <b>"Add Frame"</b> to create a visualisation.</li>
+              <li>You may adjust the visuals by using the controls provided below.</li>
+              <li>Once you're happy with the visuals you can either <b>export or pubhish it</b>.</li>
+          </ol>
+      </div>
+      {{mdl-button  click=(action 'loadSampleData') isRaised=true text='LOAD SAMPLE DATA' id='dotplot-button-sampleData' class="dotplot-button dotplot-button-blue dotplot-button-center"}}
     </div>
 
     <!-- DotPlot Controls For Current Frame -->

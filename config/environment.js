@@ -24,6 +24,7 @@ module.exports = function(environment) {
   };
 
   if (environment === 'development') {
+    ENV.APP.host = 'http://localhost:3000';
     // ENV.APP.LOG_RESOLVER = true;
     // ENV.APP.LOG_ACTIVE_GENERATION = true;
     // ENV.APP.LOG_TRANSITIONS = true;
@@ -35,6 +36,8 @@ module.exports = function(environment) {
     // Testem prefers this...
     ENV.locationType = 'none';
 
+    ENV.APP.host = 'http://localhost:3000';
+
     // keep test console output quieter
     ENV.APP.LOG_ACTIVE_GENERATION = false;
     ENV.APP.LOG_VIEW_LOOKUPS = false;
@@ -43,6 +46,7 @@ module.exports = function(environment) {
   }
 
   if (environment === 'production') {
+    ENV.APP.host = 'https://dotplot.dev.berkmancenter.org';
 
   }
 

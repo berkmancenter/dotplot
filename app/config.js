@@ -1,3 +1,5 @@
+import ENV from 'dotplot/config/environment';
+
 export default {
   fuzzy: {
     id: 'id',
@@ -53,7 +55,7 @@ export default {
   },
   endpoints: {
     server: {
-      host: 'http://localhost:3000',
+      host: ENV.APP.host,
       namespace: 'api'
     }
   }
