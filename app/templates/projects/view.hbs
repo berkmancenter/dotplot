@@ -1,9 +1,14 @@
 <!-- DotPlot Logo and Frame Title -->
 <header class="dotplot-view-top">
+  <div class="project-info">
     <div class="dotplot-view-logo">
-        <img src="assets/img/logo-view.png" alt="">
+        <img src="/assets/img/bkc_logo.png" alt="Berkman Klein Center logo">
     </div>
-    <h3>{{if model.project.currentFrame model.project.currentFrame.title "Sorry the provided project id is invalid."}}</h3>
+    <h1>{{ model.project.title }}</h1>
+  </div>
+  <div class="frame-info">
+    <h2><em>{{if model.project.currentFrame model.project.currentFrame.title "Sorry the provided project id is invalid."}}</em></h2>
+  </div>
 </header>
 
 <!-- DotPlot Main Project View Container -->

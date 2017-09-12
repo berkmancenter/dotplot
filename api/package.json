@@ -4,6 +4,7 @@
   "dependencies": {
     "body-parser": "^1.17.2",
     "d3": "3.5.17",
+    "express": "^4.15.4",
     "jsdom": "^11.1.0",
     "multer": "^1.3.0",
     "uuid": "^3.1.0"

@@ -609,6 +609,12 @@ export default Ember.Controller.extend({
                 .findAll('frame')
                 .then(exportData);
                 */
+        },
+
+        saveSettings: function() {
+          const controller = this;
+          controller.send('hideModal', 'settings');
         }
+
     }
 });

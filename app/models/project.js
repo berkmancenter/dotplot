@@ -4,8 +4,10 @@ import _ from 'lodash';
 
 
 // This should be broken down.
-function calcFocusCenter(dots, focus) {
-  dots = _.filter(dots, ['layoutFocus', focus.id]);
+function calcCenter(dots, focus) {
+  if (focus) {
+    dots = _.filter(dots, ['layoutFocus', focus.id]);
+  }
   const x = _.meanBy(dots, 'x'),
         y = _.meanBy(dots, 'y');
   return { x, y };
@@ -14,30 +16,23 @@ function calcFocusCenter(dots, focus) {
 function stretchLayout(canvasDims, padding, foci, dots) {
   // I want to spread out the foci such that they all fit on the screen, and
   // yet if there are only a few foci, they don't get pushed too far apart.
-  // I can either code that, or simulate it with forces.
+  //
+  // I have the foci locations of the prerendered layout, and the current set
+  // of dots. The current set of dot locations need not be related to the
+  // prerendered foci locations.
+  //
+  // For each set of dots within each focus group, I need to figure out how
+  // much to shift them.
 
-  // I should code it. We want the distance between foci to be within a certain
-  // range. We haven't cared about how big each focus is, so we won't start
-  // now. Due to how we calculate foci locations, we only need the distance
-  // between the first two foci to approximate the distance between all.
-  //
-  // Let's just pick an optimal distance and try to match that with the
-  // contraint that all dots must stay on the page.
-  //
-  // All the math is a little wrong because we're shifting the foci around
-  // without touching the distance between dots.
-  //
-  // TODO I need to shift so the CENTERS match.
-
-  const optimalXDistance = 100; // pixels
-  const optimalYDistance = optimalXDistance * (canvasDims.height / canvasDims.width); // pixels
+  const optimalXDistance = 150; // pixels
+  const optimalYDistance = Math.max(optimalXDistance * (canvasDims.height / canvasDims.width), 100); // pixels
+  const scaleFactorMargin = 0.1;
 
   if (foci.length === 1) { return dots; }
 
-  const fociOneCenter = calcFocusCenter(dots, foci[1]);
-  const fociZeroCenter = calcFocusCenter(dots, foci[0]);
+  const fociZeroCenter = calcCenter(dots, foci[0]);
+  const fociOneCenter = calcCenter(dots, foci[1]);
 
-  console.log('centers', fociOneCenter, fociZeroCenter);
   const xDistBetweenFoci = fociOneCenter.x - fociZeroCenter.x;
 
   const firstRowY = foci[0].y;
@@ -46,8 +41,15 @@ function stretchLayout(canvasDims, padding, foci, dots) {
   let xScaleFactor = optimalXDistance / xDistBetweenFoci;
   let yScaleFactor = 1;
   if (nextRowFoci) {
-    let yDistBetweenFoci = calcFocusCenter(dots, nextRowFoci).y - fociZeroCenter.y;
+    const nextRowCenter = calcCenter(dots, nextRowFoci);
+    let yDistBetweenFoci = nextRowCenter.y - fociZeroCenter.y;
     yScaleFactor = optimalYDistance / yDistBetweenFoci;
+  }
+
+  if (1.0 - scaleFactorMargin < xScaleFactor && 1.0 + scaleFactorMargin > xScaleFactor &&
+      1.0 - scaleFactorMargin < yScaleFactor && 1.0 + scaleFactorMargin > yScaleFactor) {
+    xScaleFactor = 1;
+    yScaleFactor = 1;
   }
 
   let minX = Infinity, minY = Infinity, maxX = 0, maxY = 0;
@@ -63,34 +65,27 @@ function stretchLayout(canvasDims, padding, foci, dots) {
 
   const oldCenterX = drawnWidth / 2 + minX,
         oldCenterY = drawnHeight / 2 + minY;
-  const newCenterX = canvasDims.width / 2,
-        newCenterY = canvasDims.height / 2;
-
-  const xShift = newCenterX - oldCenterX,
-        yShift = newCenterY - oldCenterY;
-
-  console.log('old center', oldCenterX, oldCenterY);
-  console.log('new center', newCenterX, newCenterY);
-  console.log('x', xScaleFactor);
-  console.log('y', yScaleFactor);
+  const newCenterX = (canvasDims.width - padding.left - padding.right) / 2 + padding.left,
+        newCenterY = (canvasDims.height - padding.top - padding.bottom) / 2 + padding.top;
 
   if (drawnWidth * xScaleFactor > canvasDims.width) {
-    xScaleFactor = canvasDims.width / drawnWidth;
+    xScaleFactor = (canvasDims.width - padding.left - padding.right) / drawnWidth;
   }
   if (drawnHeight * yScaleFactor > canvasDims.height) {
-    yScaleFactor = canvasDims.height / drawnHeight;
+    yScaleFactor = (canvasDims.height - padding.top - padding.bottom) / drawnHeight;
   }
 
-  console.log('x', xScaleFactor);
-  console.log('y', yScaleFactor);
+  const xShift = newCenterX - oldCenterX * xScaleFactor,
+        yShift = newCenterY - oldCenterY * yScaleFactor;
 
   const fociShifts = {};
   foci.forEach(focus => {
-    const newX = focus.x * xScaleFactor + xShift,
-          newY = focus.y * yScaleFactor + yShift;
+    const center = calcCenter(dots, focus);
+    const newX = center.x * xScaleFactor + xShift,
+          newY = center.y * yScaleFactor + yShift;
     fociShifts[focus.id] = {
-      x: newX - focus.x,
-      y: newY - focus.y
+      x: newX - center.x,
+      y: newY - center.y
     };
   });
 
@@ -100,11 +95,6 @@ function stretchLayout(canvasDims, padding, foci, dots) {
     d.y += fociShifts[d.layoutFocus].y;
     return d;
   });
-
-  const newDistance = calcFocusCenter(newDots, foci[1]).x - calcFocusCenter(newDots, foci[0]).x;
-  console.log('Optimal', optimalXDistance, optimalYDistance);
-  console.log('Old', xDistBetweenFoci);
-  console.log('New', newDistance);
 
   return newDots;
 }
@@ -181,6 +171,7 @@ export default DS.Model.extend({
   colorByFrameId: DS.attr(),
   currentFrameIndex: DS.attr(),
   layouts: DS.attr(),
+  title: DS.attr(),
 
   layoutHasBeenSimulated(layoutFrame, colorFrame) {
     const layouts = this.get('layouts');
