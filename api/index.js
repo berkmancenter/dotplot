@@ -17,6 +17,7 @@ app.use(bodyParser.json({limit: '50mb'}));
 app.use('/api/projects', project);
 app.use('/api/render', render);
 
-app.listen(3000, function () {
-  console.log('DotPlot server is listening on port 3000!')
+var port = process.env.PORT || 3000;
+app.listen(port, function () {
+  console.log('DotPlot server is listening on port ' + port + '!')
 });
