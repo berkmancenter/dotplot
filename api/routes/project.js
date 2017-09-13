@@ -1,11 +1,11 @@
-/* global require, module */
+/* global require, module, __dirname */
 
 const router = require('express').Router();
 const bodyParser = require('body-parser');
 const uuid = require('uuid/v4');
 const jsonParser = bodyParser.json({ type: 'application/*+json', limit: '5mb' });
 const fs = require('fs');
-const root = 'uploads/';
+const root = __dirname + '/../uploads/';
 
 function storeProject(req, res) {
   let project = req.body;
