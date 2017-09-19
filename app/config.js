@@ -38,7 +38,7 @@ export default {
   viewer: {
     opacity: 0.7,
     transitionIn: 1000,
-    transition: 1000,
+    transition: 1800,
     transitionOut: 500,
     notificationDuration: 2000,
     radius: 5,
@@ -52,6 +52,7 @@ export default {
     labelOffset: 10,
     margins: { height: 220, width: 100 },
     padding: { top: 10, right: 10, bottom: 10, left: 10 },
+    scrollOffset: '-25%',
   },
   endpoints: {
     server: {

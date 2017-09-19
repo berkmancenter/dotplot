@@ -13,7 +13,8 @@ export default Ember.Route.extend({
         height: height,
         frames: [],
         layouts: {},
-        currentFrameIndex: 0
+        currentFrameIndex: 0,
+        showAsScroll: false,
       })
     });
   }

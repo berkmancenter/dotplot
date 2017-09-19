@@ -5,83 +5,6 @@ import { select } from 'd3-selection';
 import { forceSimulation, forceX, forceY, forceCollide } from 'd3-force';
 import 'd3-transition';
 
-//import { drag as d3Drag } from 'd3-drag';
-//import serverRender from './server-render';
-
-//TODO - related to dragging
-/*
-function getNodeIds(controller, d) {
-    controller.send('removeLabels');
-    var frameId = controller.get('frame')
-        .get('id');
-    var nodes = controller.get('frame')
-        .get('dots')
-        .filterBy(
-            frameId,
-            d[frameId]
-        );
-    nodes = _.map(nodes, function (node) {
-        return '#' + node.id;
-    });
-    nodeIds = _.toString(nodes);
-}
-
-function fociUpdate(controller, d) {
-    controller.send('updateNodePosition', d);
-    controller.send('showLabels', controller.get('frame'), true);
-}
-*/
-
-//TODO
-/*
-function serverPlot(frame) {
-  const foci = _.keyBy(frame.get('foci'), 'id');
-  this.send('removeLabels');
-  var serverObject = {
-    frame: frame,
-    foci: foci,
-    charge: this.get('charge'),
-    gravity: this.get('gravity'),
-    width: this.get('width'),
-    height: this.get('height')
-  };
-
-  function plotNodes(controller, nodes) {
-    frame.set('dots', nodes);
-    select('.dotplot-nodes > svg')
-      .selectAll('circle.node')
-      .data(nodes, function (d) {
-        return d.id;
-      })
-    .transition()
-      .attr('cx', function (d) {
-        return d.x;
-      })
-    .attr('cy', function (d) {
-      return d.y;
-
-    });
-    controller.send('showNotification', 'success',
-        'Server render completed, you can now modify it.', true);
-    NProgress.done();
-    controller.set('frame', frame);
-    if (!controller.get('labels')) {
-      return;
-    } else {
-      controller.send('showLabels', frame, true);
-    }
-  }
-  serverRender(serverObject)
-    .then(
-        plotNodes.bind(
-          this,
-          controller
-          )
-        );
-}
-*/
-
-
 let fillScales = {};
 
 function buildPositionForce(layoutFoci, colorFoci, config) {
@@ -175,33 +98,6 @@ function d3Transition(canvasSelector, config, dotData, layoutFrame, colorFrame, 
           config.transition,
           config.transitionOut));
   });
-
-    //TODO
-    //.call(drag);
-    /*
-    let nodeIds = '';
-    var drag = d3Drag()
-      .on('start', getNodeIds.bind(this, controller))
-      .on('drag', function () {
-        controller.send('changeFoci', nodeIds, event);
-      })
-      .on('end', fociUpdate.bind(this, controller));
-
-  if (renderOnServer) {
-    serverPlot(frame);
-  } else {
-    d3Plot(frame, true);
-  }
-    */
-
-  /*
-     var drag = d3Drag()
-     .on('start', getNodeIds.bind(this, controller))
-     .on('drag', function () {
-     controller.send('changeFoci', nodeIds, event);
-     })
-     .on('end', fociUpdate.bind(this, controller));
-   */
 }
 
 function limitPrecision(dots) {

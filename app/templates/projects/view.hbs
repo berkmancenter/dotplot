@@ -13,18 +13,22 @@
 
 <!-- DotPlot Main Project View Container -->
 <main class="dotplot-view-main">
-    <div id="canvas-wrapper">
-      <svg></svg>
-      <div id="foci-labels"></div>
-    </div>
+  <div id="canvas-wrapper">
+    <svg class="{{ if model.project.showAsScroll "scroll-controlled" "button-controlled" }}"></svg>
+    <div id="foci-labels"></div>
+  </div>
+  {{# if model.project.showAsScroll }}
+    {{scrolling-canvas project=model.project dims=dims nextFrame=(action 'nextFrame') prevFrame=(action 'prevFrame')}}
+  {{else}}
     <div class="dotplot-view-controls">
       {{#if model.project.hasPreviousFrame }}
-        {{mdl-button isRaised=true text='PREVIOUS' class="dotplot-button dotplot-button-green" click=(action 'changeFrame' 'previous')}}
+        {{mdl-button isRaised=true text='PREVIOUS' class="dotplot-button dotplot-button-green" click=(action 'prevFrame')}}
       {{/if}}
       {{#if model.project.hasNextFrame }}
-        {{mdl-button isRaised=true text='NEXT' class="dotplot-button dotplot-button-blue" click=(action 'changeFrame' 'next')}}
+        {{mdl-button isRaised=true text='NEXT' class="dotplot-button dotplot-button-blue" click=(action 'nextFrame')}}
       {{/if}}
     </div>
+  {{/if}}
 </main>
 
 <!-- DotPlot Node Info Container -->

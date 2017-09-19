@@ -514,6 +514,8 @@ dialog::backdrop {
     height: 100px;
     background-color: #fff;
     box-shadow: 0px 2px 7px 0px rgba(144, 144, 144, 0.5);
+    position: fixed;
+    z-index: 100;
 }
 
 .dotplot-view-top {
@@ -551,7 +553,7 @@ dialog::backdrop {
 
 .dotplot-view-main {
     text-align: center;
-    top: 110px;
+    padding-top: 100px;
     bottom: 0;
 }
 
@@ -601,6 +603,15 @@ dialog::backdrop {
   z-index: 10;
   color: #444;
   font-weight: bold;
+}
+
+.dotplot-view-main #canvas-wrapper {
+  position: absolute;
+  top: 100px;
+  left: 50px;
+}
+.scrolling-frame:nth-child(odd) {
+  background-color: #E4E4E4;
 }
 
 @media only screen and (max-width: 1000px) {

@@ -161,6 +161,7 @@
 <dialog id="settings" class="dotplot-dialog dotplot-dialog-small animated zoomIn">
   <header>
     {{mdl-textfield value=model.project.title label='Project title' class="dotplot-full-width"}}
+    {{mdl-checkbox value=model.project.showAsScroll text='Show with scrolling'}}
   </header>
   <footer class="dotplot-margin-t25">
     {{mdl-button action=(action "saveSettings") isRaised=true text='SAVE' class="dotplot-button dotplot-button-blue"}}

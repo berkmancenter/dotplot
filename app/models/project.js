@@ -172,6 +172,7 @@ export default DS.Model.extend({
   currentFrameIndex: DS.attr(),
   layouts: DS.attr(),
   title: DS.attr(),
+  showAsScroll: DS.attr('boolean'),
 
   layoutHasBeenSimulated(layoutFrame, colorFrame) {
     const layouts = this.get('layouts');

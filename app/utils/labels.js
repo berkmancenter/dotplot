@@ -37,10 +37,12 @@ function removeLabels(labelsSelector) {
     .remove();
 }
 
-function showLabels(canvasSelector, labelsSelector, config, dots, frame, updatePosition) {
+function showLabels(canvasSelector, labelsSelector, config, dots, frame, updatePosition, delay) {
   const label = select(labelsSelector)
     .selectAll('.label')
     .data(frame.foci);
+
+  delay = delay || 0;
 
   label.enter()
     .append('div')
@@ -56,6 +58,7 @@ function showLabels(canvasSelector, labelsSelector, config, dots, frame, updateP
       return d.labely + 'px'; })
     .each(function(d) { cleanUp(d, this, frame); })
     .transition()
+    .delay(delay)
     .duration(200)
     .style('opacity', 1);
 }
