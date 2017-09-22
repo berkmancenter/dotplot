@@ -1,6 +1,8 @@
 /*jshint node:true*/
 /* global require, module */
 var EmberApp = require('ember-cli/lib/broccoli/ember-app');
+var mergeTrees = require('broccoli-merge-trees');
+var Funnel = require('broccoli-funnel');
 
 module.exports = function (defaults) {
     var app = new EmberApp(defaults, {
@@ -23,11 +25,19 @@ module.exports = function (defaults) {
     // please specify an object with the list of modules as keys
     // along with the exports of each module as its value.
 
-    app.import('vendor/dotplot-icons.css');
-    app.import('vendor/font-awesome.css');
+
+    var materialSVG = new Funnel('bower_components/material-design-lite/src/images', {
+        srcDir: '/',
+        include: ['**/*.svg'],
+        destDir: '/images'
+    });
+
+
+    app.import('vendor/material-design-icons.css');
+    app.import('vendor/open-sans.css');
     app.import('bower_components/file-saver/FileSaver.js');
     app.import('bower_components/animate.css/animate.css');
     app.import('bower_components/fuse.js/dist/fuse.js');
 
-    return app.toTree();
+    return mergeTrees([app.toTree(), materialSVG]);
 };

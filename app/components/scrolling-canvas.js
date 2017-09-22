@@ -12,8 +12,11 @@ export default Ember.Component.extend({
       .style('top', toOffset + 'px');
   },
 
-  didInsertElement() {
+  didRender() {
     const component = this;
+    // Waypoints should be created at every render, but existing ones should be
+    // destroyed first so we don't get multiple fires.
+    window.Waypoint.destroyAll();
     Ember.$('.scrolling-frame').waypoint(function(dir) {
       if (dir === 'down') {
         component.shift(this.element.offsetTop + component.get('dims').height);

@@ -1,126 +1,150 @@
-<section class="dotplot-sidebar">
+<section class="sidebar">
     <!-- DotPlot Heaher -->
-    <header class="dotplot-sidebar-header">
+    <header class="sidebar-header">
         <!-- DotPlot Logo -->
-        <div class="dotplot-logo">
+        <div class="logo">
             <img src="/assets/img/logo.png" alt="">
-        </div>
-        <!-- DotPlot Buttons | Upload and Setting -->
-        <div class="dotplot-sidebar-buttons">
-          <h4>{{model.project.title}}</h4>
-            <div class="dotplot-load-buttons">
-                {{#if model.project.survey}}
-                    {{#mdl-button isRaised=true class="dotplot-button dotplot-button-red" click=(action 'resetApp')}} DELETE DATA {{/mdl-button}}
-                {{else}}
-                    {{#mdl-button isRaised=true class="dotplot-button dotplot-button-green" click=(action 'showModal' 'fileUpload')}} LOAD DATA {{/mdl-button}}
-                {{/if}}
-                {{mdl-button isRaised=true text='SETTINGS' class="dotplot-button dotplot-button-orange dotplot-float-right" click=(action 'showModal' 'settings')}}
-            </div>
-            <!--
-            {{mdl-textfield value=fuzzyText label='Looking for something?' class="dotplot-full-width"}}
-            -->
         </div>
     </header>
 
-    <!-- DotPlot Sidebar | List of frames -->
-    <div class="dotplot-sidebar-data">
-        <!-- Created Frames -->
-        <div class="dotplot-frames">
-            {{#each model.project.frames as |frame|}}
-                {{#mdl-card class="dotplot-frame animated fadeIn"}}
-                    <div class="mdl-card__supporting-text dotplot-margin-tb9 dotplot-pointer"  onclick={{action 'selectFrame' frame}}>
-                        <div class="dotplot-font-medium">
-                            <span>
-                                <b>Title: </b>
-                                {{frame.title}}
-                            </span>
-                        </div>
-                    </div>
-                    {{#mdl-card-actions class="dotplot-frame-footer"}}
-                        <div class="dotplot-frame-controls dotplot-float-left">
-                            <i class="dotplot-icon-switch"></i>{{frame.switch}}
-                        </div>
-                        <div class="dotplot-frame-controls dotplot-float-right dotplot-text-right">
-                            <a title="Reset Force Layout" href="#" class="dotplot-nostyle-link" {{action "d3Plot" frame true}}><i class="dotplot-icon-forcelayout"></i></a>
-                            <a title="Edit Label Text" href="#" class="dotplot-nostyle-link" {{action "showModal" 'editLabel'}}><i class="dotplot-icon-label"></i></a>
-                            <a title="Delete Frame" href="#" class="dotplot-nostyle-link" {{action "deleteFrame" frame}}><i class="dotplot-icon-close"></i></a>
-                        </div>
-                    {{/mdl-card-actions}}
-                {{/mdl-card}}
-            {{/each}}
-        </div>
-
+    {{#if model.survey}}
+      <div class="sidebar-buttons">
+        {{mdl-button isRaised=true icon='settings' class="float-left button-orange" click=(action 'showModal' 'settings')}}
+        <h4>
+          {{#if model.title}}
+            {{model.title}}
+          {{else}}
+            <em title="Use Settings button to change">Untitled project</em>
+          {{/if}}
+        </h4>
+      </div>
+      <!-- DotPlot Sidebar | List of frames -->
+      <div class="sidebar-data">
         <!-- Create Frame Button -->
-        {{mdl-button click=(action 'onNewFrame') isRaised=true text='CREATE A NEW FRAME' class="dotplot-button dotplot-button-frame"}}
-    </div>
+        {{mdl-button click=(action 'onNewFrame') isRaised=true text='ADD FRAME' class="button button-frame button-green"}}
 
-    <!-- Sidebar Footer | Save and Publish -->
-    <footer class="dotplot-sidebar-footer">
-        <div>
-            {{mdl-button click=(action 'exportData' 'save') isRaised=true text='EXPORT' class="dotplot-button dotplot-button-blue"}}
-            {{mdl-button  click=(action 'exportData' 'publish') isRaised=true text='SAVE' class="dotplot-button dotplot-button-blue dotplot-float-right"}}
+        <!-- Created Frames -->
+        <div class="frames">
+          {{#each model.frames as |frame|}}
+            {{#mdl-card class=(concat "frame animated fadeIn" (if (frames-are-equal model.currentFrame frame) " mdl-shadow--8dp selected"))}}
+              <div class="mdl-card__supporting-text margin-tb9 pointer"  onclick={{action 'selectFrame' frame false}}>
+                <div class="font-medium">
+                  <span>
+                    <b>Title: </b>
+                    {{frame.title}}
+                  </span>
+                </div>
+              </div>
+              {{#mdl-card-actions class="frame-footer"}}
+                <div class="frame-controls float-left">
+                  <span title="Move this frame earlier">
+                    {{mdl-button action=(action 'moveFrame' frame 'up') icon="arrow_upward" isColored=false}}
+                  </span>
+                  <span title="Move this frame later">
+                    {{mdl-button action=(action 'moveFrame' frame 'down') icon="arrow_downward" isColored=false}}
+                  </span>
+                </div>
+                <div class="frame-controls float-right">
+                  <span title="Use this question's answers as colors">
+                    {{mdl-button icon="brush" action=(action "selectColorFrame" frame) isColored=(frames-are-equal model.colorByFrame frame)}}
+                  </span>
+                  <!--<span title="Generate new layout">
+                    {{mdl-button action=(action "selectFrame" frame true) icon="refresh" isColored=false}}
+                  </span>-->
+                  <span title="Edit group labels">
+                    {{mdl-button action=(action "showModal" 'editLabel') icon="edit" isColored=false}}
+                  </span>
+                  <span title="Delete frame">
+                    {{mdl-button action=(action "deleteFrame" frame) icon="delete" isColored=false}}
+                  </span>
+                </div>
+              {{/mdl-card-actions}}
+            {{/mdl-card}}
+          {{/each}}
         </div>
-    </footer>
+      </div>
+
+      <!-- Sidebar Footer | Save and Publish -->
+      <footer class="sidebar-footer">
+        <div>
+          {{mdl-button click=(action 'view') isRaised=true text='VIEW' class="button button-orange"}}
+          {{mdl-button click=(action 'publish') isRaised=true text='SAVE' class="button button-blue float-right"}}
+        </div>
+      </footer>
+    {{else}}
+      <div class="sidebar-buttons">
+        {{#mdl-button isRaised=true class="button button-green full-width" click=(action 'showModal' 'fileUpload')}} UPLOAD DATA {{/mdl-button}}
+      </div>
+    {{/if}}
 </section>
 
 <!-- DotPlot Main Content -->
-<main class="dotplot-main-content">
-    {{notification-container class="dotplot-notification-bottom" notifications=notifications position="bottom"}}
-    <!-- Current Frame Information -->
-    <div class="dotplot-top-bar">
-        <p>
-          {{#if frame}}
-            {{mdl-textfield value=frame.title class="dotplot-full-width"}}
-          {{else}}
-            Looks like you have not created any frames.
-          {{/if}}
-        </p>
-    </div>
+<main class="main-content">
+  {{notification-container class="notification-bottom" notifications=notifications position="bottom"}}
 
-    <!-- DotPlot Nodes -->
-    <div class="dotplot-nodes">
-      <div id="canvas-wrapper" style="{{ if model.project.survey "" "display: none;" }}">
-        <svg></svg>
-        <div id="foci-labels"></div>
-      </div>
-      <div id="dotplot-introData" class="dotplot-intro">
+  <!-- Current Frame Information -->
+  {{#if frame}}
+    <div class="top-bar">
+      <p>{{mdl-textfield value=frame.title class="full-width frame-title" label="Frame title"}}</p>
+    </div>
+  {{/if}}
+
+      {{# if (should-show-help model.survey model.frames) }}
+      <div id="intro">
           <h1>Welcome to Dotplot!</h1>
-          <ol class="dotplot-intro-list">
-              <li>To create a visualisation start by uploading file using <b>"Load Data"</b> button.</li>
-              <li>After uploading the file, click on <b>"Add Frame"</b> to create a visualisation.</li>
-              <li>You may adjust the visuals by using the controls provided below.</li>
-              <li>Once you're happy with the visuals you can either <b>export or pubhish it</b>.</li>
+          <ol class="intro-list">
+            <li class={{ if (is-step-completed model.survey 1) "completed" }}>
+              <span class="instruction">
+                To create a visualization, start by uploading a file using the <strong>Upload Data</strong> button to the left.
+                If you don't have data yet, feel free to play around by clicking <strong>Load Example</strong> below.
+              </span>
+            </li>
+            <li>
+              <span class="instruction">
+                After uploading your file, click on <strong>Add Frame</strong> to start your visualization.
+              </span>
+            </li>
+            <li>
+              <span class="instruction">
+                Once you're happy with the visuals, click <strong>Save</strong>.
+              </span>
+            </li>
           </ol>
+        {{mdl-button click=(action 'loadSampleData') isRaised=true text='LOAD EXAMPLE' id='button-sampleData' class="button button-blue button-center"}}
       </div>
-      {{mdl-button  click=(action 'loadSampleData') isRaised=true text='LOAD SAMPLE DATA' id='dotplot-button-sampleData' class="dotplot-button dotplot-button-blue dotplot-button-center"}}
+
+      {{/if}}
+    <!-- DotPlot Nodes -->
+    <div class="nodes">
+      {{dot-canvas afterInsert=afterCanvasInsert}}
     </div>
 
     <!-- DotPlot Controls For Current Frame -->
     <!--
-    <div class="dotplot-bottom-bar">
+    <div class="bottom-bar">
         <div class="mdl-grid">
             <div class="mdl-cell mdl-cell--4-col">
-                <p class="dotplot-slider-label">Node Size</p>
+                <p class="slider-label">Node Size</p>
                 {{mdl-slider min=0 max=15 value=radius mouseUp=(action 'changeRadius')}}
             </div>
             {{!--<div class="mdl-cell mdl-cell--4-col">
-                <p class="dotplot-slider-label">Foci Distance</p>
+                <p class="slider-label">Foci Distance</p>
                 {{mdl-slider min=0 max=10 value=gravity mouseUp=(action 'changeGravity')}}
             </div>--}}
             <div class="mdl-cell mdl-cell--4-col">
-                <p class="dotplot-slider-label">Node Distance</p>
+                <p class="slider-label">Node Distance</p>
                 {{mdl-slider min=0 max=20 value=charge mouseUp=(action 'changeCharge')}}
             </div>
         </div>
         <div class="mdl-grid">
             <div class="mdl-cell mdl-cell--4-col">
-                {{mdl-switch text='Show Labels' value=labels class="dotplot-wrapper"}}
+                {{mdl-switch text='Show Labels' value=labels class="wrapper"}}
             </div>
             <div class="mdl-cell mdl-cell--4-col">
-                {{mdl-switch text='Node Details' value=showNodeInfo class="dotplot-wrapper"}}
+                {{mdl-switch text='Node Details' value=showNodeInfo class="wrapper"}}
             </div>
             <div class="mdl-cell mdl-cell--4-col">
-                {{mdl-switch text='Server Render' value=server class="dotplot-wrapper"}}
+                {{mdl-switch text='Server Render' value=server class="wrapper"}}
             </div>
         </div>
     </div>
@@ -128,22 +152,22 @@
 </main>
 
 <!-- DotPlot Create New Frame Dialog -->
-<dialog id="createFrame" class="dotplot-dialog dotplot-dialog-medium animated zoomIn">
+<dialog id="createFrame" class="dialog dialog-medium animated zoomIn">
     <header>
-        <p class="dotplot-heading">Create a new frame. Start by selecting a survey question below.</p>
-        {{mdl-textfield id="frameTitle" value=frameTitle label='Enter the frame title' class="dotplot-full-width"}}
+      <p class="heading">A frame shows all the responses to a single question.</p>
+      <p class="heading">Pick a question below:</p>
     </header>
 
     <!-- List Of Columns -->
-    <main class="dotplot-column-items">
-        {{#each (framable-columns model.project.survey.columns) as |column|}}
+    <main class="column-items">
+        {{#each (framable-columns model.survey.columns) as |column|}}
             {{#mdl-card click=(action "selectColumn" column) id=(concat "column_" column.id)}}
-                <div class="mdl-card__supporting-text dotplot-margin-tb9">
-                    <div class="dotplot-font-medium dotplot-margin-b12">
-                        <span class="dotplot-margin-right"><b>Question: </b> {{column.id}}</span>
-                        <span class="dotplot-margin-right"><b>Type: </b> {{question-type column.type}}</span>
+                <div class="mdl-card__supporting-text margin-tb9">
+                    <div class="font-medium margin-b12">
+                        <span class="margin-right"><b>Question: </b> {{column.id}}</span>
+                        <span class="margin-right"><b>Type: </b> {{question-type column.type}}</span>
                     </div>
-                    <div class="dotplot-font-medium">
+                    <div class="font-medium">
                         <span>{{column.question}}</span>
                     </div>
                 </div>
@@ -152,64 +176,84 @@
     </main>
 
     <!-- Create Frame Dialog Buttons | Create and Cancel -->
-    <footer class="dotplot-margin-t25">
-        {{mdl-button action=(action "hideModal" 'createFrame') isRaised=true text='CANCEL' class="dotplot-button dotplot-button-green"}}
-        {{mdl-button action=(action "onCreateFrame") isRaised=true text='CREATE' class="dotplot-button dotplot-button-blue dotplot-float-right"}}
+    <footer class="margin-t25">
+        {{mdl-textfield id="frameTitle" value=frameTitle label="This frame's title" class="full-width"}}
+        {{mdl-button action=(action "hideModal" 'createFrame') isRaised=true text='CANCEL' class="button button-green"}}
+        {{mdl-button action=(action "onCreateFrame") isRaised=true text='CREATE' class="button button-blue float-right"}}
     </footer>
 </dialog>
 
-<dialog id="settings" class="dotplot-dialog dotplot-dialog-small animated zoomIn">
+<dialog id="settings" class="dialog dialog-small animated zoomIn">
+  <a href="#" class="nostyle-link hideinfo" {{action "hideModal" "settings"}}>{{mdl-icon icon="close"}}</a>
   <header>
-    {{mdl-textfield value=model.project.title label='Project title' class="dotplot-full-width"}}
-    {{mdl-checkbox value=model.project.showAsScroll text='Show with scrolling'}}
+    {{mdl-textfield value=model.title label='Project title' class="full-width"}}
+    {{mdl-checkbox value=model.showAsScroll text='Show with scrolling'}}
   </header>
-  <footer class="dotplot-margin-t25">
-    {{mdl-button action=(action "saveSettings") isRaised=true text='SAVE' class="dotplot-button dotplot-button-blue"}}
+  <footer class="margin-t25">
+    {{mdl-button action=(action "saveSettings") isRaised=true text='SAVE' class="button button-blue full-width"}}
   </footer>
 </dialog>
 
 <!-- DotPlot Upload CSV file Dialog -->
-<dialog id="fileUpload" class="dotplot-dialog dotplot-dialog-small animated zoomIn">
-    <header>
-        <p class="dotplot-heading">Upload a file or enter your project id to get started.</p>
-        <p class="dotplot-paragraph">The app currently only supports <b>CSV file generated by Qualtrics</b>, and <b>JSON file generated by Dotplot</b>.</p>
-        {{mdl-textfield value=projectId label='Enter your project id to load an already published project.' class="dotplot-full-width"}}
-    </header>
+<dialog id="fileUpload" class="dialog dialog-small animated zoomIn">
+  <header>
+    <p class="heading">Let's get started!</p>
+    {{mdl-textfield value=model.title label="This project's title" class="full-width"}}
+    <p>DotPlot currently supports the following file types:
+      <ul id="import-types">
+        <li>
+          <b>CSV files generated by Qualtrics</b>
+          {{mdl-button icon='help_outline' isColored=false action=(action 'toggleVisible' '#qualtrics-help-details')}}
+          <div id="qualtrics-help-details" style="display: none;">
+            <p>To export data from Qualtrics, go to the <em>Data &amp; Analysis</em> tab of your survey, click the <em>Export &amp; Import</em> button and select <em>Export Data</em>.</p>
+            <p>When prompted, choose <em>Download Data Table</em>. In the window that appears, click <em>More Options</em> in the lower left corner. Make sure <strong>only</strong> the following options are selected:
+              <ul>
+                <li><em>Download all fields</em></li>
+                <li><em>Use choice text</em></li>
+                <li><em>Split multi-value fields into columns</em></li>
+              </ul>
+            </p>
+          </div>
+        </li>
+      </ul>
+    </p>
+  </header>
 
-    <!-- Upload CSV File Dialog Button -->
-    <footer class="dotplot-margin-t25">
-        {{#x-file-input action=(action "fileUpload")}}
-            {{mdl-button isRaised=true text='SELECT CSV OR JSON FILE' class="dotplot-button dotplot-full-width dotplot-button-green dotplot-float-left"}}
-        {{/x-file-input}}
-        {{mdl-button action=(action "loadProject") isRaised=true text='LOAD PROJECT FROM ID' class="dotplot-button dotplot-button-blue dotplot-float-right"}}
-    </footer>
+  <!-- Upload CSV File Dialog Button -->
+  <footer>
+    {{#x-file-input action=(action "fileUpload")}}
+      {{mdl-button isRaised=true text='SELECT FILE' class="button full-width button-green float-left"}}
+    {{/x-file-input}}
+  </footer>
 </dialog>
 
 <!-- DotPlot Edit Frame Labels Dialog -->
-<dialog id="editLabel" class="dotplot-dialog dotplot-dialog-small animated zoomIn">
+<dialog id="editLabel" class="dialog dialog-small animated zoomIn">
     <header>
-        <p class="dotplot-heading">Change the text in the fields to update labels.</p>
-        {{#each frame.foci as |label|}}
-            {{mdl-textfield value=label.text label=(concat "Replacement text for " label.text) class="dotplot-full-width"}}
-        {{/each}}
+        <p class="heading">Change the text in the fields to update labels.</p>
     </header>
+    <main class="group-labels">
+      {{#each frame.foci as |label|}}
+        {{mdl-textfield value=label.text class="full-width"}}
+      {{/each}}
+    </main>
 
     <!-- Edit Frame Labels Buttons | Cancel and Update Labels -->
-    <footer class="dotplot-margin-t25">
-        {{mdl-button action=(action "hideModal" 'editLabel') isRaised=true text='CANCEL' class="dotplot-button dotplot-button-green"}}
-        {{mdl-button action=(action "updateLabels") isRaised=true text='UPDATE LABELS' class="dotplot-button dotplot-button-blue dotplot-float-right"}}
+    <footer class="margin-t25">
+        {{mdl-button action=(action "hideModal" 'editLabel') isRaised=true text='CANCEL' class="button button-green"}}
+        {{mdl-button action=(action "updateLabels") isRaised=true text='UPDATE LABELS' class="button button-blue float-right"}}
     </footer>
 </dialog>
 
 <!-- DotPlot Node Info Container -->
-<div id="nodeInfo" class="dotplot-dialog dotplot-nodeinfo">
+<div id="nodeInfo" class="dialog nodeinfo">
     <!-- Close Info Container Button -->
-    <a href="#" class="dotplot-nostyle-link dotplot-hideinfo" {{action "hideDotInfo"}}><i class="dotplot-icon-close"></i></a>
+    <a href="#" class="nostyle-link hideinfo" {{action "hideDotInfo"}}>{{mdl-icon icon="close"}}</a>
 
     <!-- Node Info List -->
-    <div class="dotplot-nodeinfolist">
+    <div class="nodeinfolist">
         {{#each info as |nodedetails|}}
-        <div class="dotplot-nodefield">
+        <div class="nodefield">
             <h2><span>Question:</span> {{nodedetails.question}}</h2>
             <p><span>Answer:</span> {{nodedetails.answer}}</p>
         </div>

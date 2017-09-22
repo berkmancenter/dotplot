@@ -26,8 +26,10 @@ function setCanvasDims(dims) {
 
 export default Ember.Controller.extend({
   canShowDotInfo: true,
-  init() {
+
+  setup() {
     const controller = this;
+
     Ember.$(function() {
       setCanvasDims(getCanvasArea());
       Ember.$(labelsSelector).offset(Ember.$(canvasSelector).offset());
@@ -42,12 +44,11 @@ export default Ember.Controller.extend({
       });
     });
 
-    this.addObserver('model', this, controller => {
-      controller.model.project.then(project => {
-        project.set('currentFrameIndex', 0);
-        controller.send('selectFrame', project.get('currentFrame'));
-        controller.set('dims', getCanvasArea());
-      });
+    controller.set('afterCanvasInsert', function() {
+      const project = controller.model;
+      controller.set('dims', getCanvasArea());
+      project.set('currentFrameIndex', 0);
+      controller.send('selectFrame', project.get('currentFrame'));
     });
   },
 
@@ -60,7 +61,7 @@ export default Ember.Controller.extend({
     },
     changeFrame: function (type) {
       const controller = this;
-      const project = controller.model.project;
+      const project = controller.model;
       if (type === 'next' && project.get('currentFrameIndex') < project.get('frames').length - 1) {
         project.incrementProperty('currentFrameIndex');
         controller.send('selectFrame', project.get('currentFrame'));
@@ -73,33 +74,31 @@ export default Ember.Controller.extend({
 
     selectFrame(frame) {
       const controller = this;
-      const project = controller.model.project;
+      const project = controller.model;
       project.set('currentFrame', frame);
       controller.send('d3Plot', frame);
     },
 
     d3Plot: function(frame) {
       const controller = this;
-      const project = controller.model.project;
+      const project = controller.model;
 
-      project.then(project => {
-        controller.send('removeLabels');
-        function onDotClick(d) {
-          if (controller.get('canShowDotInfo')) {
-            controller.send('onDotClick', d, frame);
-          }
+      controller.send('removeLabels');
+      function onDotClick(d) {
+        if (controller.get('canShowDotInfo')) {
+          controller.send('onDotClick', d, frame);
         }
+      }
 
-        function onEnd() {
-          controller.set('frame', frame);
-        }
+      function onEnd() {
+        controller.set('frame', frame);
+      }
 
-        const colorFrame = project.get('colorByFrame');
-        const dots = project.dots(frame, colorFrame, getCanvasArea(), config.viewer.padding);
-        d3Transition(canvasSelector, config.viewer, dots, frame, colorFrame, onDotClick)
-          .then(onEnd);
-        controller.send('showLabels', dots, frame, true, config.viewer.transition);
-      });
+      const colorFrame = project.get('colorByFrame');
+      const dots = project.dots(frame, colorFrame, getCanvasArea(), config.viewer.padding);
+      d3Transition(canvasSelector, config.viewer, dots, frame, colorFrame,
+        controller.get('selectedResponse'), onDotClick).then(onEnd);
+      controller.send('showLabels', dots, frame, true, config.viewer.transition);
     },
 
     showLabels: function(dots, frame, updatePosition, delay) {
@@ -108,30 +107,27 @@ export default Ember.Controller.extend({
 
     onDotClick: function (dot) {
       const controller = this;
-      controller.model.project.then(project => {
-        const frame = project.get('currentFrame');
-        normalizeDots(canvasSelector, frame.radius);
-        controller.set('node', dot.id);
-        growDots(canvasSelector, dot, frame.radius + config.viewer.dotExpansionOnSelect);
-        controller.send('showDotInfo', dot);
-      });
+      const project = controller.model;
+      const frame = project.get('currentFrame');
+      normalizeDots(canvasSelector, frame.radius);
+      controller.set('selectedResponse', dot.respId);
+      growDots(canvasSelector, dot.respId, frame.radius + config.viewer.dotExpansionOnSelect);
+      controller.send('showDotInfo', dot);
     },
 
     showDotInfo: function (dot) {
       const controller = this;
-      controller.model.project.then(project => {
-        const info = project.getDotInfo(dot);
-        controller.set('info', info);
-        Ember.$('#nodeInfo').fadeIn();
-      });
+      const project = controller.model;
+      const info = project.getDotInfo(dot);
+      controller.set('info', info);
+      Ember.$('#nodeInfo').fadeIn();
     },
 
     hideDotInfo: function() {
       const controller = this;
+      const project = controller.model;
       Ember.$('#nodeInfo').fadeOut();
-      controller.model.project.then(project => {
-        normalizeDots(canvasSelector, project.get('currentFrame').radius);
-      });
+      normalizeDots(canvasSelector, project.get('currentFrame').radius);
     },
   }
 });

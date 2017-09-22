@@ -53,7 +53,7 @@ function getFill(colorFrame, d, missingColor) {
   return fillScales[colorFrame.columnId](d.colorFocus);
 }
 
-function d3Transition(canvasSelector, config, dotData, layoutFrame, colorFrame, onClick) {
+function d3Transition(canvasSelector, config, dotData, layoutFrame, colorFrame, selectedResponse, onClick) {
   const dots = select(canvasSelector)
     .selectAll('.dot')
     .data(dotData, d => d.id);
@@ -72,13 +72,30 @@ function d3Transition(canvasSelector, config, dotData, layoutFrame, colorFrame, 
     .style('opacity', 0)
     .remove();
 
+  const center = { x: select(canvasSelector).attr('width') / 2,
+                   y: select(canvasSelector).attr('height') / 2 };
+
   // Enter
   dots.enter()
     .append('circle')
+    .each(d => {
+      const spawnFrom = select('.dot.resp-' + d.respId);
+      if (spawnFrom.size() > 0) {
+        d.spawnFrom = {
+          x: spawnFrom.attr('cx'),
+          y: spawnFrom.attr('cy')
+        };
+      } else {
+        d.spawnFrom = center; }})
     .attr('class', d => `dot foci-${d.layoutFocus} resp-${d.respId}`)
-    .attr('r', layoutFrame.radius)
-    .attr('cx', select(canvasSelector).attr('width') / 2)
-    .attr('cy', select(canvasSelector).attr('height') / 2)
+    .classed('selected', d => d.respId === selectedResponse)
+    .attr('r', d => {
+      if (d.respId === selectedResponse) {
+        return config.dotExpansionOnSelect + layoutFrame.radius;
+      }
+      return layoutFrame.radius; })
+    .attr('cx', d => d.spawnFrom.x)
+    .attr('cy', d => d.spawnFrom.y)
     .style('fill', d => getFill(colorFrame, d, config.missingColor))
     .style('stroke', d => rgb(getFill(colorFrame, d, config.missingColor)).darker(2))
     .on('click', onClick)
@@ -88,6 +105,8 @@ function d3Transition(canvasSelector, config, dotData, layoutFrame, colorFrame, 
     .attr('cx', d => d.x)
     .attr('cy', d => d.y)
     .style('opacity', config.opacity);
+
+  select(canvasSelector).selectAll('.dot.selected').raise();
 
   return new Promise(function(resolve) {
     // Resolve after all transitions have run. Note that the longest may not

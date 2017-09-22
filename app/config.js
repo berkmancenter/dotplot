@@ -19,7 +19,7 @@ export default {
   editor: {
     opacity: 0.7,
     transitionIn: 500,
-    transition: 200,
+    transition: 500,
     transitionOut: 100,
     notificationDuration: 2000,
     radius: 5,
@@ -37,7 +37,7 @@ export default {
   },
   viewer: {
     opacity: 0.7,
-    transitionIn: 1000,
+    transitionIn: 1800,
     transition: 1800,
     transitionOut: 500,
     notificationDuration: 2000,

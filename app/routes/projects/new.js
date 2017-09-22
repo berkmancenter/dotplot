@@ -7,15 +7,17 @@ export default Ember.Route.extend({
     const width = (Ember.$(window).width() - 333) * 85 / 100;
     const height = Ember.$(window).height() * 65 / 100;
 
-    return Ember.RSVP.hash({
-      project: this.get('store').createRecord('project', {
-        width: width,
-        height: height,
-        frames: [],
-        layouts: {},
-        currentFrameIndex: 0,
-        showAsScroll: false,
-      })
+    return this.get('store').createRecord('project', {
+      width: width,
+      height: height,
+      frames: [],
+      layouts: {},
+      currentFrameIndex: 0,
+      showAsScroll: false,
     });
+  },
+  setupController(controller, model) {
+    this._super(controller, model);
+    controller.setup();
   }
 });
