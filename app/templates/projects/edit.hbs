@@ -21,7 +21,11 @@
       <!-- DotPlot Sidebar | List of frames -->
       <div class="sidebar-data">
         <!-- Create Frame Button -->
-        {{mdl-button click=(action 'onNewFrame') isRaised=true text='ADD FRAME' class="button button-frame button-green"}}
+        {{#mdl-button click=(action 'onNewFrame') isRaised=true class="button button-frame button-green"}}
+          {{mdl-icon icon="add_box"}}
+          ADD FRAME
+        {{/mdl-button}}
+
 
         <!-- Created Frames -->
         <div class="frames">

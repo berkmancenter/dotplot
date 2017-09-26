@@ -645,6 +645,96 @@ dialog::backdrop {
   cursor: pointer;
 }
 
+/*** Landing page ***/
+#front {
+  height: 100%;
+  white-space: nowrap;
+  .mdl-grid {
+    height: 100%;
+  }
+
+  footer {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+  }
+}
+#text-col, #image-col {
+  height: 100%;
+  position: relative;
+  text-align: center;
+  display: inline-block;
+  padding: 0;
+  
+  .content {
+    margin-top: 25%;
+  }
+}
+
+#text-col {
+  white-space: normal;
+  float: left;
+  width: 55%;
+  background: url(/assets/img/ep_naturalblack.png);
+  overflow: hidden;
+  color: #fff;
+  font-family: Roboto;
+
+  h1, h2 {
+    font-weight: 100;
+    z-index: 10;
+  }
+  h2 {
+    font-size: 2em;
+  }
+
+  .buttons {
+    text-align: center;
+    z-index: 10;
+  }
+
+  .mdl-button {
+    color: #F3F3F3;
+    height: 49px;
+    line-height: 49px;
+    width: 50%;
+    font-weight: 300;
+    margin: 0.5em;
+    font-size: 21px;
+  }
+}
+#image-col {
+  height: 100%;
+  width: 45%;
+  background: #3179b1;
+  box-shadow: inset 5px 0 10px rgba(0, 0, 0, 0.19);
+
+  video {
+    width: 92%;
+    max-width: 600px;
+  }
+}
+
+.accent {
+  opacity: 0.4;
+  position: absolute;
+  height: 400px;
+  z-index: 0;
+}
+
+#bottom-accent {
+  bottom: -6em;
+  left: -3em;
+}
+
+#top-accent {
+  top: -13em;
+  right: -5em;
+}
+
+
+/*** Responsiveness ***/
+
 @media only screen and (max-width: 1000px) {
     .top-bar {
         width: 90%;
