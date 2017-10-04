@@ -35,6 +35,7 @@ module.exports = function (defaults) {
 
     app.import('vendor/material-design-icons.css');
     app.import('vendor/open-sans.css');
+    app.import('vendor/roboto.css');
     app.import('bower_components/file-saver/FileSaver.js');
     app.import('bower_components/animate.css/animate.css');
     app.import('bower_components/fuse.js/dist/fuse.js');

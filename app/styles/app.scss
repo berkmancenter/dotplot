@@ -648,6 +648,7 @@ dialog::backdrop {
 /*** Landing page ***/
 #front {
   height: 100%;
+  min-height: 720px;
   white-space: nowrap;
   .mdl-grid {
     height: 100%;
@@ -698,7 +699,7 @@ dialog::backdrop {
     height: 49px;
     line-height: 49px;
     width: 50%;
-    font-weight: 300;
+    font-weight: 400;
     margin: 0.5em;
     font-size: 21px;
   }

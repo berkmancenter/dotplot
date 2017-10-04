@@ -1,6 +1,7 @@
 import Ember from 'ember';
 import _ from 'lodash';
 import NProgress from 'ember-cli-nprogress';
+import dialogPolyfill from 'npm:dialog-polyfill';
 
 import config from '../../config';
 
@@ -38,6 +39,7 @@ export default Ember.Controller.extend({
   labels: true,
   canShowDotInfo: true,
   notifications: Ember.inject.service('notification-messages'),
+  registeredDialogs: {},
 
   setup() {
     const controller = this;
@@ -146,7 +148,12 @@ export default Ember.Controller.extend({
     },
 
     showModal: function (modalId) {
-      document.querySelector('#' + modalId).showModal();
+      const controller = this;
+      const dialog = document.querySelector('#' + modalId);
+      if (!controller.registeredDialogs[modalId]) {
+        dialogPolyfill.registerDialog(dialog);
+      }
+      dialog.showModal();
     },
 
     hideModal: function (modalId) {
