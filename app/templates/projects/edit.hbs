@@ -114,7 +114,9 @@
               </span>
             </li>
           </ol>
-        {{mdl-button click=(action 'loadSampleData') isRaised=true text='LOAD EXAMPLE' id='button-sampleData' class="button button-blue button-center"}}
+          {{# link-to 'projects.edit' 'sample' }}
+            {{mdl-button isRaised=true text='LOAD EXAMPLE' id='button-sampleData' class="button button-blue button-center"}}
+          {{/link-to}}
       </div>
 
       {{/if}}

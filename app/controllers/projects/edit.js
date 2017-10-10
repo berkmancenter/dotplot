@@ -365,7 +365,11 @@ export default Ember.Controller.extend({
     view() {
       const controller = this;
       const project = controller.model;
-      project.save().then(() => controller.transitionToRoute('projects.view', project));
+      if (project.id === 'sample') {
+        controller.transitionToRoute('projects.view', project);
+      } else {
+        project.save().then(() => controller.transitionToRoute('projects.view', project));
+      }
     },
 
     saveSettings() {

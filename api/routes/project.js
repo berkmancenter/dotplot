@@ -13,6 +13,10 @@ function storeProject(req, res) {
   if (!project.data.id) {
     project.data.id = uuid();
   }
+  if (project.data.id === 'sample') {
+    res.status(403).end();
+    return;
+  }
   const writer = fs.createWriteStream(root + project.data.id);
   writer.end(JSON.stringify(project), function() {
     res.status(201).json(project);
