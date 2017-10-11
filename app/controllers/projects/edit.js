@@ -43,13 +43,15 @@ export default Ember.Controller.extend({
 
   setup() {
     const controller = this;
-    controller.set('afterCanvasInsert', function() {
+    const selectFirstFrame = function() {
       const project = controller.model;
       if (project.get('frames').length > 0) {
         project.set('currentFrameIndex', 0);
         controller.send('selectFrame', project.get('currentFrame'));
       }
-    });
+    }
+    controller.addObserver('model', this, selectFirstFrame);
+    controller.set('afterCanvasInsert', selectFirstFrame);
     Ember.$(function() {
       setCanvasDims(getCanvasArea());
     });
