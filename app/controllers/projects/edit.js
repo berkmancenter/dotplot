@@ -72,11 +72,11 @@ export default Ember.Controller.extend({
   },
 
   actions: {
-    loadSampleData: function () {
-      /*
-          this.set('projectId', 'sampleData');
-          this.send('loadProject');
-          */
+    help: function() {
+      const controller = this;
+      const project = controller.model;
+      project.set('showHelp', true);
+      console.log('help');
     },
 
     onCreateFrame: function () {

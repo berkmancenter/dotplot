@@ -1,16 +1,27 @@
 <div id="front">
-  <div id="text-col">
+  <header class="mdl-layout__header" id="top-bar">
+    <div class="mdl-layout__header-row">
+      <img src="/assets/img/dotplot-logo-light.png" id="dotplot-logo" alt="DotPlot logo" />
+      <img src="/assets/img/bkc_logo_white.png" id="bkc-logo" alt="Berkman Klein Center for Internet & Society logo" />
+    </div>
+  </header>
+  <div class="backgrounded" id="text-col">
       <img class="accent" id="bottom-accent" src="/assets/img/dots.png" alt=""/>
       <img class="accent" id="top-accent" src="/assets/img/dots.png" alt=""/>
     <div class="content">
-      <h1>Welcome to Dotplot!</h1>
-      <h2>Dotplot is a tool to visualize data in a new way.</h2>
+      <h1>Visualize data in a playful and interactive way!</h1>
       <div class="buttons">
-        {{#link-to 'projects.new' classNames='mdl-button button-orange'}}
-          Get Started
+        {{#link-to 'about' classNames='mdl-button button-green'}}
+          Learn more about Dotplot
         {{/link-to}}
-        {{#link-to 'gallery' classNames='mdl-button button-blue'}}
-          See What's Possible
+        {{#link-to 'projects.new' classNames='mdl-button button-red'}}
+          Create your visualization
+        {{/link-to}}
+        {{#link-to 'projects.edit' 'sample' classNames='mdl-button button-blue'}}
+          Play with sample data
+        {{/link-to}}
+        {{#link-to 'gallery' classNames='mdl-button button-orange'}}
+          See visualization examples
         {{/link-to}}
       </div>
     </div>

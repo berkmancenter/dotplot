@@ -12,6 +12,7 @@ Router.map(function () {
     this.route('edit', { path: '/:project_id/edit' });
   });
   this.route('gallery');
+  this.route('about');
 });
 
 export default Router;

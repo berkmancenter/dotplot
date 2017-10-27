@@ -1,47 +1,47 @@
-<!-- DotPlot Logo and Frame Title -->
-<header class="view-top">
-  <div class="project-info">
-    <div class="view-logo">
-        <img src="/assets/img/bkc_logo.png" alt="Berkman Klein Center logo">
+<div class="project">
+  <!-- DotPlot Logo and Frame Title -->
+  <header class="view-top">
+    <div class="project-info">
+      <div class="view-logo">
+          <img src="/assets/img/bkc_logo.png" alt="Berkman Klein Center logo">
+      </div>
+      <h1>{{ model.title }}</h1>
     </div>
-    <h1>{{ model.title }}</h1>
+    <div class="frame-info">
+      <h2><em>{{if model.currentFrame model.currentFrame.title "Sorry the provided project id is invalid."}}</em></h2>
+    </div>
+  </header>
+
+  <!-- DotPlot Main Project View Container -->
+  <main class="view-main">
+    {{dot-canvas showAsScroll=model.showAsScroll afterInsert=afterCanvasInsert}}
+    {{# if model.showAsScroll }}
+      {{scrolling-canvas project=model dims=dims nextFrame=(action 'nextFrame') prevFrame=(action 'prevFrame')}}
+    {{else}}
+      <div class="view-controls">
+        {{#if model.hasPreviousFrame }}
+          {{mdl-button isRaised=true text='PREVIOUS' class="button button-green" click=(action 'prevFrame')}}
+        {{/if}}
+        {{#if model.hasNextFrame }}
+          {{mdl-button isRaised=true text='NEXT' class="button button-blue" click=(action 'nextFrame')}}
+        {{/if}}
+      </div>
+    {{/if}}
+  </main>
+
+  <!-- DotPlot Node Info Container -->
+  <div id="nodeInfo" class="dialog nodeinfo">
+      <!-- Close Info Container Button -->
+      <a href="#" class="nostyle-link hideinfo" {{action "hideDotInfo"}}>{{mdl-icon icon="close"}}</a>
+
+      <!-- Node Info List -->
+      <div class="nodeinfolist">
+          {{#each info as |nodedetails|}}
+          <div class="nodefield">
+              <h2><span>Question:</span> {{nodedetails.question}}</h2>
+              <p><span>Answer:</span> {{nodedetails.answer}}</p>
+          </div>
+          {{/each}}
+      </div>
   </div>
-  <div class="frame-info">
-    <h2><em>{{if model.currentFrame model.currentFrame.title "Sorry the provided project id is invalid."}}</em></h2>
-  </div>
-</header>
-
-<!-- DotPlot Main Project View Container -->
-<main class="view-main">
-  {{dot-canvas showAsScroll=model.showAsScroll afterInsert=afterCanvasInsert}}
-  {{# if model.showAsScroll }}
-    {{scrolling-canvas project=model dims=dims nextFrame=(action 'nextFrame') prevFrame=(action 'prevFrame')}}
-  {{else}}
-    <div class="view-controls">
-      {{#if model.hasPreviousFrame }}
-        {{mdl-button isRaised=true text='PREVIOUS' class="button button-green" click=(action 'prevFrame')}}
-      {{/if}}
-      {{#if model.hasNextFrame }}
-        {{mdl-button isRaised=true text='NEXT' class="button button-blue" click=(action 'nextFrame')}}
-      {{/if}}
-    </div>
-  {{/if}}
-</main>
-
-<!-- DotPlot Node Info Container -->
-<div id="nodeInfo" class="dialog nodeinfo">
-    <!-- Close Info Container Button -->
-    <a href="#" class="nostyle-link hideinfo" {{action "hideDotInfo"}}>{{mdl-icon icon="close"}}</a>
-
-    <!-- Node Info List -->
-    <div class="nodeinfolist">
-        {{#each info as |nodedetails|}}
-        <div class="nodefield">
-            <h2><span>Question:</span> {{nodedetails.question}}</h2>
-            <p><span>Answer:</span> {{nodedetails.answer}}</p>
-        </div>
-        {{/each}}
-    </div>
 </div>
-
-{{outlet}}
