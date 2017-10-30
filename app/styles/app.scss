@@ -793,7 +793,7 @@ dialog::backdrop {
   text-align: center;
 
   .content {
-    margin: 20% 2em 0;
+    margin-top: 20%;
   }
 }
 
@@ -813,6 +813,10 @@ dialog::backdrop {
     font-weight: 400;
     margin: 0.5em;
     font-size: 21px;
+  }
+
+  .content {
+    max-width: 650px;
   }
 }
 #image-col {
