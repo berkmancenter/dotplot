@@ -24,7 +24,7 @@ function stretchLayout(canvasDims, padding, foci, dots) {
   // For each set of dots within each focus group, I need to figure out how
   // much to shift them.
 
-  const optimalXDistance = 150; // pixels
+  const optimalXDistance = 250; // pixels
   const optimalYDistance = Math.max(optimalXDistance * (canvasDims.height / canvasDims.width), 100); // pixels
   const scaleFactorMargin = 0.1;
 
