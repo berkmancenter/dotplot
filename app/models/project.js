@@ -25,7 +25,8 @@ function stretchLayout(canvasDims, padding, foci, dots) {
   // much to shift them.
 
   const optimalXDistance = 250; // pixels
-  const optimalYDistance = Math.max(optimalXDistance * (canvasDims.height / canvasDims.width), 100); // pixels
+  const optimalYDistance = 250;
+//  const optimalYDistance = Math.max(optimalXDistance * (canvasDims.height / canvasDims.width), 100); // pixels
   const scaleFactorMargin = 0.1;
 
   if (foci.length === 1) { return dots; }
