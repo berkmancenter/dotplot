@@ -10,14 +10,7 @@
 
       {{#if model.survey}}
         <div class="sidebar-buttons">
-            {{mdl-button isRaised=true icon='settings' class="float-left button-orange" click=(action 'showModal' 'settings')}}
-          <h4>
-            {{#if model.title}}
-              {{model.title}}
-            {{else}}
-              <em title="Use Settings button to change">Untitled project</em>
-            {{/if}}
-          </h4>
+          {{mdl-textfield value=(if model.title model.title 'Untitled project') class="project-title" label="Project title"}}
         </div>
         <!-- DotPlot Sidebar | List of frames -->
         <div class="sidebar-data">

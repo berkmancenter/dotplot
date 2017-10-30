@@ -76,7 +76,6 @@ export default Ember.Controller.extend({
       const controller = this;
       const project = controller.model;
       project.set('showHelp', true);
-      console.log('help');
     },
 
     onCreateFrame: function () {

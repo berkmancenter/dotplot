@@ -125,7 +125,7 @@ body > div.ember-view {
 }
 
 .sidebar-buttons {
-    padding: 20px 27px;
+    padding: 5px 27px;
     border-top: 1px solid;
     border-bottom: 1px solid;
     border-color: #ECECEC;
@@ -573,11 +573,6 @@ dialog::backdrop {
 }
 
 
-.view-main {
-    text-align: center;
-    padding-top: 100px;
-    bottom: 0;
-}
 
 .notification-link {
   color: #fff !important;
@@ -632,8 +627,41 @@ dialog::backdrop {
   top: 100px;
   left: 50px;
 }
-.scrolling-frame:nth-child(odd) {
-  background-color: #E4E4E4;
+
+/*** Project view ***/
+
+.project-view {
+  font-family: Roboto !important;
+  header {
+    height: 100px;
+  }
+
+  h1 {
+    margin: 0;
+    padding-left: 1em;
+    padding-top: 0.15em;
+  }
+
+  h2 {
+    margin: 0;
+    padding-top: 0.3em;
+    font-weight: 100;
+    color: #454545;
+  }
+}
+
+.view-main {
+  text-align: center;
+  bottom: 0;
+}
+
+/*** End Project view ***/
+
+.scrolling-frame {
+  background: #f3f3f3;
+  &:nth-child(odd) {
+    background: #E4E4E4;
+  }
 }
 
 .frame-title input {
@@ -810,6 +838,13 @@ header#top-bar {
   bottom: 0.5em;
   right: 0.5em;
   color: #666;
+}
+
+.project-title {
+  input {
+    font-size: 2em;
+    text-align: center;
+  }
 }
 
 /*** Responsiveness ***/

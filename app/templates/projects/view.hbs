@@ -1,18 +1,8 @@
-<div class="project">
-  <!-- DotPlot Logo and Frame Title -->
-  <header class="view-top">
-    <div class="project-info">
-      <div class="view-logo">
-          <img src="/assets/img/bkc_logo.png" alt="Berkman Klein Center logo">
-      </div>
-      <h1>{{ model.title }}</h1>
-    </div>
-    <div class="frame-info">
-      <h2><em>{{if model.currentFrame model.currentFrame.title "Sorry the provided project id is invalid."}}</em></h2>
-    </div>
-  </header>
-
+<div class="project project-view">
   <!-- DotPlot Main Project View Container -->
+  <header>
+    <h1>{{ model.title }}</h1>
+  </header>
   <main class="view-main">
     {{dot-canvas showAsScroll=model.showAsScroll afterInsert=afterCanvasInsert}}
     {{# if model.showAsScroll }}
