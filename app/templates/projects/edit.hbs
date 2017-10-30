@@ -1,95 +1,94 @@
 <div class="project">
+  <header class="mdl-layout__header" id="top-bar">
+    <div class="mdl-layout__header-row">
+      <a href="/" id="dotplot-logo"><img src="/assets/img/dotplot-logo-light.png" alt="DotPlot logo" /></a>
+      <a href="https://cyber.harvard.edu/" id="bkc-logo"><img src="/assets/img/bkc_logo_white.png" alt="Berkman Klein Center for Internet & Society logo" /></a>
+    </div>
+  </header>
   <section class="sidebar">
-      <!-- DotPlot Heaher -->
-      <header class="sidebar-header">
-          <!-- DotPlot Logo -->
-          <div class="logo">
-              <img src="/assets/img/logo.png" alt="">
-          </div>
-      </header>
-
-      {{#if model.survey}}
-        <div class="sidebar-buttons">
-          {{mdl-textfield value=(if model.title model.title 'Untitled project') class="project-title" label="Project title"}}
-        </div>
-        <!-- DotPlot Sidebar | List of frames -->
-        <div class="sidebar-data">
-          <!-- Create Frame Button -->
-          {{#mdl-button click=(action 'onNewFrame') isRaised=true class="button button-frame button-green"}}
-            {{mdl-icon icon="add_box"}}
-            ADD FRAME
-          {{/mdl-button}}
+    {{#if model.survey}}
+      <div class="sidebar-buttons">
+        {{mdl-textfield value=model.title class="project-title" label="Project title"}}
+      </div>
+      <!-- DotPlot Sidebar | List of frames -->
+      <div class="sidebar-data">
+        <!-- Create Frame Button -->
+        {{#mdl-button click=(action 'onNewFrame') isRaised=true class="button button-frame button-green"}}
+          {{mdl-icon icon="add_box"}}
+          ADD FRAME
+        {{/mdl-button}}
 
 
-          <!-- Created Frames -->
-          <div class="frames">
-            {{#each model.frames as |frame|}}
-              {{#mdl-card class=(concat "frame animated fadeIn" (if (frames-are-equal model.currentFrame frame) " mdl-shadow--8dp selected"))}}
-                <div class="mdl-card__supporting-text margin-tb9 pointer"  onclick={{action 'selectFrame' frame false}}>
-                  <div class="font-medium">
-                    <span>
-                      <b>Title: </b>
-                      {{frame.title}}
-                    </span>
-                  </div>
+        <!-- Created Frames -->
+        <div class="frames">
+          {{#each model.frames as |frame|}}
+            {{#mdl-card class=(concat "frame animated fadeIn" (if (frames-are-equal model.currentFrame frame) " mdl-shadow--8dp selected"))}}
+              <div class="mdl-card__supporting-text margin-tb9 pointer"  onclick={{action 'selectFrame' frame false}}>
+                <div class="font-medium">
+                  <span>
+                    <b>Title: </b>
+                    {{frame.title}}
+                  </span>
                 </div>
-                {{#mdl-card-actions class="frame-footer"}}
-                  <div class="frame-controls float-left">
-                    <span title="Move this frame earlier">
-                      {{mdl-button action=(action 'moveFrame' frame 'up') icon="arrow_upward" isColored=false}}
-                    </span>
-                    <span title="Move this frame later">
-                      {{mdl-button action=(action 'moveFrame' frame 'down') icon="arrow_downward" isColored=false}}
-                    </span>
-                  </div>
-                  <div class="frame-controls float-right">
-                    <span title="Use this question's answers as colors">
-                      {{mdl-button icon=(if (frames-are-equal model.colorByFrame frame) 'star' 'star_border') action=(action "selectColorFrame" frame) isColored=(frames-are-equal model.colorByFrame frame)}}
-                    </span>
-                    <!--<span title="Generate new layout">
-                      {{mdl-button action=(action "selectFrame" frame true) icon="refresh" isColored=false}}
-                    </span>-->
-                    <span title="Edit group labels">
-                      {{mdl-button action=(action "showModal" 'editLabel') icon="edit" isColored=false}}
-                    </span>
-                    <span title="Delete frame">
-                      {{mdl-button action=(action "deleteFrame" frame) icon="delete" isColored=false}}
-                    </span>
-                  </div>
-                {{/mdl-card-actions}}
-              {{/mdl-card}}
-            {{/each}}
-          </div>
+              </div>
+              {{#mdl-card-actions class="frame-footer"}}
+                <div class="frame-controls float-left">
+                  <span title="Move this frame earlier">
+                    {{mdl-button action=(action 'moveFrame' frame 'up') icon="arrow_upward" isColored=false}}
+                  </span>
+                  <span title="Move this frame later">
+                    {{mdl-button action=(action 'moveFrame' frame 'down') icon="arrow_downward" isColored=false}}
+                  </span>
+                </div>
+                <div class="frame-controls float-right">
+                  <span title="Use this question's answers as colors">
+                    {{mdl-button icon=(if (frames-are-equal model.colorByFrame frame) 'star' 'star_border') action=(action "selectColorFrame" frame) isColored=(frames-are-equal model.colorByFrame frame)}}
+                  </span>
+                  <!--<span title="Generate new layout">
+                    {{mdl-button action=(action "selectFrame" frame true) icon="refresh" isColored=false}}
+                  </span>-->
+                  <span title="Edit group labels">
+                    {{mdl-button action=(action "showModal" 'editLabel') icon="edit" isColored=false}}
+                  </span>
+                  <span title="Delete frame">
+                    {{mdl-button action=(action "deleteFrame" frame) icon="delete" isColored=false}}
+                  </span>
+                </div>
+              {{/mdl-card-actions}}
+            {{/mdl-card}}
+          {{/each}}
         </div>
+      </div>
 
-        <!-- Sidebar Footer | Save and Publish -->
-        <footer class="sidebar-footer">
-          <div>
-              {{mdl-button click=(action 'view') isRaised=true text='VIEW' class="button button-orange"}}
-              {{mdl-button click=(action 'publish') isRaised=true text='SAVE' class="button button-blue float-right"}}
-          </div>
-        </footer>
-      {{else}}
-        <div class="sidebar-buttons">
-          {{#mdl-button isRaised=true class="button button-green full-width" click=(action "showModal" "fileUpload")}} UPLOAD DATA {{/mdl-button}}
+      <!-- Sidebar Footer | Save and Publish -->
+      <footer class="sidebar-footer">
+        <div>
+            {{mdl-button click=(action 'view') isRaised=true text='VIEW' class="button button-orange"}}
+            {{mdl-button click=(action 'publish') isRaised=true text='SAVE' class="button button-blue float-right"}}
         </div>
-      {{/if}}
+      </footer>
+    {{else}}
+      <div class="sidebar-buttons">
+        {{#mdl-button isRaised=true class="button button-green full-width" click=(action "showModal" "fileUpload")}} UPLOAD DATA {{/mdl-button}}
+      </div>
+    {{/if}}
   </section>
 
   <!-- DotPlot Main Content -->
   <main class="main-content">
     {{notification-container class="notification-bottom" notifications=notifications position="bottom"}}
 
-    <!-- Current Frame Information -->
+    <!-- Current Frame Information
     {{#if frame}}
       <div class="top-bar">
-        <p>{{mdl-textfield value=frame.title class="full-width frame-title" label="Frame title"}}</p>
+        <h2>{{frame.title}}</h2>
       </div>
     {{/if}}
+    -->
 
         {{# if (should-show-help model.survey model.frames) }}
         <div id="intro">
-            <h1>Welcome to Dotplot!</h1>
+            <h1>Welcome!</h1>
             <ol class="intro-list">
               {{# unless (is-step-completed model.survey 1) }}
               <li>
@@ -235,7 +234,9 @@
   <!-- DotPlot Edit Frame Labels Dialog -->
   <dialog id="editLabel" class="dialog dialog-small animated zoomIn">
       <header>
-          <p class="heading">Change the text in the fields to update labels.</p>
+          <p class="heading">Change the frame's title</p>
+          <p>{{mdl-textfield value=frame.title class="full-width frame-title" label="Frame title"}}</p>
+          <p class="heading">Change the group labels</p>
       </header>
       <main class="group-labels">
         {{#each frame.foci as |label|}}
@@ -246,7 +247,7 @@
       <!-- Edit Frame Labels Buttons | Cancel and Update Labels -->
       <footer class="margin-t25">
           {{mdl-button action=(action "hideModal" 'editLabel') isRaised=true text='CANCEL' class="button button-green"}}
-          {{mdl-button action=(action "updateLabels") isRaised=true text='UPDATE LABELS' class="button button-blue float-right"}}
+          {{mdl-button action=(action "updateLabels") isRaised=true text='SAVE' class="button button-blue float-right"}}
       </footer>
   </dialog>
 

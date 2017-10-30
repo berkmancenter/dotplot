@@ -37,7 +37,7 @@
     "ember-d3": "^0.3.4",
     "ember-data": "^2.13.0",
     "ember-export-application-global": "^2.0.0",
-    "ember-introjs": "^2.2.0",
+    "ember-introjs": "github:jdcc/ember-introjs",
     "ember-load-initializers": "^1.0.0",
     "ember-localstorage-adapter": "^1.0.0",
     "ember-lodash": "^4.17.4",

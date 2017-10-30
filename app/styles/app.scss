@@ -19,7 +19,7 @@ body {
   left: 5%;
   right: 5%;
   z-index: 10;
-  
+
   a {
     text-decoration: none;
   }
@@ -86,7 +86,7 @@ input[type="color"]::-webkit-color-swatch {
 }
 
 .project {
-    background-color: #FAFAFA;
+    background-color: #fff;
     width: 100%;
     height: 100%;
     color: #737373;
@@ -99,12 +99,12 @@ body > div.ember-view {
 .sidebar {
     width: 333px;
     height: 100%;
-    background-color: #fff;
+    background-color: #fafafa;
     position: fixed;
     overflow-y: scroll;
     overflow-x: hidden;
     left: 0;
-    top: 0;
+    top: 64px;
     box-shadow: 0px 2px 7px 0px rgba(144, 144, 144, 0.50);
 }
 
@@ -125,7 +125,7 @@ body > div.ember-view {
 }
 
 .sidebar-buttons {
-    padding: 5px 27px;
+    padding: 2em 27px;
     border-top: 1px solid;
     border-bottom: 1px solid;
     border-color: #ECECEC;
@@ -281,14 +281,13 @@ body > div.ember-view {
 .main-content {
     margin-left: 333px !important;
     position: relative;
-    height: 100%;
     overflow: hidden;
 }
 
 .top-bar {
     width: 75%;
     margin: 0 auto;
-    background: #FFFFFF;
+    background: #fafafa;
     box-shadow: 0px 0px 4px 0px rgba(145, 145, 145, 0.50);
     border-radius: 0 0 10px 10px;
     top: 0;
@@ -430,7 +429,7 @@ dialog::backdrop {
     margin: 0 auto;
     text-align: center;
     position: relative;
-    top: 105px;
+    top: 50px;
     bottom: 0;
 }
 
@@ -478,14 +477,14 @@ dialog::backdrop {
 
 .nodeinfo {
     display: none;
-    width: 95%;
     padding: 10px;
     box-shadow: 0px 0px 4px 0px rgba(145, 145, 145, 0.5);
-    position: absolute;
+    position: fixed;
     z-index: 20;
-    bottom: 75px;
-    left: 15px;
-    background-color: #fff;
+    bottom: 15px;
+    left: 350px;
+    right: 15px;
+    background-color: rgba(255, 255, 255, 0.8);
 }
 
 .view-nodeinfo {
@@ -648,6 +647,14 @@ dialog::backdrop {
     font-weight: 100;
     color: #454545;
   }
+
+  .nodeinfo {
+    bottom: 1em;
+    width: auto;
+    left: 15px;
+    right: 15px;
+  }
+
 }
 
 .view-main {
@@ -662,10 +669,6 @@ dialog::backdrop {
   &:nth-child(odd) {
     background: #E4E4E4;
   }
-}
-
-.frame-title input {
-  text-align: center;
 }
 
 #import-types {
@@ -686,8 +689,10 @@ dialog::backdrop {
 }
 
 .backgrounded {
-  width: 100%;
-  height: 100%;
+  background-image: url(/assets/img/dots.png), url(/assets/img/dots.png);
+  background-position: bottom -6em left -3em, top -13em right -5em;
+  background-size: 450px, 450px;
+  background-repeat: no-repeat, no-repeat;
 
   h1, h2 {
     font-weight: 100;
@@ -699,11 +704,24 @@ dialog::backdrop {
 }
 
 .content {
-  max-width: 720px;
-  margin: 0 auto;
+  max-width: 800px;
+  margin: 2em auto 0;
+  background-color: rgba(28, 28, 28, 0.77);
+  padding: 0.5em 2em 3em;
+  border-radius: 10px;
+}
+
+.project-title {
+  input {
+    font-size: 2em;
+    text-align: center;
+  }
 }
 
 /*** Gallery ***/
+#gallery {
+  height: 100%;
+}
 
 #projects {
   list-style-type: none;
@@ -726,22 +744,33 @@ dialog::backdrop {
 
 /*** About page ***/
 #about {
-  height: 100%;
   min-height: 720px;
   font-family: Roboto;
 
-  
   p {
     font-size: 1.3em;
     line-height: 1.8em;
+  }
+
+  ul {
+    font-size: 1em;
+  }
+
+  .sample {
+    text-align: center;
+
+    video {
+      width: 60%;
+    }
   }
 }
 
 /*** Landing page ***/
 #front {
+  display: flex;
+  flex-direction: column;
   height: 100%;
   min-height: 720px;
-  white-space: nowrap;
   font-family: Roboto;
   .mdl-grid {
     height: 100%;
@@ -753,24 +782,23 @@ dialog::backdrop {
     width: 100%;
   }
 }
+
+.main {
+  display: flex;
+  flex-direction: row;
+  flex: 1;
+}
+
 #text-col, #image-col {
-  height: 100%;
-  position: relative;
   text-align: center;
-  display: inline-block;
-  padding: 0;
-  
+
   .content {
-    margin-top: 20%;
+    margin: 20% 2em 0;
   }
 }
 
-
 #text-col {
-  white-space: normal;
-  float: left;
   width: 55%;
-
 
   .buttons {
     text-align: center;
@@ -788,10 +816,13 @@ dialog::backdrop {
   }
 }
 #image-col {
-  height: 100%;
-  width: 45%;
+  flex-grow: 1;
   background: #333;
   box-shadow: inset 5px 0 10px rgba(0, 0, 0, 0.19);
+
+  .content {
+    background-color: transparent;
+  }
 
   video {
     width: 92%;
@@ -799,38 +830,22 @@ dialog::backdrop {
   }
 }
 
-.accents {
-  overflow: hidden;
-  width: 100%;
-}
+/*** End Landing page ***/
 
-.accent {
-  opacity: 0.4;
-  position: absolute;
-  height: 400px;
-  z-index: 0;
-}
-
-#bottom-accent {
-  bottom: -6em;
-  left: -3em;
-}
-
-#top-accent {
-  top: -13em;
-  right: -5em;
-}
-
+/*** Header ***/
 header#top-bar {
   background: #4591de;
   position: relative;
 
   #bkc-logo {
-    height: 3.4em;
     position: absolute;
     right: 5em;
+    img {
+      height: 3.4em;
+    }
   }
 }
+/*** End Header ***/
 
 
 #help-button {
@@ -840,12 +855,6 @@ header#top-bar {
   color: #666;
 }
 
-.project-title {
-  input {
-    font-size: 2em;
-    text-align: center;
-  }
-}
 
 /*** Responsiveness ***/
 
