@@ -143,7 +143,7 @@ export default Ember.Controller.extend({
         }
       }
 
-      project.set('frames', _.remove(project.get('frames'), frame));
+      project.set('frames', _.without(project.get('frames'), frame));
       controller.send('showNotification', 'error',
         'Successfully deleted frame ' + frame.title + '.', true);
     },
@@ -231,22 +231,24 @@ export default Ember.Controller.extend({
       }
 
       const dots = project.dots(frame, colorFrame, getCanvasArea(), config.editor.padding);
-      let promise;
       if (needsLayout) {
         NProgress.start();
         const survey = project.get('survey')
         const layoutFoci = controller.getFoci(survey, _.find(survey.columns, ['id', frame.columnId]));
         const colorFoci = controller.getFoci(survey, _.find(survey.columns, ['id', colorFrame.columnId]));
-        promise = d3Layout(config.editor, dots, layoutFoci, colorFoci, controller.get('charge'), onTick)
+        d3Layout(config.editor, dots, layoutFoci, colorFoci, controller.get('charge'), onTick)
           .then(newDots => project.updateLayouts(frame, colorFrame, newDots))
-          .then(dots => d3Transition(canvasSelector, config.editor, dots,
-            frame, colorFrame, controller.get('selectedResponse'),
-            onDotClick));
+          .then(dots => {
+            const transitions = d3Transition(canvasSelector, config.editor,
+              dots, frame, colorFrame, controller.get('selectedResponse'),
+              onDotClick);
+            transitions.longestNonEmpty.on('end', () => onEnd(dots));
+          });
       } else {
-        promise = d3Transition(canvasSelector, config.editor, dots, frame,
+        const transitions = d3Transition(canvasSelector, config.editor, dots, frame,
           colorFrame, controller.get('selectedResponse'), onDotClick);
+        transitions.longestNonEmpty.on('end', () => onEnd(dots));
       }
-      promise.then(onEnd);
     },
 
     showLabels: function(dots, frame, updatePosition) {

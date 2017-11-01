@@ -96,9 +96,12 @@ export default Ember.Controller.extend({
 
       const colorFrame = project.get('colorByFrame');
       const dots = project.dots(frame, colorFrame, getCanvasArea(), config.viewer.padding);
-      d3Transition(canvasSelector, config.viewer, dots, frame, colorFrame,
-        controller.get('selectedResponse'), onDotClick).then(onEnd);
-      controller.send('showLabels', dots, frame, true, config.viewer.transition);
+      const transitions = d3Transition(canvasSelector, config.viewer, dots,
+        frame, colorFrame, controller.get('selectedResponse'), onDotClick);
+      transitions.longestNonEmpty.on('end', onEnd);
+      transitions.longestNonEmpty.on('end', () => {
+        controller.send('showLabels', dots, frame, true);
+      });
     },
 
     showLabels: function(dots, frame, updatePosition, delay) {

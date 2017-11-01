@@ -37,6 +37,7 @@ function removeLabels(labelsSelector) {
     .remove();
 }
 
+
 function showLabels(canvasSelector, labelsSelector, config, dots, frame, updatePosition, delay) {
   const label = select(labelsSelector)
     .selectAll('.label')
@@ -44,6 +45,9 @@ function showLabels(canvasSelector, labelsSelector, config, dots, frame, updateP
 
   delay = delay || 0;
 
+  // We use setTimeout instead of transition delay because dot positions can
+  // change during the transition, and we use dot positions to calculate label
+  // positions.
   label.enter()
     .append('div')
     .attr('class', 'label')
@@ -58,7 +62,7 @@ function showLabels(canvasSelector, labelsSelector, config, dots, frame, updateP
       return d.labely + 'px'; })
     .each(function(d) { cleanUp(d, this, frame); })
     .transition()
-    .delay(delay)
+    .delay(Math.max(0, delay - 200))
     .duration(200)
     .style('opacity', 1);
 }

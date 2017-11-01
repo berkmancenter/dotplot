@@ -58,15 +58,17 @@ function d3Transition(canvasSelector, config, dotData, layoutFrame, colorFrame, 
     .selectAll('.dot')
     .data(dotData, d => d.id);
 
+  let transitions = {};
+
   // Update
-  dots
+  transitions.update = dots
     .transition()
     .duration(config.transition)
     .attr('cx', d => d.x)
     .attr('cy', d => d.y);
 
   // Exit
-  dots.exit()
+  transitions.exit = dots.exit()
     .transition()
     .duration(config.transitionOut)
     .style('opacity', 0)
@@ -76,7 +78,7 @@ function d3Transition(canvasSelector, config, dotData, layoutFrame, colorFrame, 
                    y: select(canvasSelector).attr('height') / 2 };
 
   // Enter
-  dots.enter()
+  transitions.enter = dots.enter()
     .append('circle')
     .each(d => {
       const spawnFrom = select('.dot.resp-' + d.respId);
@@ -108,15 +110,17 @@ function d3Transition(canvasSelector, config, dotData, layoutFrame, colorFrame, 
 
   select(canvasSelector).selectAll('.dot.selected').raise();
 
-  return new Promise(function(resolve) {
-    // Resolve after all transitions have run. Note that the longest may not
-    // run, so there might be a gap.
-    setTimeout(() => resolve(dotData),
-        Math.max(
-          config.transitionIn,
-          config.transition,
-          config.transitionOut));
-  });
+  const transitionToTime = {
+    'update': config.transition,
+    'exit': config.transitionOut,
+    'enter': config.transitionIn
+  };
+
+  const nonEmptyTrans = _.filter(_.values(transitions), t => t.size() > 0);
+  const lastTrans = _.maxBy(['update', 'exit', 'enter'], e => transitionToTime[e]);
+  transitions.longest = transitions[lastTrans];
+  transitions.longestNonEmpty = _.maxBy(nonEmptyTrans, t => t.delay());
+  return transitions;
 }
 
 function limitPrecision(dots) {

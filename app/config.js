@@ -51,7 +51,7 @@ export default {
     dotExpansionOnSelect: 7,
     labelOffset: 10,
     margins: { height: 220, width: 100 },
-    padding: { top: 10, right: 10, bottom: 10, left: 10 },
+    padding: { top: 50, right: 50, bottom: 50, left: 50 },
     scrollOffset: '-25%',
   },
   endpoints: {
