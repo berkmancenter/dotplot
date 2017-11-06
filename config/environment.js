@@ -47,8 +47,8 @@ module.exports = function(environment) {
 
   if (environment === 'production') {
     ENV.APP.host = 'https://dotplot.dev.berkmancenter.org';
-    ENV.APP.host = 'https://cyber.harvard.edu';
-    ENV.rootURL = '/dotplot/';
+    // ENV.APP.host = 'https://cyber.harvard.edu';
+    // ENV.rootURL = '/dotplot/';
 
   }
 
