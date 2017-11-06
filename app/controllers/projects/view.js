@@ -1,5 +1,6 @@
 import Ember from 'ember';
 import config from '../../config';
+import _ from 'lodash';
 import { d3Transition } from '../../utils/plotting';
 import { showLabels, removeLabels } from '../../utils/labels';
 import { normalizeDots, growDots } from '../../utils/dot_interaction';
@@ -94,11 +95,12 @@ export default Ember.Controller.extend({
         controller.set('frame', frame);
       }
 
+      const onThisEnd = _.once(onEnd);
       const colorFrame = project.get('colorByFrame');
       const dots = project.dots(frame, colorFrame, getCanvasArea(), config.viewer.padding);
       const transitions = d3Transition(canvasSelector, config.viewer, dots,
         frame, colorFrame, controller.get('selectedResponse'), onDotClick);
-      transitions.longestNonEmpty.on('end', onEnd);
+      transitions.longestNonEmpty.on('end', onThisEnd);
       transitions.longestNonEmpty.on('end', () => {
         controller.send('showLabels', dots, frame, true);
       });
@@ -130,6 +132,7 @@ export default Ember.Controller.extend({
       const controller = this;
       const project = controller.model;
       Ember.$('#nodeInfo').fadeOut();
+      controller.set('selectedResponse', null);
       normalizeDots(canvasSelector, project.get('currentFrame').radius);
     },
   }

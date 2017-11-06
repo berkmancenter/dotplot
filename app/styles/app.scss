@@ -484,7 +484,7 @@ dialog::backdrop {
     bottom: 15px;
     left: 350px;
     right: 15px;
-    background-color: rgba(255, 255, 255, 0.8);
+    background-color: rgb(255, 255, 255);
 }
 
 .view-nodeinfo {
@@ -492,14 +492,14 @@ dialog::backdrop {
     left: 5%;
 }
 
-.nodefield > h2 {
+.nodefield .question {
     line-height: 22px;
     font-size: 16px;
     margin: 0;
     font-weight: 700;
 }
 
-.nodefield > h2 > span {
+.nodefield .question > span {
     color: #3179b1;
 }
 
@@ -608,7 +608,7 @@ dialog::backdrop {
 .label {
   position: absolute;
   max-width: 150px;
-  background: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.65);
   border: 1px solid #ddd;
   border-radius: 3px;
   font-size: 0.8em;

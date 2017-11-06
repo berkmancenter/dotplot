@@ -17,7 +17,7 @@ function isIdOfValidCol(id) {
 }
 
 function parseQuestion(q) {
-  const trimmed = q.replace(/[0-9]+(\.|\)) +/, '').replace(/ - (Selected Choice|Other:|Text)/, '')
+  const trimmed = q.replace(/[0-9]+(\.|\)) +/, '').replace(/ - (Selected Choice|Other:|Text)/, '');
   return trimmed.slice(0, trimmed.lastIndexOf('-'));
 }
 
@@ -56,7 +56,7 @@ function parseChoices(qId, csv) {
       if (colQId !== qId) { return; }
 
       const blob = JSON.parse(idBlob[1]);
-      const choiceId = parseInt(blob['choiceId']);
+      const choiceId = parseInt(blob.choiceId);
 
       if (!choiceId) { return; }
 
@@ -205,7 +205,7 @@ function removeMultitextNums(survey) {
   survey.responses.forEach(resp => {
     if (_.values(resp.answers).length === 0) { return; }
     multitextQs.forEach(qId => {
-      resp.answers[qId] = _.filter(resp.answers[qId], a => !a.match(/#\d+/))
+      resp.answers[qId] = _.filter(resp.answers[qId], a => !a.match(/#\d+/));
     });
     cleanedResponses.push(resp);
   });

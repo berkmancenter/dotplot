@@ -49,7 +49,7 @@ export default Ember.Controller.extend({
         project.set('currentFrameIndex', 0);
         controller.send('selectFrame', project.get('currentFrame'));
       }
-    }
+    };
     controller.addObserver('model', this, selectFirstFrame);
     controller.set('afterCanvasInsert', selectFirstFrame);
     Ember.$(function() {
@@ -231,9 +231,10 @@ export default Ember.Controller.extend({
       }
 
       const dots = project.dots(frame, colorFrame, getCanvasArea(), config.editor.padding);
+      const onThisEnd = _.once(onEnd);
       if (needsLayout) {
         NProgress.start();
-        const survey = project.get('survey')
+        const survey = project.get('survey');
         const layoutFoci = controller.getFoci(survey, _.find(survey.columns, ['id', frame.columnId]));
         const colorFoci = controller.getFoci(survey, _.find(survey.columns, ['id', colorFrame.columnId]));
         d3Layout(config.editor, dots, layoutFoci, colorFoci, controller.get('charge'), onTick)
@@ -242,12 +243,12 @@ export default Ember.Controller.extend({
             const transitions = d3Transition(canvasSelector, config.editor,
               dots, frame, colorFrame, controller.get('selectedResponse'),
               onDotClick);
-            transitions.longestNonEmpty.on('end', () => onEnd(dots));
+            transitions.longestNonEmpty.on('end', () => onThisEnd(dots));
           });
       } else {
         const transitions = d3Transition(canvasSelector, config.editor, dots, frame,
           colorFrame, controller.get('selectedResponse'), onDotClick);
-        transitions.longestNonEmpty.on('end', () => onEnd(dots));
+        transitions.longestNonEmpty.on('end', () => onThisEnd(dots));
       }
     },
 
