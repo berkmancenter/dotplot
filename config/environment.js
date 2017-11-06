@@ -47,7 +47,7 @@ module.exports = function(environment) {
 
   if (environment === 'production') {
     ENV.APP.host = 'https://dotplot.dev.berkmancenter.org';
-    ENV.APP.host = 'https://dotplot.berkmancenter.org';
+    ENV.APP.host = 'http://dotplot.berkmancenter.org';
     // ENV.locationType = 'hash';
     //ENV.rootURL = '/dotplot/';
 
