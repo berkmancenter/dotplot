@@ -13,7 +13,7 @@ function storeProject(req, res) {
   if (!project.data.id) {
     project.data.id = uuid();
   }
-  if (project.data.id === 'sample') {
+  if (['sample', 'ai'].includes(project.data.id)) {
     res.status(403).end();
     return;
   }
